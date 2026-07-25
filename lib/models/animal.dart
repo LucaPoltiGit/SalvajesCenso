@@ -7,6 +7,11 @@ class Animal {
   final String estadoNombre;
   final String alerta;
   final String sectorNombre;
+  final String edad;
+  final String fechaLlegada;
+  final String dieta;
+  final String descripcion;
+  final String historiaLlegada;
 
   Animal({
     required this.id,
@@ -15,31 +20,37 @@ class Animal {
     required this.estadoNombre,
     required this.alerta,
     required this.sectorNombre,
+    this.edad = '',
+    this.fechaLlegada = '',
+    this.dieta = '',
+    this.descripcion = '',
+    this.historiaLlegada = '',
   });
 
   factory Animal.fromRecord(RecordModel record) {
-    final sectorExpand = record.expand['sector'];
-    final sectorNombre = (sectorExpand != null && sectorExpand.isNotEmpty)
-        ? (sectorExpand.first.data['nombre'] ?? 'Sin sector')
-        : 'Sin sector';
+    String nombreRelacion(String campo, String fallback) {
+      final expand = record.expand[campo];
+      if (expand != null && expand.isNotEmpty) {
+        return expand.first.data['nombre'] ?? fallback;
+      }
+      return fallback;
+    }
 
-    final especieExpand = record.expand['especie'];
-    final especieNombre = (especieExpand != null && especieExpand.isNotEmpty)
-        ? (especieExpand.first.data['nombre'] ?? 'Sin especie')
-        : 'Sin especie';
-
-    final estadoExpand = record.expand['estado'];
-    final estadoNombre = (estadoExpand != null && estadoExpand.isNotEmpty)
-        ? (estadoExpand.first.data['nombre'] ?? 'bien')
-        : 'bien';
+    String fecha = record.data['fecha_llegada'] ?? '';
+    if (fecha.contains('T')) fecha = fecha.split('T')[0];
 
     return Animal(
       id: record.id,
       nombre: record.data['nombre'] ?? '(sin nombre)',
-      especieNombre: especieNombre,
-      estadoNombre: estadoNombre,
+      especieNombre: nombreRelacion('especie', 'Sin especie'),
+      estadoNombre: nombreRelacion('estado', 'bien'),
       alerta: record.data['alerta'] ?? '',
-      sectorNombre: sectorNombre,
+      sectorNombre: nombreRelacion('sector', 'Sin sector'),
+      edad: record.data['edad'] ?? '',
+      fechaLlegada: fecha,
+      dieta: record.data['dieta'] ?? '',
+      descripcion: record.data['descripcion'] ?? '',
+      historiaLlegada: record.data['historia_llegada'] ?? '',
     );
   }
 }
