@@ -5,6 +5,7 @@ import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/dato_item.dart';
 import '../../widgets/nota_historial_card.dart';
+import '../../utils/text_format.dart';
 
 class FichaPage extends StatefulWidget {
   final Animal animal;
@@ -146,7 +147,7 @@ class _FichaPageState extends State<FichaPage> {
             children: [
               DatoItem(icono: Icons.pets, label: 'Especie', valor: a.especieNombre),
               DatoItem(icono: Icons.cake_outlined, label: 'Edad', valor: a.edad),
-              DatoItem(icono: Icons.favorite_outline, label: 'Estado', valor: a.estadoNombre),
+              DatoItem(icono: Icons.favorite_outline, label: 'Estado', valor: formatearEtiqueta(a.estadoNombre)),
               DatoItem(icono: Icons.map_outlined, label: 'Sector', valor: a.sectorNombre),
               DatoItem(icono: Icons.calendar_today_outlined, label: 'Llegada', valor: a.fechaLlegada),
               DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: a.dieta),

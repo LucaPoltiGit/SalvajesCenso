@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/nota_historial.dart';
 import '../theme/app_colors.dart';
+import '../utils/text_format.dart';
 
 class NotaHistorialCard extends StatelessWidget {
   final NotaHistorial nota;
@@ -47,7 +48,7 @@ class NotaHistorialCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                nota.tipoNombre,
+                formatearEtiqueta(nota.tipoNombre),
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _colorTipo),
               ),
               Text(_fechaTexto, style: const TextStyle(fontSize: 11, color: Colors.grey)),
