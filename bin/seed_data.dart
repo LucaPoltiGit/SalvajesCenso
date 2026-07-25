@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:pocketbase/pocketbase.dart';
 
 final pb = PocketBase('http://127.0.0.1:8090');
@@ -14,6 +15,8 @@ Future<void> main() async {
   final sectores = <String, String>{};
   final especies = <String, String>{};
   final estados = <String, String>{};
+  final tiposNota = <String, String>{};
+  final animalesIds = <String, String>{};
 
   final registrosEspecies = await pb.collection('especies').getFullList();
   for (final r in registrosEspecies) {
@@ -23,6 +26,11 @@ Future<void> main() async {
   final registrosEstados = await pb.collection('estados').getFullList();
   for (final r in registrosEstados) {
     estados[r.data['nombre']] = r.id;
+  }
+
+  final registrosTiposNota = await pb.collection('tipos_nota').getFullList();
+  for (final r in registrosTiposNota) {
+    tiposNota[r.data['nombre']] = r.id;
   }
 
   String idEspecie(String nombre) {
@@ -37,6 +45,14 @@ Future<void> main() async {
     final id = estados[nombre];
     if (id == null) {
       throw Exception('Estado no encontrado: $nombre');
+    }
+    return id;
+  }
+
+  String idTipoNota(String nombre) {
+    final id = tiposNota[nombre];
+    if (id == null) {
+      throw Exception('Tipo de nota no encontrado: $nombre');
     }
     return id;
   }
@@ -72,7 +88,7 @@ Future<void> main() async {
     String alerta = '',
     String descripcion = '',
   }) async {
-    await pb.collection('animales').create(body: {
+    final record = await pb.collection('animales').create(body: {
       'nombre': nombre,
       'especie': idEspecie(especie),
       if (raza != null) 'raza': raza,
@@ -81,6 +97,7 @@ Future<void> main() async {
       'alerta': alerta,
       'descripcion': descripcion,
     });
+    animalesIds[nombre] = record.id;
     print('Animal creado: $nombre');
   }
 
@@ -171,6 +188,72 @@ Future<void> main() async {
   await crearAnimal(nombre: 'Burbuja', especie: 'Chancho', sector: 'Chanchos');
   await crearAnimal(nombre: 'Bellota', especie: 'Chancho', sector: 'Chanchos');
 
+  final random = Random();
+  final nombresSectoresLista = nombresSectores.map((s) => s[0]).toList();
+
+  final contenidosPorTipo = <String, List<String>>{
+    'medica': [
+      'Control de peso, todo dentro de lo normal.',
+      'Se aplico vacunacion correspondiente.',
+      'Cura de una herida leve en la pata.',
+      'Revision veterinaria de rutina, sin novedades.',
+    ],
+    'comida': [
+      'Cambio de dieta indicado por el veterinario.',
+      'Se nota con mas apetito que de costumbre.',
+      'Rechazo parcial del alimento habitual.',
+      'Se aumento la racion diaria.',
+    ],
+    'cambio_estado': [
+      'Mejoro notablemente su condicion general.',
+      'Empeoro un poco su estado, se reforzo el cuidado.',
+    ],
+    'general': [
+      'Observacion de rutina, todo normal.',
+      'Se lo vio tranquilo y comiendo bien.',
+      'Dia tranquilo, sin novedades para reportar.',
+    ],
+  };
+
+  String contenidoAleatorio(String tipo) {
+    if (tipo == 'cambio_sector') {
+      final origen = nombresSectoresLista[random.nextInt(nombresSectoresLista.length)];
+      var destino = nombresSectoresLista[random.nextInt(nombresSectoresLista.length)];
+      while (destino == origen) {
+        destino = nombresSectoresLista[random.nextInt(nombresSectoresLista.length)];
+      }
+      return 'Se lo traslado del sector $origen al sector $destino.';
+    }
+    final opciones = contenidosPorTipo[tipo] ?? ['Observacion general.'];
+    return opciones[random.nextInt(opciones.length)];
+  }
+
+  final animalesConNotas = ['Barry', 'Cleo', 'Gothmo', 'Roma', 'Luna'];
+  final tiposDisponibles = tiposNota.keys.toList();
+  var totalNotas = 0;
+
+  for (final nombreAnimal in animalesConNotas) {
+    final animalId = animalesIds[nombreAnimal];
+    if (animalId == null) {
+      throw Exception('Animal no encontrado para notas: $nombreAnimal');
+    }
+    final cantidad = 3 + random.nextInt(4); // entre 3 y 6
+    for (var i = 0; i < cantidad; i++) {
+      final tipo = tiposDisponibles[random.nextInt(tiposDisponibles.length)];
+      final diasAtras = random.nextInt(60);
+      final fecha = DateTime.now().subtract(Duration(days: diasAtras));
+      await pb.collection('notas_historial').create(body: {
+        'animal': animalId,
+        'fecha': fecha.toIso8601String(),
+        'tipo': idTipoNota(tipo),
+        'contenido': contenidoAleatorio(tipo),
+      });
+      totalNotas++;
+      print('Nota creada para $nombreAnimal ($tipo)');
+    }
+  }
+
+  print('Total de notas de historial creadas: $totalNotas');
   print('Listo! Datos de prueba cargados.');
 }
 
