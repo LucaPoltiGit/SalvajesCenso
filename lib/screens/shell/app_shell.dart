@@ -21,12 +21,14 @@ class _AppShellState extends State<AppShell> {
 
   final _titulos = ['Principal', 'Censo', 'Historial', 'Sectores'];
 
-  final _paginas = const [
-    PrincipalPage(),
-    CensoPage(),
-    HistorialPage(),
-    SectoresPage(),
-  ];
+  int _censoRefreshKey = 0;
+
+  List<Widget> get _paginas => [
+        const PrincipalPage(),
+        CensoPage(key: ValueKey(_censoRefreshKey)),
+        const HistorialPage(),
+        const SectoresPage(),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +40,14 @@ class _AppShellState extends State<AppShell> {
         children: _paginas,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final resultado = await Navigator.push<bool>(
             context,
             MaterialPageRoute(builder: (_) => const AltaPage()),
           );
+          if (resultado == true) {
+            setState(() => _censoRefreshKey++);
+          }
         },
         child: const Icon(Icons.add),
       ),
