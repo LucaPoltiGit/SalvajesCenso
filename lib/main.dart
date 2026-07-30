@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'theme/app_theme.dart';
-import 'screens/shell/app_shell.dart';
+import 'screens/splash/splash_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +17,7 @@ class SantuarioApp extends StatelessWidget {
     return MaterialApp(
       title: 'Santuario App',
       theme: AppTheme.light,
-      home: const AppShell(),
+      home: const SplashPage(),
     );
   }
 }
