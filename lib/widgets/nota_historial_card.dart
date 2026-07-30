@@ -8,8 +8,9 @@ class NotaHistorialCard extends StatelessWidget {
   final NotaHistorial nota;
   final VoidCallback? onEditar;
   final VoidCallback? onBorrar;
+  final String? animalNombre;
 
-  const NotaHistorialCard({super.key, required this.nota, this.onEditar, this.onBorrar});
+  const NotaHistorialCard({super.key, required this.nota, this.onEditar, this.onBorrar, this.animalNombre});
 
   Color get _colorTipo {
     switch (nota.tipoNombre) {
@@ -49,6 +50,10 @@ class NotaHistorialCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (animalNombre != null) ...[
+            Text(animalNombre!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.verde)),
+            const SizedBox(height: 4),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

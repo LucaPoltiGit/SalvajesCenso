@@ -6,9 +6,10 @@ import '../../utils/text_format.dart';
 
 class NotaFormPage extends StatefulWidget {
   final String animalId;
+  final String animalNombre;
   final NotaHistorial? notaExistente;
 
-  const NotaFormPage({super.key, required this.animalId, this.notaExistente});
+  const NotaFormPage({super.key, required this.animalId, required this.animalNombre, this.notaExistente});
 
   @override
   State<NotaFormPage> createState() => _NotaFormPageState();
@@ -114,7 +115,7 @@ class _NotaFormPageState extends State<NotaFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_esEdicion ? 'Editar nota' : 'Agregar nota')),
+      appBar: AppBar(title: Text(_esEdicion ? 'Editar nota de ${widget.animalNombre}' : 'Nota para ${widget.animalNombre}')),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
           : Form(

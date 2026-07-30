@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../principal/principal_page.dart';
 import '../censo/censo_page.dart';
-import '../historial/historial_page.dart';
+import '../notas/notas_page.dart';
 import '../sectores/sectores_page.dart';
 import '../galeria/galeria_page.dart';
 import '../categorias/categorias_page.dart';
 import '../ajustes/ajustes_page.dart';
 import '../alta/alta_page.dart';
 import '../../services/pocketbase_service.dart';
+import '../../services/auth_helper.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -19,19 +20,41 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _indiceActual = 0;
 
-  final _titulos = ['Principal', 'Censo', 'Historial', 'Sectores'];
-
   int _censoRefreshKey = 0;
 
-  List<Widget> get _paginas => [
-        const PrincipalPage(),
-        CensoPage(key: ValueKey(_censoRefreshKey)),
-        const HistorialPage(),
-        const SectoresPage(),
-      ];
+  List<String> get _titulos {
+    final base = ['Principal', 'Censo'];
+    if (AuthHelper.puedeVerNotas) base.add('Notas');
+    base.add('Sectores');
+    return base;
+  }
+
+  List<Widget> get _paginas {
+    final base = <Widget>[
+      const PrincipalPage(),
+      CensoPage(key: ValueKey(_censoRefreshKey)),
+    ];
+    if (AuthHelper.puedeVerNotas) base.add(const NotasPage());
+    base.add(const SectoresPage());
+    return base;
+  }
+
+  List<NavigationDestination> get _destinos {
+    final base = <NavigationDestination>[
+      const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Principal'),
+      const NavigationDestination(icon: Icon(Icons.pets_outlined), selectedIcon: Icon(Icons.pets), label: 'Censo'),
+    ];
+    if (AuthHelper.puedeVerNotas) {
+      base.add(const NavigationDestination(icon: Icon(Icons.edit_note_outlined), selectedIcon: Icon(Icons.edit_note), label: 'Notas'));
+    }
+    base.add(const NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Sectores'));
+    return base;
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_indiceActual >= _paginas.length) _indiceActual = 0;
+
     return Scaffold(
       appBar: AppBar(title: Text(_titulos[_indiceActual])),
       drawer: _buildDrawer(context),
@@ -54,12 +77,7 @@ class _AppShellState extends State<AppShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _indiceActual,
         onDestinationSelected: (i) => setState(() => _indiceActual = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Principal'),
-          NavigationDestination(icon: Icon(Icons.pets_outlined), selectedIcon: Icon(Icons.pets), label: 'Censo'),
-          NavigationDestination(icon: Icon(Icons.history_outlined), selectedIcon: Icon(Icons.history), label: 'Historial'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Sectores'),
-        ],
+        destinations: _destinos,
       ),
     );
   }

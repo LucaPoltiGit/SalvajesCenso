@@ -219,7 +219,7 @@ class _FichaPageState extends State<FichaPage> {
     final resultado = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => NotaFormPage(animalId: a.id, notaExistente: notaExistente),
+        builder: (_) => NotaFormPage(animalId: a.id, animalNombre: a.nombre, notaExistente: notaExistente),
       ),
     );
     if (resultado == true) {
