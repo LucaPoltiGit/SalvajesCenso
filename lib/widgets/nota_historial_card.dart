@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import '../models/nota_historial.dart';
+import '../models/foto.dart';
 import '../theme/app_colors.dart';
 import '../services/auth_helper.dart';
 import '../utils/text_format.dart';
+import '../screens/foto/foto_viewer_page.dart';
 
 class NotaHistorialCard extends StatelessWidget {
   final NotaHistorial nota;
   final VoidCallback? onEditar;
   final VoidCallback? onBorrar;
   final String? animalNombre;
+  final List<Foto> fotos;
 
-  const NotaHistorialCard({super.key, required this.nota, this.onEditar, this.onBorrar, this.animalNombre});
+  const NotaHistorialCard({
+    super.key,
+    required this.nota,
+    this.onEditar,
+    this.onBorrar,
+    this.animalNombre,
+    this.fotos = const [],
+  });
 
   Color get _colorTipo {
     switch (nota.tipoNombre) {
@@ -85,6 +95,31 @@ class NotaHistorialCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(nota.contenido, style: const TextStyle(fontSize: 13)),
+          if (fotos.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 60,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: fotos.length,
+                itemBuilder: (context, index) {
+                  final f = fotos[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: f)));
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(f.url, width: 60, height: 60, fit: BoxFit.cover),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ],
       ),
     );

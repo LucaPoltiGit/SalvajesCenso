@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/foto.dart';
 import '../../services/pocketbase_service.dart';
+import '../../services/auth_helper.dart';
 import '../foto/foto_viewer_page.dart';
 
 class GaleriaPage extends StatefulWidget {
@@ -49,9 +50,10 @@ class _GaleriaPageState extends State<GaleriaPage> {
     });
     try {
       await _pbService.ensureAuth();
-      var filtro = "nota = ''";
+      var filtro = AuthHelper.rolActual == 'visita' ? "nota = ''" : '';
       if (_busqueda.isNotEmpty) {
-        filtro += " && animal.nombre ~ '$_busqueda'";
+        final condicionBusqueda = "animal.nombre ~ '$_busqueda'";
+        filtro = filtro.isEmpty ? condicionBusqueda : "$filtro && $condicionBusqueda";
       }
       final resultado = await _pbService.pb.collection('fotos').getFullList(
             filter: filtro,
@@ -117,9 +119,24 @@ class _GaleriaPageState extends State<GaleriaPage> {
                                     );
                                     if (resultado == true) _cargarFotos();
                                   },
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.network(f.url, fit: BoxFit.cover),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(f.url, fit: BoxFit.cover),
+                                      ),
+                                      if (f.notaId != null)
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                                            child: const Icon(Icons.edit_note, size: 12, color: Colors.white),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 );
                               },

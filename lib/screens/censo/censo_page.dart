@@ -21,6 +21,7 @@ class _CensoPageState extends State<CensoPage> {
   Timer? _debounce;
 
   List<Animal> _animales = [];
+  Map<String, String> _fotosPorAnimal = {};
   bool _cargando = true;
   String? _error;
   FiltrosCenso _filtros = const FiltrosCenso();
@@ -81,8 +82,24 @@ class _CensoPageState extends State<CensoPage> {
             sort: 'nombre',
             filter: _armarFiltroPocketBase(),
           );
+
+      final fotosResult = await _pbService.pb.collection('fotos').getFullList(
+            filter: "nota = ''",
+            sort: '-created',
+          );
+      final mapaFotos = <String, String>{};
+      for (final f in fotosResult) {
+        final animalId = f.data['animal'] as String?;
+        if (animalId == null) continue;
+        if (mapaFotos.containsKey(animalId)) continue;
+        final filename = f.data['imagen'] ?? '';
+        final baseUrl = _pbService.pb.baseUrl;
+        mapaFotos[animalId] = '$baseUrl/api/files/${f.collectionId}/${f.id}/$filename';
+      }
+
       setState(() {
         _animales = resultado.map(Animal.fromRecord).toList();
+        _fotosPorAnimal = mapaFotos;
         _cargando = false;
       });
     } catch (e) {
@@ -191,6 +208,7 @@ class _CensoPageState extends State<CensoPage> {
         final a = _animales[index];
         return AnimalCard(
           animal: a,
+          fotoUrl: _fotosPorAnimal[a.id],
           onTap: () async {
             final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
             if (resultado == true) {
@@ -215,7 +233,7 @@ class _CensoPageState extends State<CensoPage> {
               _cargarAnimales();
             }
           },
-          child: AnimalTile(animal: a),
+          child: AnimalTile(animal: a, fotoUrl: _fotosPorAnimal[a.id]),
         );
       },
     );

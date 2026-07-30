@@ -5,8 +5,9 @@ import '../theme/app_colors.dart';
 class AnimalCard extends StatelessWidget {
   final Animal animal;
   final VoidCallback onTap;
+  final String? fotoUrl;
 
-  const AnimalCard({super.key, required this.animal, required this.onTap});
+  const AnimalCard({super.key, required this.animal, required this.onTap, this.fotoUrl});
 
   Color get _colorFondo {
     final colores = [AppColors.madera, AppColors.verde];
@@ -23,7 +24,10 @@ class AnimalCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            color: _colorFondo.withOpacity(0.85),
+            color: fotoUrl == null ? _colorFondo.withOpacity(0.85) : null,
+            image: fotoUrl != null
+                ? DecorationImage(image: NetworkImage(fotoUrl!), fit: BoxFit.cover)
+                : null,
           ),
           child: Stack(
             children: [

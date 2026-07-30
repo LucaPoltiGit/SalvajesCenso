@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../models/animal.dart';
 import '../../models/nota_historial.dart';
@@ -31,6 +33,7 @@ class _FichaPageState extends State<FichaPage> {
   RecordModel? _registroCrudo;
   List<NotaHistorial> _notas = [];
   List<Foto> _fotos = [];
+  Map<String, List<Foto>> _fotosPorNota = {};
   bool _cargando = true;
   String? _error;
   bool _seModifico = false;
@@ -72,11 +75,22 @@ class _FichaPageState extends State<FichaPage> {
             sort: '-created',
           );
 
+      final fotosNotasResult = await pb.collection('fotos').getFullList(
+            filter: "animal = '${widget.animal.id}' && nota != ''",
+            sort: '-created',
+          );
+      final fotosPorNota = <String, List<Foto>>{};
+      for (final f in fotosNotasResult.map(Foto.fromRecord)) {
+        if (f.notaId == null) continue;
+        fotosPorNota.putIfAbsent(f.notaId!, () => []).add(f);
+      }
+
       setState(() {
         _animal = Animal.fromRecord(registro);
         _registroCrudo = registro;
         _notas = notas;
         _fotos = fotosResult.map(Foto.fromRecord).toList();
+        _fotosPorNota = fotosPorNota;
         _cargando = false;
       });
     } catch (e) {
@@ -189,13 +203,33 @@ class _FichaPageState extends State<FichaPage> {
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             children: [
-                              CircleAvatar(
-                                radius: 48,
-                                backgroundColor: AppColors.madera.withOpacity(0.15),
-                                child: Text(
-                                  a.nombre.isNotEmpty ? a.nombre[0].toUpperCase() : '?',
-                                  style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
-                                ),
+                              Stack(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 48,
+                                    backgroundColor: AppColors.madera.withOpacity(0.15),
+                                    backgroundImage: _fotos.isNotEmpty ? NetworkImage(_fotos.first.url) : null,
+                                    child: _fotos.isEmpty
+                                        ? Text(
+                                            a.nombre.isNotEmpty ? a.nombre[0].toUpperCase() : '?',
+                                            style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
+                                          )
+                                        : null,
+                                  ),
+                                  if (AuthHelper.puedeSubirFotos)
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: _elegirFotoPerfil,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: const BoxDecoration(color: AppColors.verde, shape: BoxShape.circle),
+                                          child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               const SizedBox(height: 10),
                               Text(a.nombre, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -227,10 +261,23 @@ class _FichaPageState extends State<FichaPage> {
     );
   }
 
+  Future<void> _elegirFotoPerfil() async {
+    final resultado = await FilePicker.pickFiles(type: FileType.image);
+    if (resultado == null || resultado.files.isEmpty) return;
+    final archivo = resultado.files.first;
+    Uint8List? bytes = archivo.bytes;
+    if (bytes == null && archivo.path != null) {
+      bytes = await File(archivo.path!).readAsBytes();
+    }
+    if (bytes == null) return;
+    await _subirFotoGeneral(bytes);
+  }
+
   Future<void> _subirFotoGeneral(List<int> bytes) async {
     setState(() => _subiendoFoto = true);
     try {
       await FotoService.subirFoto(animalId: widget.animal.id, bytes: Uint8List.fromList(bytes));
+      _seModifico = true;
       await _cargarDatos();
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir foto: $e')));
@@ -329,7 +376,10 @@ class _FichaPageState extends State<FichaPage> {
                     child: GestureDetector(
                       onTap: () async {
                         final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: f)));
-                        if (resultado == true) _cargarDatos();
+                        if (resultado == true) {
+                          _seModifico = true;
+                          _cargarDatos();
+                        }
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
@@ -365,6 +415,7 @@ class _FichaPageState extends State<FichaPage> {
                     nota: n,
                     onEditar: () => _abrirFormularioNota(notaExistente: n),
                     onBorrar: () => _confirmarBorradoNota(n),
+                    fotos: _fotosPorNota[n.id] ?? [],
                   )),
           ],
           const SizedBox(height: 40),
