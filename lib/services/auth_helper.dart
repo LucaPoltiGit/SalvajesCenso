@@ -9,4 +9,9 @@ class AuthHelper {
 
   static bool get puedeEditar => rolActual == 'admin' || rolActual == 'estandar';
   static bool get puedeBorrar => rolActual == 'admin';
+
+  static bool get puedeVerNotas => rolActual == 'admin' || rolActual == 'estandar';
+  static bool get puedeCrearNotas => rolActual == 'admin' || rolActual == 'estandar';
+  static bool get puedeEditarNotas => rolActual == 'admin';
+  static bool get puedeBorrarNotas => rolActual == 'admin';
 }

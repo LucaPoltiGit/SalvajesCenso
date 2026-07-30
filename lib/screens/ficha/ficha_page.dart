@@ -9,6 +9,7 @@ import '../../widgets/dato_item.dart';
 import '../../widgets/nota_historial_card.dart';
 import '../../utils/text_format.dart';
 import '../alta/alta_page.dart';
+import '../nota/nota_form_page.dart';
 
 class FichaPage extends StatefulWidget {
   final Animal animal;
@@ -49,16 +50,20 @@ class _FichaPageState extends State<FichaPage> {
             expand: 'sector,especie,estado',
           );
 
-      final notasResult = await pb.collection('notas_historial').getFullList(
-            filter: "animal = '${widget.animal.id}'",
-            expand: 'tipo',
-            sort: '-fecha',
-          );
+      List<NotaHistorial> notas = [];
+      if (AuthHelper.puedeVerNotas) {
+        final notasResult = await pb.collection('notas_historial').getFullList(
+              filter: "animal = '${widget.animal.id}'",
+              expand: 'tipo',
+              sort: '-fecha',
+            );
+        notas = notasResult.map(NotaHistorial.fromRecord).toList();
+      }
 
       setState(() {
         _animal = Animal.fromRecord(registro);
         _registroCrudo = registro;
-        _notas = notasResult.map(NotaHistorial.fromRecord).toList();
+        _notas = notas;
         _cargando = false;
       });
     } catch (e) {
@@ -209,6 +214,52 @@ class _FichaPageState extends State<FichaPage> {
     );
   }
 
+  Future<void> _abrirFormularioNota({NotaHistorial? notaExistente}) async {
+    final a = _animal ?? widget.animal;
+    final resultado = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NotaFormPage(animalId: a.id, notaExistente: notaExistente),
+      ),
+    );
+    if (resultado == true) {
+      _cargarDatos();
+    }
+  }
+
+  Future<void> _confirmarBorradoNota(NotaHistorial nota) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar borrado'),
+        content: const Text('Seguro que queres borrar esta nota? Esta accion no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      await _pbService.pb.collection('notas_historial').delete(nota.id);
+      _cargarDatos();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al borrar la nota: $e')),
+        );
+      }
+    }
+  }
+
   Widget _buildTabDatos(Animal a) {
     return RefreshIndicator(
       onRefresh: _cargarDatos,
@@ -225,16 +276,33 @@ class _FichaPageState extends State<FichaPage> {
               DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: a.dieta),
             ],
           ),
-          const SizedBox(height: 20),
-          const Text('Historial', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 10),
-          if (_notas.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Text('Sin notas cargadas todavia', style: TextStyle(fontSize: 13)),
-            )
-          else
-            ..._notas.map((n) => NotaHistorialCard(nota: n)),
+          if (AuthHelper.puedeVerNotas) ...[
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Historial', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                if (AuthHelper.puedeCrearNotas)
+                  TextButton.icon(
+                    onPressed: () => _abrirFormularioNota(),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Agregar nota'),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            if (_notas.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text('Sin notas cargadas todavia', style: TextStyle(fontSize: 13)),
+              )
+            else
+              ..._notas.map((n) => NotaHistorialCard(
+                    nota: n,
+                    onEditar: () => _abrirFormularioNota(notaExistente: n),
+                    onBorrar: () => _confirmarBorradoNota(n),
+                  )),
+          ],
           const SizedBox(height: 40),
         ],
       ),

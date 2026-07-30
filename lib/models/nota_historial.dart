@@ -2,12 +2,16 @@ import 'package:pocketbase/pocketbase.dart';
 
 class NotaHistorial {
   final String id;
+  final String animalId;
+  final String tipoId;
   final DateTime fecha;
   final String contenido;
   final String tipoNombre;
 
   NotaHistorial({
     required this.id,
+    required this.animalId,
+    required this.tipoId,
     required this.fecha,
     required this.contenido,
     required this.tipoNombre,
@@ -29,6 +33,8 @@ class NotaHistorial {
 
     return NotaHistorial(
       id: record.id,
+      animalId: record.data['animal'] ?? '',
+      tipoId: record.data['tipo'] ?? '',
       fecha: fecha,
       contenido: record.data['contenido'] ?? '',
       tipoNombre: tipoNombre,

@@ -14,3 +14,10 @@ class PocketbaseService {
     await pb.collection('users').authWithPassword(email, password);
   }
 }
+
+
+/**final email = dotenv.env['PB_TEST_ESTANDAR_EMAIL'] ?? '';
+    final password = dotenv.env['PB_TEST_ESTANDAR_PASSWORD'] ?? '';/ */
+
+    /**final email = dotenv.env['PB_TEST_VISITA_EMAIL'] ?? '';
+    final password = dotenv.env['PB_TEST_VISITA_PASSWORD'] ?? '';/ */

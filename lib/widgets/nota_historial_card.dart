@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../models/nota_historial.dart';
 import '../theme/app_colors.dart';
+import '../services/auth_helper.dart';
 import '../utils/text_format.dart';
 
 class NotaHistorialCard extends StatelessWidget {
   final NotaHistorial nota;
+  final VoidCallback? onEditar;
+  final VoidCallback? onBorrar;
 
-  const NotaHistorialCard({super.key, required this.nota});
+  const NotaHistorialCard({super.key, required this.nota, this.onEditar, this.onBorrar});
 
   Color get _colorTipo {
     switch (nota.tipoNombre) {
@@ -30,6 +33,8 @@ class NotaHistorialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mostrarMenu = AuthHelper.puedeEditarNotas || AuthHelper.puedeBorrarNotas;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -51,7 +56,26 @@ class NotaHistorialCard extends StatelessWidget {
                 formatearEtiqueta(nota.tipoNombre),
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _colorTipo),
               ),
-              Text(_fechaTexto, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+              Row(
+                children: [
+                  Text(_fechaTexto, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                  if (mostrarMenu)
+                    PopupMenuButton<String>(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.more_vert, size: 16),
+                      onSelected: (v) {
+                        if (v == 'editar' && onEditar != null) onEditar!();
+                        if (v == 'borrar' && onBorrar != null) onBorrar!();
+                      },
+                      itemBuilder: (context) => [
+                        if (AuthHelper.puedeEditarNotas)
+                          const PopupMenuItem(value: 'editar', child: Text('Editar')),
+                        if (AuthHelper.puedeBorrarNotas)
+                          const PopupMenuItem(value: 'borrar', child: Text('Borrar')),
+                      ],
+                    ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 4),
