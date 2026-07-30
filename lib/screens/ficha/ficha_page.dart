@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../models/animal.dart';
@@ -10,6 +11,10 @@ import '../../widgets/nota_historial_card.dart';
 import '../../utils/text_format.dart';
 import '../alta/alta_page.dart';
 import '../nota/nota_form_page.dart';
+import '../../models/foto.dart';
+import '../../services/foto_service.dart';
+import '../../widgets/seleccionar_foto_button.dart';
+import '../foto/foto_viewer_page.dart';
 
 class FichaPage extends StatefulWidget {
   final Animal animal;
@@ -25,9 +30,11 @@ class _FichaPageState extends State<FichaPage> {
   Animal? _animal;
   RecordModel? _registroCrudo;
   List<NotaHistorial> _notas = [];
+  List<Foto> _fotos = [];
   bool _cargando = true;
   String? _error;
   bool _seModifico = false;
+  bool _subiendoFoto = false;
 
   @override
   void initState() {
@@ -60,10 +67,16 @@ class _FichaPageState extends State<FichaPage> {
         notas = notasResult.map(NotaHistorial.fromRecord).toList();
       }
 
+      final fotosResult = await pb.collection('fotos').getFullList(
+            filter: "animal = '${widget.animal.id}' && nota = ''",
+            sort: '-created',
+          );
+
       setState(() {
         _animal = Animal.fromRecord(registro);
         _registroCrudo = registro;
         _notas = notas;
+        _fotos = fotosResult.map(Foto.fromRecord).toList();
         _cargando = false;
       });
     } catch (e) {
@@ -214,6 +227,18 @@ class _FichaPageState extends State<FichaPage> {
     );
   }
 
+  Future<void> _subirFotoGeneral(List<int> bytes) async {
+    setState(() => _subiendoFoto = true);
+    try {
+      await FotoService.subirFoto(animalId: widget.animal.id, bytes: Uint8List.fromList(bytes));
+      await _cargarDatos();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir foto: $e')));
+    } finally {
+      if (mounted) setState(() => _subiendoFoto = false);
+    }
+  }
+
   Future<void> _abrirFormularioNota({NotaHistorial? notaExistente}) async {
     final a = _animal ?? widget.animal;
     final resultado = await Navigator.push<bool>(
@@ -276,6 +301,45 @@ class _FichaPageState extends State<FichaPage> {
               DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: a.dieta),
             ],
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Fotos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              if (AuthHelper.puedeSubirFotos)
+                SeleccionarFotoButton(texto: 'Agregar', cargando: _subiendoFoto, onFotoSeleccionada: _subirFotoGeneral),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (_fotos.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text('Sin fotos cargadas todavia', style: TextStyle(fontSize: 13)),
+            )
+          else
+            SizedBox(
+              height: 90,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _fotos.length,
+                itemBuilder: (context, index) {
+                  final f = _fotos[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: GestureDetector(
+                      onTap: () async {
+                        final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: f)));
+                        if (resultado == true) _cargarDatos();
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(f.url, width: 90, height: 90, fit: BoxFit.cover),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           if (AuthHelper.puedeVerNotas) ...[
             const SizedBox(height: 20),
             Row(

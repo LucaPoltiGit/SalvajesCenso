@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   pocketbase: ^0.24.0+1
   flutter_dotenv: ^6.0.1
+  file_picker: ^11.0.2
+  image: ^4.8.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

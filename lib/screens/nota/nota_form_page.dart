@@ -1,8 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../models/nota_historial.dart';
 import '../../services/pocketbase_service.dart';
+import '../../services/foto_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/text_format.dart';
+import '../../widgets/seleccionar_foto_button.dart';
 
 class NotaFormPage extends StatefulWidget {
   final String animalId;
@@ -27,6 +30,7 @@ class _NotaFormPageState extends State<NotaFormPage> {
   List<dynamic> _tipos = [];
   String? _tipoId;
   DateTime _fecha = DateTime.now();
+  List<int>? _fotoBytes;
 
   bool get _esEdicion => widget.notaExistente != null;
 
@@ -65,6 +69,8 @@ class _NotaFormPageState extends State<NotaFormPage> {
     }
   }
 
+  void _onFotoSeleccionada(List<int> bytes) => setState(() => _fotoBytes = bytes);
+
   Future<void> _elegirFecha() async {
     final fecha = await showDatePicker(
       context: context,
@@ -97,10 +103,17 @@ class _NotaFormPageState extends State<NotaFormPage> {
         'fecha': _fecha.toIso8601String(),
       };
 
+      String notaId;
       if (_esEdicion) {
         await _pb.collection('notas_historial').update(widget.notaExistente!.id, body: body);
+        notaId = widget.notaExistente!.id;
       } else {
-        await _pb.collection('notas_historial').create(body: body);
+        final creada = await _pb.collection('notas_historial').create(body: body);
+        notaId = creada.id;
+      }
+
+      if (_fotoBytes != null) {
+        await FotoService.subirFoto(animalId: widget.animalId, notaId: notaId, bytes: Uint8List.fromList(_fotoBytes!));
       }
 
       if (mounted) Navigator.pop(context, true);
@@ -154,6 +167,11 @@ class _NotaFormPageState extends State<NotaFormPage> {
                     decoration: const InputDecoration(labelText: 'Contenido', border: OutlineInputBorder()),
                     maxLines: 5,
                     validator: (v) => (v == null || v.trim().isEmpty) ? 'Este campo es obligatorio' : null,
+                  ),
+                  const SizedBox(height: 14),
+                  SeleccionarFotoButton(
+                    texto: _fotoBytes == null ? 'Adjuntar foto (opcional)' : 'Foto seleccionada, tocar para cambiar',
+                    onFotoSeleccionada: _onFotoSeleccionada,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
