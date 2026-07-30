@@ -4,7 +4,8 @@ import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 
 class AltaPage extends StatefulWidget {
-  const AltaPage({super.key});
+  final RecordModel? animalExistente;
+  const AltaPage({super.key, this.animalExistente});
 
   @override
   State<AltaPage> createState() => _AltaPageState();
@@ -69,7 +70,23 @@ class _AltaPageState extends State<AltaPage> {
         _especies = especies;
         _sectores = sectores;
         _estados = estados;
-        _estadoId = estadoDefault;
+        final animalExistente = widget.animalExistente;
+        if (animalExistente != null) {
+          _nombreCtrl.text = animalExistente.data['nombre'] ?? '';
+          _edadCtrl.text = animalExistente.data['edad'] ?? '';
+          _dietaCtrl.text = animalExistente.data['dieta'] ?? '';
+          _descripcionCtrl.text = animalExistente.data['descripcion'] ?? '';
+          _historiaCtrl.text = animalExistente.data['historia_llegada'] ?? '';
+          _especieId = animalExistente.data['especie'];
+          _sectorId = animalExistente.data['sector'];
+          _estadoId = animalExistente.data['estado'];
+          final alerta = animalExistente.data['alerta'] ?? '';
+          _alerta = alerta.isEmpty ? null : alerta;
+          final fechaLlegadaTexto = animalExistente.data['fecha_llegada'] ?? '';
+          _fechaLlegada = fechaLlegadaTexto.isEmpty ? null : DateTime.tryParse(fechaLlegadaTexto);
+        } else {
+          _estadoId = estadoDefault;
+        }
         _cargandoOpciones = false;
       });
     } catch (e) {
@@ -118,7 +135,12 @@ class _AltaPageState extends State<AltaPage> {
         if (_fechaLlegada != null) 'fecha_llegada': _fechaLlegada!.toIso8601String(),
       };
 
-      await _pb.collection('animales').create(body: body);
+      final animalExistente = widget.animalExistente;
+      if (animalExistente != null) {
+        await _pb.collection('animales').update(animalExistente.id, body: body);
+      } else {
+        await _pb.collection('animales').create(body: body);
+      }
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -139,7 +161,7 @@ class _AltaPageState extends State<AltaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar animal')),
+      appBar: AppBar(title: Text(widget.animalExistente != null ? 'Editar animal' : 'Agregar animal')),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
           : Form(
@@ -242,7 +264,7 @@ class _AltaPageState extends State<AltaPage> {
                     onPressed: _guardando ? null : _guardar,
                     child: _guardando
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('Guardar residente'),
+                        : Text(widget.animalExistente != null ? 'Guardar cambios' : 'Guardar residente'),
                   ),
                 ],
               ),

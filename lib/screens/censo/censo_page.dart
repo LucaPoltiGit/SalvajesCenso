@@ -191,8 +191,11 @@ class _CensoPageState extends State<CensoPage> {
         final a = _animales[index];
         return AnimalCard(
           animal: a,
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+          onTap: () async {
+            final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+            if (resultado == true) {
+              _cargarAnimales();
+            }
           },
         );
       },
@@ -206,8 +209,11 @@ class _CensoPageState extends State<CensoPage> {
       itemBuilder: (context, index) {
         final a = _animales[index];
         return GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+          onTap: () async {
+            final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+            if (resultado == true) {
+              _cargarAnimales();
+            }
           },
           child: AnimalTile(animal: a),
         );

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:pocketbase/pocketbase.dart';
 import '../../models/animal.dart';
 import '../../models/nota_historial.dart';
 import '../../services/pocketbase_service.dart';
+import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/dato_item.dart';
 import '../../widgets/nota_historial_card.dart';
 import '../../utils/text_format.dart';
+import '../alta/alta_page.dart';
 
 class FichaPage extends StatefulWidget {
   final Animal animal;
@@ -19,6 +22,7 @@ class _FichaPageState extends State<FichaPage> {
   final _pbService = PocketbaseService.instance;
 
   Animal? _animal;
+  RecordModel? _registroCrudo;
   List<NotaHistorial> _notas = [];
   bool _cargando = true;
   String? _error;
@@ -52,6 +56,7 @@ class _FichaPageState extends State<FichaPage> {
 
       setState(() {
         _animal = Animal.fromRecord(registro);
+        _registroCrudo = registro;
         _notas = notasResult.map(NotaHistorial.fromRecord).toList();
         _cargando = false;
       });
@@ -82,6 +87,42 @@ class _FichaPageState extends State<FichaPage> {
     );
   }
 
+  Future<void> _confirmarBorrado() async {
+    final a = _animal ?? widget.animal;
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar borrado'),
+        content: Text('Seguro que queres borrar a ${a.nombre}? Esta accion no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      await _pbService.pb.collection('animales').delete(widget.animal.id);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al borrar: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final a = _animal ?? widget.animal;
@@ -89,7 +130,29 @@ class _FichaPageState extends State<FichaPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(title: Text(a.nombre)),
+        appBar: AppBar(
+          title: Text(a.nombre),
+          actions: [
+            if (AuthHelper.puedeEditar)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final resultado = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(builder: (_) => AltaPage(animalExistente: _registroCrudo)),
+                  );
+                  if (resultado == true) {
+                    _cargarDatos();
+                  }
+                },
+              ),
+            if (AuthHelper.puedeBorrar)
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: _confirmarBorrado,
+              ),
+          ],
+        ),
         body: _cargando
             ? const Center(child: CircularProgressIndicator())
             : _error != null
