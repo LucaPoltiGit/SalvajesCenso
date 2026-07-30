@@ -26,6 +26,7 @@ class _FichaPageState extends State<FichaPage> {
   List<NotaHistorial> _notas = [];
   bool _cargando = true;
   String? _error;
+  bool _seModifico = false;
 
   @override
   void initState() {
@@ -127,75 +128,83 @@ class _FichaPageState extends State<FichaPage> {
   Widget build(BuildContext context) {
     final a = _animal ?? widget.animal;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(a.nombre),
-          actions: [
-            if (AuthHelper.puedeEditar)
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () async {
-                  final resultado = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(builder: (_) => AltaPage(animalExistente: _registroCrudo)),
-                  );
-                  if (resultado == true) {
-                    _cargarDatos();
-                  }
-                },
-              ),
-            if (AuthHelper.puedeBorrar)
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: _confirmarBorrado,
-              ),
-          ],
-        ),
-        body: _cargando
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? Center(child: Text('Error: $_error'))
-                : Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 48,
-                              backgroundColor: AppColors.madera.withOpacity(0.15),
-                              child: Text(
-                                a.nombre.isNotEmpty ? a.nombre[0].toUpperCase() : '?',
-                                style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        Navigator.of(context).pop(_seModifico);
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(a.nombre),
+            actions: [
+              if (AuthHelper.puedeEditar)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    final resultado = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(builder: (_) => AltaPage(animalExistente: _registroCrudo)),
+                    );
+                    if (resultado == true) {
+                      _seModifico = true;
+                      _cargarDatos();
+                    }
+                  },
+                ),
+              if (AuthHelper.puedeBorrar)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: _confirmarBorrado,
+                ),
+            ],
+          ),
+          body: _cargando
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+                  ? Center(child: Text('Error: $_error'))
+                  : Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 48,
+                                backgroundColor: AppColors.madera.withOpacity(0.15),
+                                child: Text(
+                                  a.nombre.isNotEmpty ? a.nombre[0].toUpperCase() : '?',
+                                  style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(a.nombre, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            _buildAlertaBanner(a),
+                              const SizedBox(height: 10),
+                              Text(a.nombre, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                              _buildAlertaBanner(a),
+                            ],
+                          ),
+                        ),
+                        const TabBar(
+                          labelColor: AppColors.verde,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorColor: AppColors.verde,
+                          tabs: [
+                            Tab(text: 'Datos'),
+                            Tab(text: 'Sobre el animal'),
                           ],
                         ),
-                      ),
-                      const TabBar(
-                        labelColor: AppColors.verde,
-                        unselectedLabelColor: Colors.grey,
-                        indicatorColor: AppColors.verde,
-                        tabs: [
-                          Tab(text: 'Datos'),
-                          Tab(text: 'Sobre el animal'),
-                        ],
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          children: [
-                            _buildTabDatos(a),
-                            _buildTabSobre(a),
-                          ],
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              _buildTabDatos(a),
+                              _buildTabSobre(a),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+        ),
       ),
     );
   }
