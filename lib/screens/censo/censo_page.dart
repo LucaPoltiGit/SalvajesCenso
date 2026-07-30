@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/animal.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/animal_card.dart';
+import '../../widgets/animal_tile.dart';
 import '../../widgets/filtro_censo_sheet.dart';
 import '../ficha/ficha_page.dart';
 
@@ -16,12 +18,14 @@ class CensoPage extends StatefulWidget {
 class _CensoPageState extends State<CensoPage> {
   final _pbService = PocketbaseService.instance;
   final _busquedaController = TextEditingController();
+  Timer? _debounce;
 
   List<Animal> _animales = [];
   bool _cargando = true;
   String? _error;
   FiltrosCenso _filtros = const FiltrosCenso();
   String _busqueda = '';
+  bool _vistaGrid = true;
 
   @override
   void initState() {
@@ -32,7 +36,16 @@ class _CensoPageState extends State<CensoPage> {
   @override
   void dispose() {
     _busquedaController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onBusquedaCambiada(String valor) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      _busqueda = valor;
+      _cargarAnimales();
+    });
   }
 
   String? _armarFiltroPocketBase() {
@@ -110,10 +123,16 @@ class _CensoPageState extends State<CensoPage> {
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  onSubmitted: (v) {
-                    _busqueda = v;
-                    _cargarAnimales();
-                  },
+                  onChanged: _onBusquedaCambiada,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => setState(() => _vistaGrid = !_vistaGrid),
+                icon: Icon(_vistaGrid ? Icons.view_list : Icons.grid_view),
+                style: IconButton.styleFrom(
+                  backgroundColor: AppColors.verde.withOpacity(0.1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
               const SizedBox(width: 8),
@@ -151,27 +170,48 @@ class _CensoPageState extends State<CensoPage> {
                       ? const Center(child: Text('No se encontraron animales'))
                       : RefreshIndicator(
                           onRefresh: _cargarAnimales,
-                          child: GridView.builder(
-                            padding: const EdgeInsets.all(12),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                            ),
-                            itemCount: _animales.length,
-                            itemBuilder: (context, index) {
-                              final a = _animales[index];
-                              return AnimalCard(
-                                animal: a,
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
-                                },
-                              );
-                            },
-                          ),
+                          child: _vistaGrid ? _buildGrid() : _buildLista(),
                         ),
         ),
       ],
+    );
+  }
+
+  Widget _buildGrid() {
+    return GridView.builder(
+      padding: const EdgeInsets.all(12),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 160,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 1,
+      ),
+      itemCount: _animales.length,
+      itemBuilder: (context, index) {
+        final a = _animales[index];
+        return AnimalCard(
+          animal: a,
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildLista() {
+    return ListView.separated(
+      itemCount: _animales.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final a = _animales[index];
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+          },
+          child: AnimalTile(animal: a),
+        );
+      },
     );
   }
 }
