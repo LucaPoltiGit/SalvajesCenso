@@ -4,6 +4,8 @@ import 'package:pocketbase/pocketbase.dart';
 
 void main() {
   late PocketBase pb;
+  late PocketBase pbEstandar;
+  late PocketBase pbVisita;
   String? especieIdValida;
   String? sectorIdValido;
   String? estadoIdValido;
@@ -14,6 +16,18 @@ void main() {
     await pb.collection('users').authWithPassword(
           dotenv.env['PB_TEST_EMAIL'] ?? '',
           dotenv.env['PB_TEST_PASSWORD'] ?? '',
+        );
+
+    pbEstandar = PocketBase(dotenv.env['POCKETBASE_URL'] ?? 'http://127.0.0.1:8090');
+    await pbEstandar.collection('users').authWithPassword(
+          dotenv.env['PB_TEST_ESTANDAR_EMAIL'] ?? '',
+          dotenv.env['PB_TEST_ESTANDAR_PASSWORD'] ?? '',
+        );
+
+    pbVisita = PocketBase(dotenv.env['POCKETBASE_URL'] ?? 'http://127.0.0.1:8090');
+    await pbVisita.collection('users').authWithPassword(
+          dotenv.env['PB_TEST_VISITA_EMAIL'] ?? '',
+          dotenv.env['PB_TEST_VISITA_PASSWORD'] ?? '',
         );
 
     final especies = await pb.collection('especies').getList(page: 1, perPage: 1);
@@ -127,6 +141,83 @@ void main() {
         }),
         throwsA(isA<ClientException>()),
       );
+    });
+  });
+
+  group('Permisos por rol', () {
+    test('Admin puede crear, editar y borrar', () async {
+      final creado = await pb.collection('animales').create(body: {
+        'nombre': 'Test Rol Admin',
+        'especie': especieIdValida,
+        'sector': sectorIdValido,
+        'estado': estadoIdValido,
+      });
+      expect(creado.id, isNotEmpty);
+
+      final editado = await pb.collection('animales').update(creado.id, body: {'edad': '2 anos'});
+      expect(editado.data['edad'], '2 anos');
+
+      await pb.collection('animales').delete(creado.id);
+      expect(
+        () => pb.collection('animales').getOne(creado.id),
+        throwsA(isA<ClientException>()),
+      );
+    });
+
+    test('Estandar puede crear y editar, pero no borrar', () async {
+      final creado = await pbEstandar.collection('animales').create(body: {
+        'nombre': 'Test Rol Estandar',
+        'especie': especieIdValida,
+        'sector': sectorIdValido,
+        'estado': estadoIdValido,
+      });
+      expect(creado.id, isNotEmpty);
+
+      final editado = await pbEstandar.collection('animales').update(creado.id, body: {'edad': '3 anos'});
+      expect(editado.data['edad'], '3 anos');
+
+      expect(
+        () => pbEstandar.collection('animales').delete(creado.id),
+        throwsA(isA<ClientException>()),
+      );
+
+      await pb.collection('animales').delete(creado.id);
+    });
+
+    test('Visita no puede crear', () async {
+      expect(
+        () => pbVisita.collection('animales').create(body: {
+          'nombre': 'Test Rol Visita Crear',
+          'especie': especieIdValida,
+          'sector': sectorIdValido,
+          'estado': estadoIdValido,
+        }),
+        throwsA(isA<ClientException>()),
+      );
+    });
+
+    test('Visita puede ver pero no editar ni borrar', () async {
+      final creado = await pb.collection('animales').create(body: {
+        'nombre': 'Test Rol Visita Ver',
+        'especie': especieIdValida,
+        'sector': sectorIdValido,
+        'estado': estadoIdValido,
+      });
+
+      final visto = await pbVisita.collection('animales').getOne(creado.id);
+      expect(visto.id, creado.id);
+
+      expect(
+        () => pbVisita.collection('animales').update(creado.id, body: {'edad': '1 ano'}),
+        throwsA(isA<ClientException>()),
+      );
+
+      expect(
+        () => pbVisita.collection('animales').delete(creado.id),
+        throwsA(isA<ClientException>()),
+      );
+
+      await pb.collection('animales').delete(creado.id);
     });
   });
 }
