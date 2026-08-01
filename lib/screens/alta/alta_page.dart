@@ -6,7 +6,8 @@ import '../../repositories/item_simple.dart';
 import '../../repositories/sector_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
-import '../../utils/formatear_fecha.dart';
+import '../../widgets/alta_datos_basicos_section.dart';
+import '../../widgets/alta_detalles_section.dart';
 
 class AltaPage extends StatefulWidget {
   final RecordModel? animalExistente;
@@ -182,83 +183,29 @@ class _AltaPageState extends State<AltaPage> {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Text(_error!, style: const TextStyle(color: AppColors.rojo)),
                     ),
-                  TextFormField(
-                    controller: _nombreCtrl,
-                    decoration: const InputDecoration(labelText: 'Nombre', border: OutlineInputBorder()),
-                    validator: _validadorRequerido,
+                  AltaDatosBasicosSection(
+                    nombreCtrl: _nombreCtrl,
+                    validadorNombre: _validadorRequerido,
+                    especies: _especies,
+                    sectores: _sectores,
+                    estados: _estados,
+                    especieId: _especieId,
+                    sectorId: _sectorId,
+                    estadoId: _estadoId,
+                    onEspecieCambiada: (v) => setState(() => _especieId = v),
+                    onSectorCambiado: (v) => setState(() => _sectorId = v),
+                    onEstadoCambiado: (v) => setState(() => _estadoId = v),
                   ),
                   const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Especie', border: OutlineInputBorder()),
-                    value: _especieId,
-                    items: _especies
-                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre)))
-                        .toList(),
-                    onChanged: (v) => setState(() => _especieId = v),
-                    validator: (v) => v == null ? 'Elegi una especie' : null,
-                  ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Sector', border: OutlineInputBorder()),
-                    value: _sectorId,
-                    items: _sectores
-                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre)))
-                        .toList(),
-                    onChanged: (v) => setState(() => _sectorId = v),
-                    validator: (v) => v == null ? 'Elegi un sector' : null,
-                  ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Estado', border: OutlineInputBorder()),
-                    value: _estadoId,
-                    items: _estados
-                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre)))
-                        .toList(),
-                    onChanged: (v) => setState(() => _estadoId = v),
-                    validator: (v) => v == null ? 'Elegi un estado' : null,
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _edadCtrl,
-                    decoration: const InputDecoration(labelText: 'Edad', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 14),
-                  InkWell(
-                    onTap: _elegirFecha,
-                    child: InputDecorator(
-                      decoration: const InputDecoration(labelText: 'Fecha de llegada', border: OutlineInputBorder()),
-                      child: Text(
-                        _fechaLlegada == null ? 'Sin especificar' : formatearFecha(_fechaLlegada!),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _dietaCtrl,
-                    decoration: const InputDecoration(labelText: 'Dieta', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _descripcionCtrl,
-                    decoration: const InputDecoration(labelText: 'Descripcion', border: OutlineInputBorder()),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _historiaCtrl,
-                    decoration: const InputDecoration(labelText: 'Historia de llegada', border: OutlineInputBorder()),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Alerta (opcional)', border: OutlineInputBorder()),
-                    value: _alerta,
-                    items: const [
-                      DropdownMenuItem(value: null, child: Text('Ninguna')),
-                      DropdownMenuItem(value: 'rojo', child: Text('Rojo')),
-                      DropdownMenuItem(value: 'amarillo', child: Text('Amarillo')),
-                    ],
-                    onChanged: (v) => setState(() => _alerta = v),
+                  AltaDetallesSection(
+                    edadCtrl: _edadCtrl,
+                    dietaCtrl: _dietaCtrl,
+                    descripcionCtrl: _descripcionCtrl,
+                    historiaCtrl: _historiaCtrl,
+                    fechaLlegada: _fechaLlegada,
+                    onElegirFecha: _elegirFecha,
+                    alerta: _alerta,
+                    onAlertaCambiada: (v) => setState(() => _alerta = v),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
