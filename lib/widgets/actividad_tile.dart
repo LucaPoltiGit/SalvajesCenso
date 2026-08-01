@@ -53,11 +53,12 @@ class ActividadTile extends StatelessWidget {
       title: Text(_texto, style: const TextStyle(fontSize: 13)),
       subtitle: Text(_fechaTexto, style: const TextStyle(fontSize: 11)),
       onTap: () {
-        showModalBottomSheet(
+        showDialog(
           context: context,
-          isScrollControlled: true,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-          builder: (_) => ActividadDetalleSheet(item: item),
+          builder: (_) => Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: ActividadDetalleSheet(item: item),
+          ),
         );
       },
     );

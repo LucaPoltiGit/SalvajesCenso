@@ -8,6 +8,7 @@ class Foto {
   final String descripcion;
   final DateTime fecha;
   final String url;
+  final bool esPerfil;
 
   Foto({
     required this.id,
@@ -16,6 +17,7 @@ class Foto {
     required this.descripcion,
     required this.fecha,
     required this.url,
+    this.esPerfil = false,
   });
 
   factory Foto.fromRecord(RecordModel record) {
@@ -40,6 +42,7 @@ class Foto {
       descripcion: record.data['descripcion'] ?? '',
       fecha: fecha,
       url: url,
+      esPerfil: record.data['es_perfil'] ?? false,
     );
   }
 }

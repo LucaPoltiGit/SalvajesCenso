@@ -24,11 +24,11 @@ class FotoRepository {
     return resultado.map(Foto.fromRecord).toList();
   }
 
-  /// Todas las fotos generales (sin nota) de todos los animales, usadas por
+  /// La foto de perfil de cada animal (si tiene una marcada), usada por
   /// el censo para armar la foto de portada de cada tarjeta.
   Future<List<Foto>> listarGeneralesGlobal() async {
     final resultado = await _pb.collection('fotos').getFullList(
-          filter: "nota = ''",
+          filter: "nota = '' && es_perfil = true",
           sort: '-created',
         );
     return resultado.map(Foto.fromRecord).toList();
@@ -62,12 +62,14 @@ class FotoRepository {
     String? notaId,
     required List<int> bytes,
     String descripcion = '',
+    bool esPerfil = false,
   }) async {
     await FotoService.subirFoto(
       animalId: animalId,
       notaId: notaId,
       bytes: Uint8List.fromList(bytes),
       descripcion: descripcion,
+      esPerfil: esPerfil,
     );
   }
 

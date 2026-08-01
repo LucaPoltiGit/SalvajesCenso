@@ -17,9 +17,20 @@ class FotoService {
     String? notaId,
     required Uint8List bytes,
     String descripcion = '',
+    bool esPerfil = false,
   }) async {
     final pb = PocketbaseService.instance.pb;
     final comprimida = comprimir(bytes);
+
+    if (esPerfil) {
+      final actuales = await pb.collection('fotos').getFullList(
+            filter: "animal = '$animalId' && es_perfil = true",
+          );
+      for (final f in actuales) {
+        await pb.collection('fotos').update(f.id, body: {'es_perfil': false});
+      }
+    }
+
     await pb.collection('fotos').create(
       body: {
         'animal': animalId,
@@ -27,6 +38,7 @@ class FotoService {
         'descripcion': descripcion,
         'fecha': DateTime.now().toIso8601String(),
         'subida_por': pb.authStore.model?.id,
+        'es_perfil': esPerfil,
       },
       files: [
         http.MultipartFile.fromBytes(

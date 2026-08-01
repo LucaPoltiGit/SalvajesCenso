@@ -38,44 +38,56 @@ class ActividadDetalleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(_accionTexto, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          if (item.detalle != null && item.detalle!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(item.detalle!, style: const TextStyle(fontSize: 13)),
-          ],
-          const SizedBox(height: 16),
-          Row(
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 44, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.madera),
-              const SizedBox(width: 6),
-              Text(formatearFecha(item.fecha), style: const TextStyle(fontSize: 12, color: AppColors.madera)),
+              Text(_accionTexto, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              if (item.detalle != null && item.detalle!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(item.detalle!, style: const TextStyle(fontSize: 13)),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.madera),
+                  const SizedBox(width: 6),
+                  Text(formatearFecha(item.fecha), style: const TextStyle(fontSize: 12, color: AppColors.madera)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.person_outline, size: 14, color: AppColors.madera),
+                  const SizedBox(width: 6),
+                  Text(item.quien ?? 'Sin identificar', style: const TextStyle(fontSize: 12, color: AppColors.madera)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.verde, foregroundColor: Colors.white),
+                  onPressed: () => _irAVer(context),
+                  child: const Text('Ir al perfil'),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(Icons.person_outline, size: 14, color: AppColors.madera),
-              const SizedBox(width: 6),
-              Text(item.quien ?? 'Sin identificar', style: const TextStyle(fontSize: 12, color: AppColors.madera)),
-            ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.pop(context),
           ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.verde, foregroundColor: Colors.white),
-              onPressed: () => _irAVer(context),
-              child: const Text('Ir al perfil'),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

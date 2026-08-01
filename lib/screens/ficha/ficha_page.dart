@@ -134,13 +134,17 @@ class _FichaPageState extends State<FichaPage> {
       bytes = await File(archivo.path!).readAsBytes();
     }
     if (bytes == null) return;
-    await _subirFotoGeneral(bytes);
+    await _subirFoto(bytes, esPerfil: true);
   }
 
   Future<void> _subirFotoGeneral(List<int> bytes) async {
+    await _subirFoto(bytes, esPerfil: false);
+  }
+
+  Future<void> _subirFoto(List<int> bytes, {required bool esPerfil}) async {
     setState(() => _subiendoFoto = true);
     try {
-      await _fotoRepo.subir(animalId: widget.animal.id, bytes: bytes);
+      await _fotoRepo.subir(animalId: widget.animal.id, bytes: bytes, esPerfil: esPerfil);
       _seModifico = true;
       await _cargarDatos();
     } catch (e) {
@@ -208,6 +212,13 @@ class _FichaPageState extends State<FichaPage> {
   Widget build(BuildContext context) {
     final a = _animal ?? widget.animal;
 
+    Foto? fotoPerfil;
+    try {
+      fotoPerfil = _fotos.firstWhere((f) => f.esPerfil);
+    } catch (_) {
+      fotoPerfil = null;
+    }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -249,7 +260,7 @@ class _FichaPageState extends State<FichaPage> {
                       children: [
                         FichaHeader(
                           animal: a,
-                          fotoUrl: _fotos.isNotEmpty ? _fotos.first.url : null,
+                          fotoUrl: fotoPerfil?.url,
                           onEditarFoto: _elegirFotoPerfil,
                         ),
                         const TabBar(
