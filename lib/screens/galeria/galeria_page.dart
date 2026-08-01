@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/foto.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../widgets/buscador_debounced.dart';
 import '../foto/foto_viewer_page.dart';
 
 class GaleriaPage extends StatefulWidget {
@@ -15,8 +15,6 @@ class GaleriaPage extends StatefulWidget {
 class _GaleriaPageState extends State<GaleriaPage> {
   final _pbService = PocketbaseService.instance;
   final _fotoRepo = FotoRepository();
-  final _busquedaController = TextEditingController();
-  Timer? _debounce;
 
   List<Foto> _fotos = [];
   bool _cargando = true;
@@ -29,19 +27,9 @@ class _GaleriaPageState extends State<GaleriaPage> {
     _cargarFotos();
   }
 
-  @override
-  void dispose() {
-    _busquedaController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
   void _onBusquedaCambiada(String valor) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      _busqueda = valor;
-      _cargarFotos();
-    });
+    _busqueda = valor;
+    _cargarFotos();
   }
 
   Future<void> _cargarFotos() async {
@@ -72,16 +60,9 @@ class _GaleriaPageState extends State<GaleriaPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _busquedaController,
-              decoration: InputDecoration(
-                hintText: 'Buscar por nombre de animal',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-              onChanged: _onBusquedaCambiada,
+            child: BuscadorDebounced(
+              hint: 'Buscar por nombre de animal',
+              onCambio: _onBusquedaCambiada,
             ),
           ),
           Expanded(

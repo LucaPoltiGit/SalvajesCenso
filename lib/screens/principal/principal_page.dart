@@ -4,10 +4,13 @@ import '../../models/actividad_item.dart';
 import '../../repositories/animal_repository.dart';
 import '../../repositories/actividad_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../theme/app_colors.dart';
 import '../../widgets/principal_stats_row.dart';
-import '../../widgets/animal_quick_chip.dart';
+import '../../widgets/acceso_rapido_row.dart';
 import '../../widgets/actividad_tile.dart';
 import '../../widgets/quick_access_card.dart';
+import '../../widgets/seccion_header.dart';
+import '../acceso_rapido/acceso_rapido_manager_page.dart';
 import '../ficha/ficha_page.dart';
 import '../sectores/sectores_page.dart';
 import '../galeria/galeria_page.dart';
@@ -50,7 +53,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       final totalActivos = await _animalRepo.contar(estadoDistinto: 'fallecido');
       final cuidadoEspecial = await _animalRepo.contar(estadoIgual: 'cuidado_especial');
       final enfermos = await _animalRepo.contar(estadoIgual: 'enfermo');
-      final accesoRapido = await _animalRepo.listar(excluirEstado: 'fallecido', sort: 'nombre');
+      final accesoRapido = await _animalRepo.listarAccesoRapido();
 
       final actividad = await ActividadRepository.obtenerReciente(diasAtras: 7, maxPorTipo: 5);
 
@@ -87,37 +90,34 @@ class _PrincipalPageState extends State<PrincipalPage> {
           ),
           const SizedBox(height: 24),
 
-          const Text('Acceso rapido', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 44,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _accesoRapido.length,
-              itemBuilder: (context, index) {
-                final a = _accesoRapido[index];
-                return AnimalQuickChip(
-                  nombre: a.nombre,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
-                  },
-                );
+          SeccionHeader(
+            titulo: 'Acceso rapido',
+            accion: IconButton(
+              iconSize: 18,
+              icon: const Icon(Icons.tune, color: AppColors.madera),
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => const AccesoRapidoManagerPage()));
+                _cargarDatos();
               },
             ),
           ),
+          const SizedBox(height: 10),
+          AccesoRapidoRow(
+            animales: _accesoRapido,
+            onTap: (a) {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+            },
+          ),
           const SizedBox(height: 24),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Actividad reciente', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ActividadPage()));
-                },
-                child: const Text('Ver todo'),
-              ),
-            ],
+          SeccionHeader(
+            titulo: 'Actividad reciente',
+            accion: TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ActividadPage()));
+              },
+              child: const Text('Ver todo'),
+            ),
           ),
           if (_actividad.isEmpty)
             const Padding(

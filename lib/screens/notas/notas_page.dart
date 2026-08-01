@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/nota_historial.dart';
 import '../../repositories/animal_repository.dart';
@@ -6,6 +5,7 @@ import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
 import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../widgets/buscador_debounced.dart';
 import '../../widgets/nota_historial_card.dart';
 import '../../widgets/notas_filtros_bar.dart';
 import '../ficha/ficha_page.dart';
@@ -22,8 +22,7 @@ class _NotasPageState extends State<NotasPage> {
   final _notaRepo = NotaRepository();
   final _animalRepo = AnimalRepository();
   final _tipoRepo = CategoriaRepository('tipos_nota');
-  final _busquedaController = TextEditingController();
-  Timer? _debounce;
+  int _busquedaResetKey = 0;
 
   List<NotaHistorial> _notas = [];
   Map<String, String> _animalNombrePorNotaId = {};
@@ -43,13 +42,6 @@ class _NotasPageState extends State<NotasPage> {
     _cargarNotas();
   }
 
-  @override
-  void dispose() {
-    _busquedaController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
   Future<void> _cargarTipos() async {
     await _pbService.ensureAuth();
     final tipos = await _tipoRepo.listar();
@@ -57,11 +49,8 @@ class _NotasPageState extends State<NotasPage> {
   }
 
   void _onBusquedaCambiada(String valor) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      _busquedaAnimal = valor;
-      _cargarNotas();
-    });
+    _busquedaAnimal = valor;
+    _cargarNotas();
   }
 
   Future<void> _cargarNotas() async {
@@ -129,8 +118,8 @@ class _NotasPageState extends State<NotasPage> {
       _tipoFiltro = null;
       _fechaDesde = null;
       _fechaHasta = null;
-      _busquedaController.clear();
       _busquedaAnimal = '';
+      _busquedaResetKey++;
     });
     _cargarNotas();
   }
@@ -141,16 +130,10 @@ class _NotasPageState extends State<NotasPage> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: TextField(
-            controller: _busquedaController,
-            decoration: InputDecoration(
-              hintText: 'Buscar por nombre de animal',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-            ),
-            onChanged: _onBusquedaCambiada,
+          child: BuscadorDebounced(
+            key: ValueKey(_busquedaResetKey),
+            hint: 'Buscar por nombre de animal',
+            onCambio: _onBusquedaCambiada,
           ),
         ),
         NotasFiltrosBar(

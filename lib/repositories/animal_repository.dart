@@ -5,6 +5,8 @@ import '../services/pocketbase_service.dart';
 class AnimalRepository {
   final PocketBase _pb = PocketbaseService.instance.pb;
 
+  static const String _filtroAutomaticosAccesoRapido = "estado.nombre = 'enfermo' || estado.nombre = 'cuidado_especial'";
+
   String? _armarFiltro({
     String? nombre,
     String? especie,
@@ -74,6 +76,50 @@ class AnimalRepository {
   Future<List<RecordModel>> listarRecientesCrudo(int cantidad) async {
     final resultado = await _pb.collection('animales').getList(page: 1, perPage: cantidad, sort: '-created');
     return resultado.items;
+  }
+
+  /// Combina los animales enfermos/en cuidado especial (automaticos) con los
+  /// favoritos personales del usuario logueado (accesos_rapidos), deduplicando
+  /// por id. Toda esta logica vive aca para que la pantalla solo orqueste.
+  Future<List<Animal>> listarAccesoRapido() async {
+    final userId = _pb.authStore.model?.id;
+
+    final automaticos = await _pb.collection('animales').getFullList(
+          filter: _filtroAutomaticosAccesoRapido,
+          expand: 'sector,especie,estado',
+        );
+
+    List<RecordModel> favoritos = [];
+    if (userId != null) {
+      final favoritosRaw = await _pb.collection('accesos_rapidos').getFullList(
+            filter: "users = '$userId'",
+            expand: 'animales.sector,animales.especie,animales.estado',
+          );
+      favoritos = favoritosRaw
+          .map((r) => r.expand['animales'])
+          .where((e) => e != null && e.isNotEmpty)
+          .map((e) => e!.first)
+          .toList();
+    }
+
+    final vistos = <String>{};
+    final resultado = <Animal>[];
+    for (final r in [...automaticos, ...favoritos]) {
+      if (vistos.contains(r.id)) continue;
+      vistos.add(r.id);
+      resultado.add(Animal.fromRecord(r));
+    }
+    return resultado;
+  }
+
+  /// Ids de los animales que aparecen automaticamente en el acceso rapido
+  /// (enfermo o cuidado especial), para que la pantalla de gestion de
+  /// favoritos pueda marcarlos como no editables sin duplicar el filtro.
+  Future<Set<String>> listarIdsAutomaticosAccesoRapido() async {
+    final automaticos = await _pb.collection('animales').getFullList(
+          filter: _filtroAutomaticosAccesoRapido,
+        );
+    return automaticos.map((r) => r.id).toSet();
   }
 
   Future<void> crear(Map<String, dynamic> datos) async {
