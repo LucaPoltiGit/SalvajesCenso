@@ -68,6 +68,7 @@ class NotaRepository {
       'tipo': tipoId,
       'contenido': contenido,
       'fecha': fecha.toIso8601String(),
+      'autor': _pb.authStore.model?.id,
     });
     return creada.id;
   }

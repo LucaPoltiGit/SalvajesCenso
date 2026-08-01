@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/actividad_item.dart';
 import '../theme/app_colors.dart';
+import 'actividad_detalle_sheet.dart';
 
 class ActividadTile extends StatelessWidget {
   final ActividadItem item;
@@ -51,6 +52,14 @@ class ActividadTile extends StatelessWidget {
       ),
       title: Text(_texto, style: const TextStyle(fontSize: 13)),
       subtitle: Text(_fechaTexto, style: const TextStyle(fontSize: 11)),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          builder: (_) => ActividadDetalleSheet(item: item),
+        );
+      },
     );
   }
 }

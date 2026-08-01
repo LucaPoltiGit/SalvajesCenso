@@ -26,6 +26,7 @@ class FotoService {
         if (notaId != null) 'nota': notaId,
         'descripcion': descripcion,
         'fecha': DateTime.now().toIso8601String(),
+        'subida_por': pb.authStore.model?.id,
       },
       files: [
         http.MultipartFile.fromBytes(

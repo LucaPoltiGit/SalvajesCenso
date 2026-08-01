@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/animal.dart';
 import '../../models/actividad_item.dart';
 import '../../repositories/animal_repository.dart';
-import '../../repositories/nota_repository.dart';
-import '../../repositories/foto_repository.dart';
+import '../../repositories/actividad_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../widgets/principal_stats_row.dart';
 import '../../widgets/animal_quick_chip.dart';
@@ -12,6 +11,7 @@ import '../../widgets/quick_access_card.dart';
 import '../ficha/ficha_page.dart';
 import '../sectores/sectores_page.dart';
 import '../galeria/galeria_page.dart';
+import '../actividad/actividad_page.dart';
 
 class PrincipalPage extends StatefulWidget {
   const PrincipalPage({super.key});
@@ -23,8 +23,6 @@ class PrincipalPage extends StatefulWidget {
 class _PrincipalPageState extends State<PrincipalPage> {
   final _pbService = PocketbaseService.instance;
   final _animalRepo = AnimalRepository();
-  final _notaRepo = NotaRepository();
-  final _fotoRepo = FotoRepository();
 
   bool _cargando = true;
   String? _error;
@@ -54,26 +52,14 @@ class _PrincipalPageState extends State<PrincipalPage> {
       final enfermos = await _animalRepo.contar(estadoIgual: 'enfermo');
       final accesoRapido = await _animalRepo.listar(excluirEstado: 'fallecido', sort: 'nombre');
 
-      final notasRecientes = await _notaRepo.listarRecientesCrudo(5);
-      final fotosRecientes = await _fotoRepo.listarRecientesCrudo(5);
-      final animalesRecientes = await _animalRepo.listarRecientesCrudo(5);
-
-      final actividad = <ActividadItem>[
-        ...animalesRecientes.map(ActividadItem.animalNuevo),
-        ...notasRecientes.map(ActividadItem.nota),
-        ...fotosRecientes.map(ActividadItem.foto),
-      ];
-      actividad.sort((a, b) => b.fecha.compareTo(a.fecha));
-
-      final unaSemanaAtras = DateTime.now().subtract(const Duration(days: 7));
-      final actividadReciente = actividad.where((a) => a.fecha.isAfter(unaSemanaAtras)).take(4).toList();
+      final actividad = await ActividadRepository.obtenerReciente(diasAtras: 7, maxPorTipo: 5);
 
       setState(() {
         _totalAnimales = totalActivos;
         _totalCuidadoEspecial = cuidadoEspecial;
         _totalEnfermos = enfermos;
         _accesoRapido = accesoRapido;
-        _actividad = actividadReciente;
+        _actividad = actividad;
         _cargando = false;
       });
     } catch (e) {
@@ -127,7 +113,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
               const Text('Actividad reciente', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               TextButton(
                 onPressed: () {
-                  // TODO: pantalla de actividad completa
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ActividadPage()));
                 },
                 child: const Text('Ver todo'),
               ),

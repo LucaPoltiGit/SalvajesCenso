@@ -16,7 +16,10 @@ class CategoriaRepository {
   }
 
   Future<ItemSimple> crear(String nombre) async {
-    final creado = await _pb.collection(coleccion).create(body: {'nombre': nombre});
+    final creado = await _pb.collection(coleccion).create(body: {
+      'nombre': nombre,
+      'creado_por': _pb.authStore.model?.id,
+    });
     return ItemSimple.fromRecord(creado);
   }
 

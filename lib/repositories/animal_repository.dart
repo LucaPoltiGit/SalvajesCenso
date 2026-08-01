@@ -77,7 +77,11 @@ class AnimalRepository {
   }
 
   Future<void> crear(Map<String, dynamic> datos) async {
-    await _pb.collection('animales').create(body: datos);
+    final body = {
+      ...datos,
+      'creado_por': _pb.authStore.model?.id,
+    };
+    await _pb.collection('animales').create(body: body);
   }
 
   Future<void> editar(String id, Map<String, dynamic> datos) async {

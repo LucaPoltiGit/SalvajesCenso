@@ -21,6 +21,7 @@ class _AppShellState extends State<AppShell> {
   int _indiceActual = 0;
 
   int _censoRefreshKey = 0;
+  int _principalRefreshKey = 0;
 
   List<String> get _titulos {
     final base = ['Principal', 'Censo'];
@@ -31,7 +32,7 @@ class _AppShellState extends State<AppShell> {
 
   List<Widget> get _paginas {
     final base = <Widget>[
-      const PrincipalPage(),
+      PrincipalPage(key: ValueKey(_principalRefreshKey)),
       CensoPage(key: ValueKey(_censoRefreshKey)),
     ];
     if (AuthHelper.puedeVerNotas) base.add(const NotasPage());
@@ -76,7 +77,12 @@ class _AppShellState extends State<AppShell> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _indiceActual,
-        onDestinationSelected: (i) => setState(() => _indiceActual = i),
+        onDestinationSelected: (i) {
+          setState(() {
+            if (i == 0 && _indiceActual != 0) _principalRefreshKey++;
+            _indiceActual = i;
+          });
+        },
         destinations: _destinos,
       ),
     );
