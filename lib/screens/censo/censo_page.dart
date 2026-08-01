@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/animal.dart';
+import '../../repositories/animal_repository.dart';
+import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/animal_card.dart';
@@ -18,6 +20,8 @@ class CensoPage extends StatefulWidget {
 
 class _CensoPageState extends State<CensoPage> {
   final _pbService = PocketbaseService.instance;
+  final _animalRepo = AnimalRepository();
+  final _fotoRepo = FotoRepository();
   final _busquedaController = TextEditingController();
   Timer? _debounce;
 
@@ -51,27 +55,6 @@ class _CensoPageState extends State<CensoPage> {
     });
   }
 
-  String? _armarFiltroPocketBase() {
-    final condiciones = <String>[];
-    if (_busqueda.isNotEmpty) {
-      condiciones.add("nombre ~ '$_busqueda'");
-    }
-    if (_filtros.especie != null) {
-      condiciones.add("especie.nombre = '${_filtros.especie}'");
-    }
-    if (_filtros.estado != null) {
-      condiciones.add("estado.nombre = '${_filtros.estado}'");
-    }
-    if (_filtros.sector != null) {
-      condiciones.add("sector.nombre = '${_filtros.sector}'");
-    }
-    if (_filtros.alerta != null) {
-      condiciones.add("alerta = '${_filtros.alerta}'");
-    }
-    if (condiciones.isEmpty) return null;
-    return condiciones.join(' && ');
-  }
-
   Future<void> _cargarAnimales() async {
     setState(() {
       _cargando = true;
@@ -79,28 +62,23 @@ class _CensoPageState extends State<CensoPage> {
     });
     try {
       await _pbService.ensureAuth();
-      final resultado = await _pbService.pb.collection('animales').getFullList(
-            expand: 'sector,especie,estado',
-            sort: 'nombre',
-            filter: _armarFiltroPocketBase(),
-          );
+      final animales = await _animalRepo.listar(
+        nombre: _busqueda.isEmpty ? null : _busqueda,
+        especie: _filtros.especie,
+        estado: _filtros.estado,
+        sector: _filtros.sector,
+        alerta: _filtros.alerta,
+      );
 
-      final fotosResult = await _pbService.pb.collection('fotos').getFullList(
-            filter: "nota = ''",
-            sort: '-created',
-          );
+      final fotosGenerales = await _fotoRepo.listarGeneralesGlobal();
       final mapaFotos = <String, String>{};
-      for (final f in fotosResult) {
-        final animalId = f.data['animal'] as String?;
-        if (animalId == null) continue;
-        if (mapaFotos.containsKey(animalId)) continue;
-        final filename = f.data['imagen'] ?? '';
-        final baseUrl = _pbService.pb.baseUrl;
-        mapaFotos[animalId] = '$baseUrl/api/files/${f.collectionId}/${f.id}/$filename';
+      for (final f in fotosGenerales) {
+        if (mapaFotos.containsKey(f.animalId)) continue;
+        mapaFotos[f.animalId] = f.url;
       }
 
       setState(() {
-        _animales = resultado.map(Animal.fromRecord).toList();
+        _animales = animales;
         _fotosPorAnimal = mapaFotos;
         _cargando = false;
       });

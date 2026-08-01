@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/pocketbase_service.dart';
+import '../repositories/categoria_repository.dart';
+import '../repositories/sector_repository.dart';
 import '../theme/app_colors.dart';
 
 class FiltrosCenso {
@@ -22,7 +23,9 @@ class FiltroCensoSheet extends StatefulWidget {
 }
 
 class _FiltroCensoSheetState extends State<FiltroCensoSheet> {
-  final _pb = PocketbaseService.instance.pb;
+  final _especieRepo = CategoriaRepository('especies');
+  final _estadoRepo = CategoriaRepository('estados');
+  final _sectorRepo = SectorRepository();
 
   List<String> _especies = [];
   List<String> _estados = [];
@@ -45,13 +48,13 @@ class _FiltroCensoSheetState extends State<FiltroCensoSheet> {
   }
 
   Future<void> _cargarOpciones() async {
-    final especies = await _pb.collection('especies').getFullList(sort: 'nombre');
-    final estados = await _pb.collection('estados').getFullList(sort: 'nombre');
-    final sectores = await _pb.collection('sectores').getFullList(sort: 'nombre');
+    final especies = await _especieRepo.listar();
+    final estados = await _estadoRepo.listar();
+    final sectores = await _sectorRepo.listar();
     setState(() {
-      _especies = especies.map((e) => e.data['nombre'] as String).toList();
-      _estados = estados.map((e) => e.data['nombre'] as String).toList();
-      _sectores = sectores.map((e) => e.data['nombre'] as String).toList();
+      _especies = especies.map((e) => e.nombre).toList();
+      _estados = estados.map((e) => e.nombre).toList();
+      _sectores = sectores.map((e) => e.nombre).toList();
       _cargando = false;
     });
   }

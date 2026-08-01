@@ -7,6 +7,7 @@ class NotaHistorial {
   final DateTime fecha;
   final String contenido;
   final String tipoNombre;
+  final String? animalNombre;
 
   NotaHistorial({
     required this.id,
@@ -15,6 +16,7 @@ class NotaHistorial {
     required this.fecha,
     required this.contenido,
     required this.tipoNombre,
+    this.animalNombre,
   });
 
   factory NotaHistorial.fromRecord(RecordModel record) {
@@ -22,6 +24,9 @@ class NotaHistorial {
     final tipoNombre = (tipoExpand != null && tipoExpand.isNotEmpty)
         ? (tipoExpand.first.data['nombre'] ?? 'general')
         : 'general';
+
+    final animalExpand = record.expand['animal'];
+    final animalNombre = (animalExpand != null && animalExpand.isNotEmpty) ? animalExpand.first.data['nombre'] as String? : null;
 
     DateTime fecha;
     try {
@@ -38,6 +43,7 @@ class NotaHistorial {
       fecha: fecha,
       contenido: record.data['contenido'] ?? '',
       tipoNombre: tipoNombre,
+      animalNombre: animalNombre,
     );
   }
 }

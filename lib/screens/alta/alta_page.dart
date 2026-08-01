@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
+import '../../repositories/animal_repository.dart';
+import '../../repositories/categoria_repository.dart';
+import '../../repositories/item_simple.dart';
+import '../../repositories/sector_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 
@@ -13,7 +17,10 @@ class AltaPage extends StatefulWidget {
 
 class _AltaPageState extends State<AltaPage> {
   final _formKey = GlobalKey<FormState>();
-  final _pb = PocketbaseService.instance.pb;
+  final _animalRepo = AnimalRepository();
+  final _sectorRepo = SectorRepository();
+  final _especieRepo = CategoriaRepository('especies');
+  final _estadoRepo = CategoriaRepository('estados');
 
   final _nombreCtrl = TextEditingController();
   final _edadCtrl = TextEditingController();
@@ -25,9 +32,9 @@ class _AltaPageState extends State<AltaPage> {
   bool _guardando = false;
   String? _error;
 
-  List<RecordModel> _especies = [];
-  List<RecordModel> _sectores = [];
-  List<RecordModel> _estados = [];
+  List<ItemSimple> _especies = [];
+  List<ItemSimple> _sectores = [];
+  List<ItemSimple> _estados = [];
 
   String? _especieId;
   String? _sectorId;
@@ -54,13 +61,13 @@ class _AltaPageState extends State<AltaPage> {
   Future<void> _cargarOpciones() async {
     try {
       await PocketbaseService.instance.ensureAuth();
-      final especies = await _pb.collection('especies').getFullList(sort: 'nombre');
-      final sectores = await _pb.collection('sectores').getFullList(sort: 'nombre');
-      final estados = await _pb.collection('estados').getFullList(sort: 'nombre');
+      final especies = await _especieRepo.listar();
+      final sectores = await _sectorRepo.listar();
+      final estados = await _estadoRepo.listar();
 
       String? estadoDefault;
       for (final e in estados) {
-        if (e.data['nombre'] == 'bien') {
+        if (e.nombre == 'bien') {
           estadoDefault = e.id;
           break;
         }
@@ -137,9 +144,9 @@ class _AltaPageState extends State<AltaPage> {
 
       final animalExistente = widget.animalExistente;
       if (animalExistente != null) {
-        await _pb.collection('animales').update(animalExistente.id, body: body);
+        await _animalRepo.editar(animalExistente.id, body);
       } else {
-        await _pb.collection('animales').create(body: body);
+        await _animalRepo.crear(body);
       }
 
       if (mounted) {
@@ -184,7 +191,7 @@ class _AltaPageState extends State<AltaPage> {
                     decoration: const InputDecoration(labelText: 'Especie', border: OutlineInputBorder()),
                     value: _especieId,
                     items: _especies
-                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.data['nombre'] ?? '')))
+                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre)))
                         .toList(),
                     onChanged: (v) => setState(() => _especieId = v),
                     validator: (v) => v == null ? 'Elegi una especie' : null,
@@ -194,7 +201,7 @@ class _AltaPageState extends State<AltaPage> {
                     decoration: const InputDecoration(labelText: 'Sector', border: OutlineInputBorder()),
                     value: _sectorId,
                     items: _sectores
-                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.data['nombre'] ?? '')))
+                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre)))
                         .toList(),
                     onChanged: (v) => setState(() => _sectorId = v),
                     validator: (v) => v == null ? 'Elegi un sector' : null,
@@ -204,7 +211,7 @@ class _AltaPageState extends State<AltaPage> {
                     decoration: const InputDecoration(labelText: 'Estado', border: OutlineInputBorder()),
                     value: _estadoId,
                     items: _estados
-                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.data['nombre'] ?? '')))
+                        .map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre)))
                         .toList(),
                     onChanged: (v) => setState(() => _estadoId = v),
                     validator: (v) => v == null ? 'Elegi un estado' : null,

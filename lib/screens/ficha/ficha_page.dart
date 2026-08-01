@@ -5,6 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../models/animal.dart';
 import '../../models/nota_historial.dart';
+import '../../repositories/animal_repository.dart';
+import '../../repositories/nota_repository.dart';
+import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
@@ -14,7 +17,6 @@ import '../../utils/text_format.dart';
 import '../alta/alta_page.dart';
 import '../nota/nota_form_page.dart';
 import '../../models/foto.dart';
-import '../../services/foto_service.dart';
 import '../../widgets/seleccionar_foto_button.dart';
 import '../foto/foto_viewer_page.dart';
 
@@ -28,6 +30,9 @@ class FichaPage extends StatefulWidget {
 
 class _FichaPageState extends State<FichaPage> {
   final _pbService = PocketbaseService.instance;
+  final _animalRepo = AnimalRepository();
+  final _notaRepo = NotaRepository();
+  final _fotoRepo = FotoRepository();
 
   Animal? _animal;
   RecordModel? _registroCrudo;
@@ -53,34 +58,18 @@ class _FichaPageState extends State<FichaPage> {
     });
     try {
       await _pbService.ensureAuth();
-      final pb = _pbService.pb;
 
-      final registro = await pb.collection('animales').getOne(
-            widget.animal.id,
-            expand: 'sector,especie,estado',
-          );
+      final registro = await _animalRepo.obtenerRecordCrudo(widget.animal.id);
 
       List<NotaHistorial> notas = [];
       if (AuthHelper.puedeVerNotas) {
-        final notasResult = await pb.collection('notas_historial').getFullList(
-              filter: "animal = '${widget.animal.id}'",
-              expand: 'tipo',
-              sort: '-fecha',
-            );
-        notas = notasResult.map(NotaHistorial.fromRecord).toList();
+        notas = await _notaRepo.listarPorAnimal(widget.animal.id);
       }
 
-      final fotosResult = await pb.collection('fotos').getFullList(
-            filter: "animal = '${widget.animal.id}' && nota = ''",
-            sort: '-created',
-          );
-
-      final fotosNotasResult = await pb.collection('fotos').getFullList(
-            filter: "animal = '${widget.animal.id}' && nota != ''",
-            sort: '-created',
-          );
+      final fotosGenerales = await _fotoRepo.listarGeneralesDeAnimal(widget.animal.id);
+      final fotosDeNotas = await _fotoRepo.listarDeNotasDeAnimal(widget.animal.id);
       final fotosPorNota = <String, List<Foto>>{};
-      for (final f in fotosNotasResult.map(Foto.fromRecord)) {
+      for (final f in fotosDeNotas) {
         if (f.notaId == null) continue;
         fotosPorNota.putIfAbsent(f.notaId!, () => []).add(f);
       }
@@ -89,7 +78,7 @@ class _FichaPageState extends State<FichaPage> {
         _animal = Animal.fromRecord(registro);
         _registroCrudo = registro;
         _notas = notas;
-        _fotos = fotosResult.map(Foto.fromRecord).toList();
+        _fotos = fotosGenerales;
         _fotosPorNota = fotosPorNota;
         _cargando = false;
       });
@@ -143,7 +132,7 @@ class _FichaPageState extends State<FichaPage> {
     if (confirmar != true) return;
 
     try {
-      await _pbService.pb.collection('animales').delete(widget.animal.id);
+      await _animalRepo.borrar(widget.animal.id);
       if (mounted) {
         Navigator.pop(context, true);
       }
@@ -276,7 +265,7 @@ class _FichaPageState extends State<FichaPage> {
   Future<void> _subirFotoGeneral(List<int> bytes) async {
     setState(() => _subiendoFoto = true);
     try {
-      await FotoService.subirFoto(animalId: widget.animal.id, bytes: Uint8List.fromList(bytes));
+      await _fotoRepo.subir(animalId: widget.animal.id, bytes: bytes);
       _seModifico = true;
       await _cargarDatos();
     } catch (e) {
@@ -321,7 +310,7 @@ class _FichaPageState extends State<FichaPage> {
     if (confirmar != true) return;
 
     try {
-      await _pbService.pb.collection('notas_historial').delete(nota.id);
+      await _notaRepo.borrar(nota.id);
       _cargarDatos();
     } catch (e) {
       if (mounted) {

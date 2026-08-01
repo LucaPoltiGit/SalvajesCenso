@@ -1,8 +1,10 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../models/nota_historial.dart';
+import '../../repositories/categoria_repository.dart';
+import '../../repositories/foto_repository.dart';
+import '../../repositories/item_simple.dart';
+import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
-import '../../services/foto_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/text_format.dart';
 import '../../widgets/seleccionar_foto_button.dart';
@@ -20,14 +22,16 @@ class NotaFormPage extends StatefulWidget {
 
 class _NotaFormPageState extends State<NotaFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final _pb = PocketbaseService.instance.pb;
+  final _notaRepo = NotaRepository();
+  final _fotoRepo = FotoRepository();
+  final _tipoRepo = CategoriaRepository('tipos_nota');
   final _contenidoCtrl = TextEditingController();
 
   bool _cargandoOpciones = true;
   bool _guardando = false;
   String? _error;
 
-  List<dynamic> _tipos = [];
+  List<ItemSimple> _tipos = [];
   String? _tipoId;
   DateTime _fecha = DateTime.now();
   List<int>? _fotoBytes;
@@ -49,7 +53,7 @@ class _NotaFormPageState extends State<NotaFormPage> {
   Future<void> _cargarOpciones() async {
     try {
       await PocketbaseService.instance.ensureAuth();
-      final tipos = await _pb.collection('tipos_nota').getFullList(sort: 'nombre');
+      final tipos = await _tipoRepo.listar();
 
       if (_esEdicion) {
         _contenidoCtrl.text = widget.notaExistente!.contenido;
@@ -96,24 +100,27 @@ class _NotaFormPageState extends State<NotaFormPage> {
     });
 
     try {
-      final body = {
-        'animal': widget.animalId,
-        'tipo': _tipoId,
-        'contenido': _contenidoCtrl.text.trim(),
-        'fecha': _fecha.toIso8601String(),
-      };
-
       String notaId;
       if (_esEdicion) {
-        await _pb.collection('notas_historial').update(widget.notaExistente!.id, body: body);
+        await _notaRepo.editar(
+          id: widget.notaExistente!.id,
+          animalId: widget.animalId,
+          tipoId: _tipoId!,
+          contenido: _contenidoCtrl.text.trim(),
+          fecha: _fecha,
+        );
         notaId = widget.notaExistente!.id;
       } else {
-        final creada = await _pb.collection('notas_historial').create(body: body);
-        notaId = creada.id;
+        notaId = await _notaRepo.crear(
+          animalId: widget.animalId,
+          tipoId: _tipoId!,
+          contenido: _contenidoCtrl.text.trim(),
+          fecha: _fecha,
+        );
       }
 
       if (_fotoBytes != null) {
-        await FotoService.subirFoto(animalId: widget.animalId, notaId: notaId, bytes: Uint8List.fromList(_fotoBytes!));
+        await _fotoRepo.subir(animalId: widget.animalId, notaId: notaId, bytes: _fotoBytes!);
       }
 
       if (mounted) Navigator.pop(context, true);
@@ -146,8 +153,8 @@ class _NotaFormPageState extends State<NotaFormPage> {
                     value: _tipoId,
                     items: _tipos
                         .map<DropdownMenuItem<String>>((t) => DropdownMenuItem(
-                              value: t.id as String,
-                              child: Text(formatearEtiqueta(t.data['nombre'] ?? '')),
+                              value: t.id,
+                              child: Text(formatearEtiqueta(t.nombre)),
                             ))
                         .toList(),
                     onChanged: (v) => setState(() => _tipoId = v),

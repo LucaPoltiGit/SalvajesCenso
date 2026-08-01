@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/foto.dart';
+import '../../repositories/foto_repository.dart';
 import '../../services/auth_helper.dart';
-import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 
 class FotoViewerPage extends StatelessWidget {
@@ -25,7 +25,7 @@ class FotoViewerPage extends StatelessWidget {
     );
     if (confirmar == true) {
       try {
-        await PocketbaseService.instance.pb.collection('fotos').delete(foto.id);
+        await FotoRepository().borrar(foto.id);
         if (context.mounted) Navigator.pop(context, true);
       } catch (e) {
         if (context.mounted) {

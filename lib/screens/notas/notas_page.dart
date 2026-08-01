@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/nota_historial.dart';
-import '../../models/animal.dart';
+import '../../repositories/animal_repository.dart';
+import '../../repositories/categoria_repository.dart';
+import '../../repositories/item_simple.dart';
+import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/nota_historial_card.dart';
@@ -16,12 +19,14 @@ class NotasPage extends StatefulWidget {
 
 class _NotasPageState extends State<NotasPage> {
   final _pbService = PocketbaseService.instance;
+  final _notaRepo = NotaRepository();
+  final _animalRepo = AnimalRepository();
+  final _tipoRepo = CategoriaRepository('tipos_nota');
   final _busquedaController = TextEditingController();
   Timer? _debounce;
 
   List<NotaHistorial> _notas = [];
   Map<String, String> _animalNombrePorNotaId = {};
-  Map<String, String> _animalIdPorNotaId = {};
   bool _cargando = true;
   String? _error;
 
@@ -29,7 +34,7 @@ class _NotasPageState extends State<NotasPage> {
   String? _tipoFiltro;
   DateTime? _fechaDesde;
   DateTime? _fechaHasta;
-  List<dynamic> _tipos = [];
+  List<ItemSimple> _tipos = [];
 
   @override
   void initState() {
@@ -47,7 +52,7 @@ class _NotasPageState extends State<NotasPage> {
 
   Future<void> _cargarTipos() async {
     await _pbService.ensureAuth();
-    final tipos = await _pbService.pb.collection('tipos_nota').getFullList(sort: 'nombre');
+    final tipos = await _tipoRepo.listar();
     setState(() => _tipos = tipos);
   }
 
@@ -59,26 +64,6 @@ class _NotasPageState extends State<NotasPage> {
     });
   }
 
-  String? _armarFiltro() {
-    final condiciones = <String>[];
-    if (_busquedaAnimal.isNotEmpty) {
-      condiciones.add("animal.nombre ~ '$_busquedaAnimal'");
-    }
-    if (_tipoFiltro != null) {
-      condiciones.add("tipo.nombre = '$_tipoFiltro'");
-    }
-    if (_fechaDesde != null) {
-      final f = _fechaDesde!.toIso8601String().split('T')[0];
-      condiciones.add("fecha >= '$f 00:00:00'");
-    }
-    if (_fechaHasta != null) {
-      final f = _fechaHasta!.toIso8601String().split('T')[0];
-      condiciones.add("fecha <= '$f 23:59:59'");
-    }
-    if (condiciones.isEmpty) return null;
-    return condiciones.join(' && ');
-  }
-
   Future<void> _cargarNotas() async {
     setState(() {
       _cargando = true;
@@ -86,26 +71,21 @@ class _NotasPageState extends State<NotasPage> {
     });
     try {
       await _pbService.ensureAuth();
-      final resultado = await _pbService.pb.collection('notas_historial').getFullList(
-            expand: 'tipo,animal',
-            sort: '-fecha',
-            filter: _armarFiltro(),
-          );
+      final notas = await _notaRepo.listarConFiltros(
+        busquedaAnimal: _busquedaAnimal.isEmpty ? null : _busquedaAnimal,
+        tipo: _tipoFiltro,
+        fechaDesde: _fechaDesde,
+        fechaHasta: _fechaHasta,
+      );
 
       final nombres = <String, String>{};
-      final ids = <String, String>{};
-      for (final r in resultado) {
-        final animalExpand = r.expand['animal'];
-        if (animalExpand != null && animalExpand.isNotEmpty) {
-          nombres[r.id] = animalExpand.first.data['nombre'] ?? 'Animal';
-          ids[r.id] = animalExpand.first.id;
-        }
+      for (final n in notas) {
+        nombres[n.id] = n.animalNombre ?? 'Animal';
       }
 
       setState(() {
-        _notas = resultado.map(NotaHistorial.fromRecord).toList();
+        _notas = notas;
         _animalNombrePorNotaId = nombres;
-        _animalIdPorNotaId = ids;
         _cargando = false;
       });
     } catch (e) {
@@ -116,12 +96,9 @@ class _NotasPageState extends State<NotasPage> {
     }
   }
 
-  Future<void> _abrirFichaDesdeNota(String notaId) async {
-    final animalId = _animalIdPorNotaId[notaId];
-    if (animalId == null) return;
+  Future<void> _abrirFichaDesdeNota(NotaHistorial nota) async {
     try {
-      final registro = await _pbService.pb.collection('animales').getOne(animalId, expand: 'sector,especie,estado');
-      final animal = Animal.fromRecord(registro);
+      final animal = await _animalRepo.obtenerPorId(nota.animalId);
       if (mounted) {
         Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: animal)));
       }
@@ -186,7 +163,7 @@ class _NotasPageState extends State<NotasPage> {
               scrollDirection: Axis.horizontal,
               children: [
                 ..._tipos.map((t) {
-                  final nombre = t.data['nombre'] as String;
+                  final nombre = t.nombre;
                   final seleccionado = _tipoFiltro == nombre;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -245,7 +222,7 @@ class _NotasPageState extends State<NotasPage> {
                             itemBuilder: (context, index) {
                               final n = _notas[index];
                               return GestureDetector(
-                                onTap: () => _abrirFichaDesdeNota(n.id),
+                                onTap: () => _abrirFichaDesdeNota(n),
                                 child: NotaHistorialCard(
                                   nota: n,
                                   animalNombre: _animalNombrePorNotaId[n.id],

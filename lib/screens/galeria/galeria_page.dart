@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/foto.dart';
+import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
-import '../../services/auth_helper.dart';
 import '../foto/foto_viewer_page.dart';
 
 class GaleriaPage extends StatefulWidget {
@@ -14,6 +14,7 @@ class GaleriaPage extends StatefulWidget {
 
 class _GaleriaPageState extends State<GaleriaPage> {
   final _pbService = PocketbaseService.instance;
+  final _fotoRepo = FotoRepository();
   final _busquedaController = TextEditingController();
   Timer? _debounce;
 
@@ -50,17 +51,9 @@ class _GaleriaPageState extends State<GaleriaPage> {
     });
     try {
       await _pbService.ensureAuth();
-      var filtro = AuthHelper.rolActual == 'visita' ? "nota = ''" : '';
-      if (_busqueda.isNotEmpty) {
-        final condicionBusqueda = "animal.nombre ~ '$_busqueda'";
-        filtro = filtro.isEmpty ? condicionBusqueda : "$filtro && $condicionBusqueda";
-      }
-      final resultado = await _pbService.pb.collection('fotos').getFullList(
-            filter: filtro,
-            sort: '-created',
-          );
+      final fotos = await _fotoRepo.listarParaGaleria(busqueda: _busqueda);
       setState(() {
-        _fotos = resultado.map(Foto.fromRecord).toList();
+        _fotos = fotos;
         _cargando = false;
       });
     } catch (e) {

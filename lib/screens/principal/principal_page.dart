@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../models/animal.dart';
 import '../../models/actividad_item.dart';
+import '../../repositories/animal_repository.dart';
+import '../../repositories/nota_repository.dart';
+import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/animal_quick_chip.dart';
@@ -21,6 +24,9 @@ class PrincipalPage extends StatefulWidget {
 
 class _PrincipalPageState extends State<PrincipalPage> {
   final _pbService = PocketbaseService.instance;
+  final _animalRepo = AnimalRepository();
+  final _notaRepo = NotaRepository();
+  final _fotoRepo = FotoRepository();
 
   bool _cargando = true;
   String? _error;
@@ -44,55 +50,20 @@ class _PrincipalPageState extends State<PrincipalPage> {
     });
     try {
       await _pbService.ensureAuth();
-      final pb = _pbService.pb;
 
-      final totalResult = await pb.collection('animales').getList(
-            page: 1,
-            perPage: 1,
-            filter: "estado.nombre != 'fallecido'",
-          );
+      final totalActivos = await _animalRepo.contar(estadoDistinto: 'fallecido');
+      final cuidadoEspecial = await _animalRepo.contar(estadoIgual: 'cuidado_especial');
+      final enfermos = await _animalRepo.contar(estadoIgual: 'enfermo');
+      final accesoRapido = await _animalRepo.listar(excluirEstado: 'fallecido', sort: 'nombre');
 
-      final cuidadoResult = await pb.collection('animales').getList(
-            page: 1,
-            perPage: 1,
-            filter: "estado.nombre = 'cuidado_especial'",
-          );
-
-      final enfermoResult = await pb.collection('animales').getList(
-            page: 1,
-            perPage: 1,
-            filter: "estado.nombre = 'enfermo'",
-          );
-
-      final nombresResult = await pb.collection('animales').getFullList(
-            sort: 'nombre',
-            filter: "estado.nombre != 'fallecido'",
-          );
-
-      final notasResult = await pb.collection('notas_historial').getList(
-            page: 1,
-            perPage: 5,
-            sort: '-created',
-            expand: 'animal',
-          );
-
-      final fotosResult = await pb.collection('fotos').getList(
-            page: 1,
-            perPage: 5,
-            sort: '-created',
-            expand: 'animal',
-          );
-
-      final animalesRecientes = await pb.collection('animales').getList(
-            page: 1,
-            perPage: 5,
-            sort: '-created',
-          );
+      final notasRecientes = await _notaRepo.listarRecientesCrudo(5);
+      final fotosRecientes = await _fotoRepo.listarRecientesCrudo(5);
+      final animalesRecientes = await _animalRepo.listarRecientesCrudo(5);
 
       final actividad = <ActividadItem>[
-        ...animalesRecientes.items.map(ActividadItem.animalNuevo),
-        ...notasResult.items.map(ActividadItem.nota),
-        ...fotosResult.items.map(ActividadItem.foto),
+        ...animalesRecientes.map(ActividadItem.animalNuevo),
+        ...notasRecientes.map(ActividadItem.nota),
+        ...fotosRecientes.map(ActividadItem.foto),
       ];
       actividad.sort((a, b) => b.fecha.compareTo(a.fecha));
 
@@ -100,10 +71,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
       final actividadReciente = actividad.where((a) => a.fecha.isAfter(unaSemanaAtras)).take(4).toList();
 
       setState(() {
-        _totalAnimales = totalResult.totalItems;
-        _totalCuidadoEspecial = cuidadoResult.totalItems;
-        _totalEnfermos = enfermoResult.totalItems;
-        _accesoRapido = nombresResult.map(Animal.fromRecord).toList();
+        _totalAnimales = totalActivos;
+        _totalCuidadoEspecial = cuidadoEspecial;
+        _totalEnfermos = enfermos;
+        _accesoRapido = accesoRapido;
         _actividad = actividadReciente;
         _cargando = false;
       });
