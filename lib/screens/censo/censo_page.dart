@@ -1,12 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/animal.dart';
 import '../../repositories/animal_repository.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
-import '../../theme/app_colors.dart';
 import '../../widgets/animal_card.dart';
 import '../../widgets/animal_tile.dart';
+import '../../widgets/censo_barra_superior.dart';
 import '../../widgets/filtro_censo_sheet.dart';
 import '../ficha/ficha_page.dart';
 
@@ -22,8 +21,6 @@ class _CensoPageState extends State<CensoPage> {
   final _pbService = PocketbaseService.instance;
   final _animalRepo = AnimalRepository();
   final _fotoRepo = FotoRepository();
-  final _busquedaController = TextEditingController();
-  Timer? _debounce;
 
   List<Animal> _animales = [];
   Map<String, String> _fotosPorAnimal = {};
@@ -40,19 +37,9 @@ class _CensoPageState extends State<CensoPage> {
     _cargarAnimales();
   }
 
-  @override
-  void dispose() {
-    _busquedaController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
   void _onBusquedaCambiada(String valor) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      _busqueda = valor;
-      _cargarAnimales();
-    });
+    _busqueda = valor;
+    _cargarAnimales();
   }
 
   Future<void> _cargarAnimales() async {
@@ -106,57 +93,12 @@ class _CensoPageState extends State<CensoPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _busquedaController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar por nombre',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  onChanged: _onBusquedaCambiada,
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () => setState(() => _vistaGrid = !_vistaGrid),
-                icon: Icon(_vistaGrid ? Icons.view_list : Icons.grid_view),
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.verde.withOpacity(0.1),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Stack(
-                children: [
-                  IconButton(
-                    onPressed: _abrirFiltros,
-                    icon: const Icon(Icons.tune),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.verde.withOpacity(0.1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  if (_filtros.tieneFiltros)
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(color: AppColors.rojo, shape: BoxShape.circle),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
+        CensoBarraSuperior(
+          vistaGrid: _vistaGrid,
+          hayFiltrosActivos: _filtros.tieneFiltros,
+          onBusquedaCambiada: _onBusquedaCambiada,
+          onToggleVista: () => setState(() => _vistaGrid = !_vistaGrid),
+          onAbrirFiltros: _abrirFiltros,
         ),
         Expanded(
           child: _cargando
