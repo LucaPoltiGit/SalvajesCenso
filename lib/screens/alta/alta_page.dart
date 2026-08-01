@@ -6,6 +6,7 @@ import '../../repositories/item_simple.dart';
 import '../../repositories/sector_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/formatear_fecha.dart';
 
 class AltaPage extends StatefulWidget {
   final RecordModel? animalExistente;
@@ -227,9 +228,7 @@ class _AltaPageState extends State<AltaPage> {
                     child: InputDecorator(
                       decoration: const InputDecoration(labelText: 'Fecha de llegada', border: OutlineInputBorder()),
                       child: Text(
-                        _fechaLlegada == null
-                            ? 'Sin especificar'
-                            : '${_fechaLlegada!.day}/${_fechaLlegada!.month}/${_fechaLlegada!.year}',
+                        _fechaLlegada == null ? 'Sin especificar' : formatearFecha(_fechaLlegada!),
                       ),
                     ),
                   ),

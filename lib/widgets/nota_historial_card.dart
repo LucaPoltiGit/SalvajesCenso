@@ -4,6 +4,7 @@ import '../models/foto.dart';
 import '../theme/app_colors.dart';
 import '../services/auth_helper.dart';
 import '../utils/text_format.dart';
+import '../utils/formatear_fecha.dart';
 import '../screens/foto/foto_viewer_page.dart';
 
 class NotaHistorialCard extends StatelessWidget {
@@ -34,12 +35,6 @@ class NotaHistorialCard extends StatelessWidget {
       default:
         return AppColors.verde;
     }
-  }
-
-  String get _fechaTexto {
-    final dia = nota.fecha.day.toString().padLeft(2, '0');
-    final mes = nota.fecha.month.toString().padLeft(2, '0');
-    return '$dia/$mes/${nota.fecha.year}';
   }
 
   @override
@@ -73,7 +68,7 @@ class NotaHistorialCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Text(_fechaTexto, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                  Text(formatearFecha(nota.fecha), style: const TextStyle(fontSize: 11, color: Colors.grey)),
                   if (mostrarMenu)
                     PopupMenuButton<String>(
                       padding: EdgeInsets.zero,

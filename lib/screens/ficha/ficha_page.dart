@@ -5,19 +5,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../models/animal.dart';
 import '../../models/nota_historial.dart';
+import '../../models/foto.dart';
 import '../../repositories/animal_repository.dart';
 import '../../repositories/nota_repository.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/dato_item.dart';
-import '../../widgets/nota_historial_card.dart';
-import '../../utils/text_format.dart';
+import '../../widgets/ficha_header.dart';
+import '../../widgets/ficha_tab_datos.dart';
+import '../../widgets/ficha_tab_sobre.dart';
 import '../alta/alta_page.dart';
 import '../nota/nota_form_page.dart';
-import '../../models/foto.dart';
-import '../../widgets/seleccionar_foto_button.dart';
 import '../foto/foto_viewer_page.dart';
 
 class FichaPage extends StatefulWidget {
@@ -90,25 +89,6 @@ class _FichaPageState extends State<FichaPage> {
     }
   }
 
-  Widget _buildAlertaBanner(Animal a) {
-    if (a.alerta != 'rojo' && a.alerta != 'amarillo') return const SizedBox.shrink();
-    final color = a.alerta == 'rojo' ? AppColors.rojo : AppColors.amarillo;
-    final texto = a.alerta == 'rojo' ? 'Precaucion: ver detalle en Sobre el animal' : 'Aviso: ver detalle en Sobre el animal';
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-      child: Row(
-        children: [
-          Icon(Icons.warning_amber_rounded, color: color, size: 18),
-          const SizedBox(width: 8),
-          Expanded(child: Text(texto, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600))),
-        ],
-      ),
-    );
-  }
-
   Future<void> _confirmarBorrado() async {
     final a = _animal ?? widget.animal;
     final confirmar = await showDialog<bool>(
@@ -145,111 +125,6 @@ class _FichaPageState extends State<FichaPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final a = _animal ?? widget.animal;
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        Navigator.of(context).pop(_seModifico);
-      },
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(a.nombre),
-            actions: [
-              if (AuthHelper.puedeEditar)
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
-                    final resultado = await Navigator.push<bool>(
-                      context,
-                      MaterialPageRoute(builder: (_) => AltaPage(animalExistente: _registroCrudo)),
-                    );
-                    if (resultado == true) {
-                      _seModifico = true;
-                      _cargarDatos();
-                    }
-                  },
-                ),
-              if (AuthHelper.puedeBorrar)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: _confirmarBorrado,
-                ),
-            ],
-          ),
-          body: _cargando
-              ? const Center(child: CircularProgressIndicator())
-              : _error != null
-                  ? Center(child: Text('Error: $_error'))
-                  : Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 48,
-                                    backgroundColor: AppColors.madera.withOpacity(0.15),
-                                    backgroundImage: _fotos.isNotEmpty ? NetworkImage(_fotos.first.url) : null,
-                                    child: _fotos.isEmpty
-                                        ? Text(
-                                            a.nombre.isNotEmpty ? a.nombre[0].toUpperCase() : '?',
-                                            style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
-                                          )
-                                        : null,
-                                  ),
-                                  if (AuthHelper.puedeSubirFotos)
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: _elegirFotoPerfil,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: const BoxDecoration(color: AppColors.verde, shape: BoxShape.circle),
-                                          child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Text(a.nombre, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                              _buildAlertaBanner(a),
-                            ],
-                          ),
-                        ),
-                        const TabBar(
-                          labelColor: AppColors.verde,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorColor: AppColors.verde,
-                          tabs: [
-                            Tab(text: 'Datos'),
-                            Tab(text: 'Sobre el animal'),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            children: [
-                              _buildTabDatos(a),
-                              _buildTabSobre(a),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _elegirFotoPerfil() async {
     final resultado = await FilePicker.pickFiles(type: FileType.image);
     if (resultado == null || resultado.files.isEmpty) return;
@@ -272,6 +147,14 @@ class _FichaPageState extends State<FichaPage> {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir foto: $e')));
     } finally {
       if (mounted) setState(() => _subiendoFoto = false);
+    }
+  }
+
+  Future<void> _verFoto(Foto foto) async {
+    final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: foto)));
+    if (resultado == true) {
+      _seModifico = true;
+      _cargarDatos();
     }
   }
 
@@ -321,111 +204,87 @@ class _FichaPageState extends State<FichaPage> {
     }
   }
 
-  Widget _buildTabDatos(Animal a) {
-    return RefreshIndicator(
-      onRefresh: _cargarDatos,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Wrap(
-            children: [
-              DatoItem(icono: Icons.pets, label: 'Especie', valor: a.especieNombre),
-              DatoItem(icono: Icons.cake_outlined, label: 'Edad', valor: a.edad),
-              DatoItem(icono: Icons.favorite_outline, label: 'Estado', valor: formatearEtiqueta(a.estadoNombre)),
-              DatoItem(icono: Icons.map_outlined, label: 'Sector', valor: a.sectorNombre),
-              DatoItem(icono: Icons.calendar_today_outlined, label: 'Llegada', valor: a.fechaLlegada),
-              DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: a.dieta),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Fotos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              if (AuthHelper.puedeSubirFotos)
-                SeleccionarFotoButton(texto: 'Agregar', cargando: _subiendoFoto, onFotoSeleccionada: _subirFotoGeneral),
-            ],
-          ),
-          const SizedBox(height: 10),
-          if (_fotos.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('Sin fotos cargadas todavia', style: TextStyle(fontSize: 13)),
-            )
-          else
-            SizedBox(
-              height: 90,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _fotos.length,
-                itemBuilder: (context, index) {
-                  final f = _fotos[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: GestureDetector(
-                      onTap: () async {
-                        final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: f)));
-                        if (resultado == true) {
-                          _seModifico = true;
-                          _cargarDatos();
-                        }
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(f.url, width: 90, height: 90, fit: BoxFit.cover),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          if (AuthHelper.puedeVerNotas) ...[
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Historial', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                if (AuthHelper.puedeCrearNotas)
-                  TextButton.icon(
-                    onPressed: () => _abrirFormularioNota(),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Agregar nota'),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            if (_notas.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text('Sin notas cargadas todavia', style: TextStyle(fontSize: 13)),
-              )
-            else
-              ..._notas.map((n) => NotaHistorialCard(
-                    nota: n,
-                    onEditar: () => _abrirFormularioNota(notaExistente: n),
-                    onBorrar: () => _confirmarBorradoNota(n),
-                    fotos: _fotosPorNota[n.id] ?? [],
-                  )),
-          ],
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
+  @override
+  Widget build(BuildContext context) {
+    final a = _animal ?? widget.animal;
 
-  Widget _buildTabSobre(Animal a) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text('Descripcion', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        const SizedBox(height: 8),
-        Text(a.descripcion.isEmpty ? 'Sin descripcion cargada' : a.descripcion, style: const TextStyle(fontSize: 14)),
-        const SizedBox(height: 24),
-        const Text('Historia de llegada', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        const SizedBox(height: 8),
-        Text(a.historiaLlegada.isEmpty ? 'Sin historia cargada' : a.historiaLlegada, style: const TextStyle(fontSize: 14)),
-        const SizedBox(height: 40),
-      ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        Navigator.of(context).pop(_seModifico);
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(a.nombre),
+            actions: [
+              if (AuthHelper.puedeEditar)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    final resultado = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(builder: (_) => AltaPage(animalExistente: _registroCrudo)),
+                    );
+                    if (resultado == true) {
+                      _seModifico = true;
+                      _cargarDatos();
+                    }
+                  },
+                ),
+              if (AuthHelper.puedeBorrar)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: _confirmarBorrado,
+                ),
+            ],
+          ),
+          body: _cargando
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+                  ? Center(child: Text('Error: $_error'))
+                  : Column(
+                      children: [
+                        FichaHeader(
+                          animal: a,
+                          fotoUrl: _fotos.isNotEmpty ? _fotos.first.url : null,
+                          onEditarFoto: _elegirFotoPerfil,
+                        ),
+                        const TabBar(
+                          labelColor: AppColors.verde,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorColor: AppColors.verde,
+                          tabs: [
+                            Tab(text: 'Datos'),
+                            Tab(text: 'Sobre el animal'),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              FichaTabDatos(
+                                animal: a,
+                                fotos: _fotos,
+                                notas: _notas,
+                                fotosPorNota: _fotosPorNota,
+                                subiendoFoto: _subiendoFoto,
+                                onRefresh: _cargarDatos,
+                                onSubirFoto: _subirFotoGeneral,
+                                onTapFoto: _verFoto,
+                                onAgregarNota: () => _abrirFormularioNota(),
+                                onEditarNota: (n) => _abrirFormularioNota(notaExistente: n),
+                                onBorrarNota: _confirmarBorradoNota,
+                              ),
+                              FichaTabSobre(animal: a),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+        ),
+      ),
     );
   }
 }

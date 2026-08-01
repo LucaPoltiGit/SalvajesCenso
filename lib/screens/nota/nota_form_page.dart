@@ -7,6 +7,7 @@ import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/text_format.dart';
+import '../../utils/formatear_fecha.dart';
 import '../../widgets/seleccionar_foto_button.dart';
 
 class NotaFormPage extends StatefulWidget {
@@ -165,7 +166,7 @@ class _NotaFormPageState extends State<NotaFormPage> {
                     onTap: _elegirFecha,
                     child: InputDecorator(
                       decoration: const InputDecoration(labelText: 'Fecha', border: OutlineInputBorder()),
-                      child: Text('${_fecha.day}/${_fecha.month}/${_fecha.year}'),
+                      child: Text(formatearFecha(_fecha)),
                     ),
                   ),
                   const SizedBox(height: 14),

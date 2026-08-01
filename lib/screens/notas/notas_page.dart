@@ -7,6 +7,7 @@ import '../../repositories/item_simple.dart';
 import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/formatear_fecha.dart';
 import '../../widgets/nota_historial_card.dart';
 import '../ficha/ficha_page.dart';
 
@@ -181,7 +182,7 @@ class _NotasPageState extends State<NotasPage> {
                   padding: const EdgeInsets.only(right: 8),
                   child: ActionChip(
                     avatar: const Icon(Icons.calendar_today, size: 14),
-                    label: Text(_fechaDesde == null ? 'Desde' : '${_fechaDesde!.day}/${_fechaDesde!.month}'),
+                    label: Text(_fechaDesde == null ? 'Desde' : formatearFechaCorta(_fechaDesde!)),
                     onPressed: () => _elegirFecha(true),
                   ),
                 ),
@@ -189,7 +190,7 @@ class _NotasPageState extends State<NotasPage> {
                   padding: const EdgeInsets.only(right: 8),
                   child: ActionChip(
                     avatar: const Icon(Icons.calendar_today, size: 14),
-                    label: Text(_fechaHasta == null ? 'Hasta' : '${_fechaHasta!.day}/${_fechaHasta!.month}'),
+                    label: Text(_fechaHasta == null ? 'Hasta' : formatearFechaCorta(_fechaHasta!)),
                     onPressed: () => _elegirFecha(false),
                   ),
                 ),
