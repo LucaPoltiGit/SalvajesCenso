@@ -33,17 +33,28 @@ class ActividadFiltrosBar extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
-            ...quienes.map((q) {
-              final seleccionado = quienSeleccionado == q;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(q),
-                  selected: seleccionado,
-                  onSelected: (v) => onQuienSeleccionado(v ? q : null),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SizedBox(
+                width: 160,
+                height: 40,
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    border: OutlineInputBorder(),
+                    hintText: 'Quien',
+                  ),
+                  value: quienSeleccionado,
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('Todos')),
+                    ...quienes.map((q) => DropdownMenuItem(value: q, child: Text(q, overflow: TextOverflow.ellipsis))),
+                  ],
+                  onChanged: (v) => onQuienSeleccionado(v),
                 ),
-              );
-            }),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ActionChip(
