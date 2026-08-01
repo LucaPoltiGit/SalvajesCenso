@@ -6,9 +6,8 @@ import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
 import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
-import '../../theme/app_colors.dart';
-import '../../utils/formatear_fecha.dart';
 import '../../widgets/nota_historial_card.dart';
+import '../../widgets/notas_filtros_bar.dart';
 import '../ficha/ficha_page.dart';
 
 class NotasPage extends StatefulWidget {
@@ -136,8 +135,6 @@ class _NotasPageState extends State<NotasPage> {
     _cargarNotas();
   }
 
-  bool get _tieneFiltrosActivos => _tipoFiltro != null || _fechaDesde != null || _fechaHasta != null;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -156,56 +153,17 @@ class _NotasPageState extends State<NotasPage> {
             onChanged: _onBusquedaCambiada,
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                ..._tipos.map((t) {
-                  final nombre = t.nombre;
-                  final seleccionado = _tipoFiltro == nombre;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text(nombre),
-                      selected: seleccionado,
-                      onSelected: (v) {
-                        setState(() => _tipoFiltro = v ? nombre : null);
-                        _cargarNotas();
-                      },
-                    ),
-                  );
-                }),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ActionChip(
-                    avatar: const Icon(Icons.calendar_today, size: 14),
-                    label: Text(_fechaDesde == null ? 'Desde' : formatearFechaCorta(_fechaDesde!)),
-                    onPressed: () => _elegirFecha(true),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ActionChip(
-                    avatar: const Icon(Icons.calendar_today, size: 14),
-                    label: Text(_fechaHasta == null ? 'Hasta' : formatearFechaCorta(_fechaHasta!)),
-                    onPressed: () => _elegirFecha(false),
-                  ),
-                ),
-                if (_tieneFiltrosActivos)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ActionChip(
-                      avatar: const Icon(Icons.close, size: 14, color: AppColors.rojo),
-                      label: const Text('Limpiar', style: TextStyle(color: AppColors.rojo)),
-                      onPressed: _limpiarFiltros,
-                    ),
-                  ),
-              ],
-            ),
-          ),
+        NotasFiltrosBar(
+          tipos: _tipos,
+          tipoSeleccionado: _tipoFiltro,
+          fechaDesde: _fechaDesde,
+          fechaHasta: _fechaHasta,
+          onTipoSeleccionado: (tipo) {
+            setState(() => _tipoFiltro = tipo);
+            _cargarNotas();
+          },
+          onElegirFecha: _elegirFecha,
+          onLimpiar: _limpiarFiltros,
         ),
         const SizedBox(height: 8),
         Expanded(
