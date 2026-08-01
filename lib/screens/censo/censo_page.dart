@@ -9,7 +9,8 @@ import '../../widgets/filtro_censo_sheet.dart';
 import '../ficha/ficha_page.dart';
 
 class CensoPage extends StatefulWidget {
-  const CensoPage({super.key});
+  final FiltrosCenso? filtroInicial;
+  const CensoPage({super.key, this.filtroInicial});
 
   @override
   State<CensoPage> createState() => _CensoPageState();
@@ -24,13 +25,14 @@ class _CensoPageState extends State<CensoPage> {
   Map<String, String> _fotosPorAnimal = {};
   bool _cargando = true;
   String? _error;
-  FiltrosCenso _filtros = const FiltrosCenso();
+  late FiltrosCenso _filtros;
   String _busqueda = '';
   bool _vistaGrid = true;
 
   @override
   void initState() {
     super.initState();
+    _filtros = widget.filtroInicial ?? const FiltrosCenso();
     _cargarAnimales();
   }
 

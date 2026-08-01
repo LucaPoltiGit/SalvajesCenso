@@ -9,6 +9,8 @@ import '../../widgets/quick_access_card.dart';
 import '../ficha/ficha_page.dart';
 import '../sectores/sectores_page.dart';
 import '../galeria/galeria_page.dart';
+import '../censo/censo_filtrado_page.dart';
+import '../../widgets/filtro_censo_sheet.dart';
 
 class PrincipalPage extends StatefulWidget {
   const PrincipalPage({super.key});
@@ -25,6 +27,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
   int _totalAnimales = 0;
   int _totalCuidadoEspecial = 0;
+  int _totalEnfermos = 0;
   List<Animal> _accesoRapido = [];
   List<ActividadItem> _actividad = [];
 
@@ -53,6 +56,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
             page: 1,
             perPage: 1,
             filter: "estado.nombre = 'cuidado_especial'",
+          );
+
+      final enfermoResult = await pb.collection('animales').getList(
+            page: 1,
+            perPage: 1,
+            filter: "estado.nombre = 'enfermo'",
           );
 
       final nombresResult = await pb.collection('animales').getFullList(
@@ -93,6 +102,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       setState(() {
         _totalAnimales = totalResult.totalItems;
         _totalCuidadoEspecial = cuidadoResult.totalItems;
+        _totalEnfermos = enfermoResult.totalItems;
         _accesoRapido = nombresResult.map(Animal.fromRecord).toList();
         _actividad = actividadReciente;
         _cargando = false;
@@ -117,9 +127,50 @@ class _PrincipalPageState extends State<PrincipalPage> {
         children: [
           Row(
             children: [
-              Expanded(child: StatCard(numero: '$_totalAnimales', label: 'Total de animales')),
-              const SizedBox(width: 12),
-              Expanded(child: StatCard(numero: '$_totalCuidadoEspecial', label: 'Cuidado especial')),
+              Expanded(
+                child: StatCard(
+                  numero: '$_totalAnimales',
+                  label: 'Total de animales',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CensoFiltradoPage(titulo: 'Todos los animales', filtro: FiltrosCenso()),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: StatCard(
+                  numero: '$_totalEnfermos',
+                  label: 'Enfermo',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CensoFiltradoPage(titulo: 'Enfermos', filtro: FiltrosCenso(estado: 'enfermo')),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: StatCard(
+                  numero: '$_totalCuidadoEspecial',
+                  label: 'Cuidado especial',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CensoFiltradoPage(titulo: 'Cuidado especial', filtro: FiltrosCenso(estado: 'cuidado_especial')),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
