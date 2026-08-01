@@ -5,15 +5,13 @@ import '../../repositories/animal_repository.dart';
 import '../../repositories/nota_repository.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
-import '../../widgets/stat_card.dart';
+import '../../widgets/principal_stats_row.dart';
 import '../../widgets/animal_quick_chip.dart';
 import '../../widgets/actividad_tile.dart';
 import '../../widgets/quick_access_card.dart';
 import '../ficha/ficha_page.dart';
 import '../sectores/sectores_page.dart';
 import '../galeria/galeria_page.dart';
-import '../censo/censo_filtrado_page.dart';
-import '../../widgets/filtro_censo_sheet.dart';
 
 class PrincipalPage extends StatefulWidget {
   const PrincipalPage({super.key});
@@ -96,53 +94,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: StatCard(
-                  numero: '$_totalAnimales',
-                  label: 'Total de animales',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CensoFiltradoPage(titulo: 'Todos los animales', filtro: FiltrosCenso()),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: StatCard(
-                  numero: '$_totalEnfermos',
-                  label: 'Enfermo',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CensoFiltradoPage(titulo: 'Enfermos', filtro: FiltrosCenso(estado: 'enfermo')),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: StatCard(
-                  numero: '$_totalCuidadoEspecial',
-                  label: 'Cuidado especial',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CensoFiltradoPage(titulo: 'Cuidado especial', filtro: FiltrosCenso(estado: 'cuidado_especial')),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+          PrincipalStatsRow(
+            totalAnimales: _totalAnimales,
+            totalEnfermos: _totalEnfermos,
+            totalCuidadoEspecial: _totalCuidadoEspecial,
           ),
           const SizedBox(height: 24),
 
