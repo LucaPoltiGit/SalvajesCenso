@@ -105,14 +105,15 @@ class _AppShellState extends State<AppShell> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GaleriaPage()));
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.category_outlined),
-              title: const Text('Gestionar categorias'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasPage()));
-              },
-            ),
+            if (AuthHelper.esAdmin)
+              ListTile(
+                leading: const Icon(Icons.category_outlined),
+                title: const Text('Gestionar categorias'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasPage()));
+                },
+              ),
             if (AuthHelper.esAdmin)
               ListTile(
                 leading: const Icon(Icons.people_outline),
