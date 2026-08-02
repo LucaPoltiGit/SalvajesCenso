@@ -33,17 +33,22 @@ class UsuarioListTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          DropdownButton<String>(
-            value: rol,
-            underline: const SizedBox.shrink(),
-            items: const [
-              DropdownMenuItem(value: 'admin', child: Text('Admin')),
-              DropdownMenuItem(value: 'estandar', child: Text('Voluntario')),
-              DropdownMenuItem(value: 'visita', child: Text('Visita')),
-            ],
-            onChanged: (v) {
-              if (v != null) onCambiarRol(v);
-            },
+          Opacity(
+            opacity: esUsuarioActual ? 0.4 : 1,
+            child: DropdownButton<String>(
+              value: rol,
+              underline: const SizedBox.shrink(),
+              items: const [
+                DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                DropdownMenuItem(value: 'estandar', child: Text('Voluntario')),
+                DropdownMenuItem(value: 'visita', child: Text('Visita')),
+              ],
+              onChanged: esUsuarioActual
+                  ? null
+                  : (v) {
+                      if (v != null) onCambiarRol(v);
+                    },
+            ),
           ),
           IconButton(
             icon: Icon(bloqueado ? Icons.lock : Icons.lock_open, color: bloqueado ? AppColors.rojo : AppColors.verde, size: 20),

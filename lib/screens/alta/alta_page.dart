@@ -6,6 +6,7 @@ import '../../repositories/item_simple.dart';
 import '../../repositories/sector_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/validadores.dart';
 import '../../widgets/alta_datos_basicos_section.dart';
 import '../../widgets/alta_detalles_section.dart';
 
@@ -162,11 +163,6 @@ class _AltaPageState extends State<AltaPage> {
     }
   }
 
-  String? _validadorRequerido(String? valor) {
-    if (valor == null || valor.trim().isEmpty) return 'Este campo es obligatorio';
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,7 +181,7 @@ class _AltaPageState extends State<AltaPage> {
                     ),
                   AltaDatosBasicosSection(
                     nombreCtrl: _nombreCtrl,
-                    validadorNombre: _validadorRequerido,
+                    validadorNombre: validadorRequerido,
                     especies: _especies,
                     sectores: _sectores,
                     estados: _estados,

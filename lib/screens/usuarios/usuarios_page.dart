@@ -4,6 +4,7 @@ import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/usuario_list_tile.dart';
+import 'crear_usuario_page.dart';
 
 class UsuariosPage extends StatefulWidget {
   const UsuariosPage({super.key});
@@ -88,6 +89,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Gestionar usuarios')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const CrearUsuarioPage()));
+          if (resultado == true) _cargar();
+        },
+        child: const Icon(Icons.person_add_outlined),
+      ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null

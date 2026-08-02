@@ -26,6 +26,23 @@ class UserRepository {
     });
   }
 
+  static Future<void> crear({
+    required String nombre,
+    required String email,
+    required String password,
+    required String rol,
+  }) async {
+    final pb = PocketbaseService.instance.pb;
+    await pb.collection('users').create(body: {
+      'name': nombre,
+      'email': email,
+      'password': password,
+      'passwordConfirm': password,
+      'rol': rol,
+      'bloqueado': false,
+    });
+  }
+
   static Future<List<Usuario>> listarTodos() async {
     final pb = PocketbaseService.instance.pb;
     final resultado = await pb.collection('users').getFullList(sort: 'name');

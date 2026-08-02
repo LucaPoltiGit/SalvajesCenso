@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/validadores.dart';
 import '../shell/app_shell.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,11 +24,6 @@ class _LoginPageState extends State<LoginPage> {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
-  }
-
-  String? _validadorRequerido(String? valor) {
-    if (valor == null || valor.trim().isEmpty) return 'Este campo es obligatorio';
-    return null;
   }
 
   Future<void> _ingresar() async {
@@ -96,14 +92,14 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                    validator: _validadorRequerido,
+                    validator: validadorRequerido,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: _passwordCtrl,
                     obscureText: true,
                     decoration: const InputDecoration(labelText: 'Contrasena', border: OutlineInputBorder()),
-                    validator: _validadorRequerido,
+                    validator: validadorRequerido,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
