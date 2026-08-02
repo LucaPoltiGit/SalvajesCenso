@@ -31,6 +31,11 @@ class PocketbaseService {
     if (!pb.authStore.isValid) return false;
     try {
       await pb.collection('users').authRefresh();
+      final bloqueado = pb.authStore.model?.data['bloqueado'] == true;
+      if (bloqueado) {
+        pb.authStore.clear();
+        return false;
+      }
       return true;
     } catch (_) {
       pb.authStore.clear();
@@ -40,6 +45,11 @@ class PocketbaseService {
 
   Future<void> login(String email, String password) async {
     await pb.collection('users').authWithPassword(email, password);
+    final bloqueado = pb.authStore.model?.data['bloqueado'] == true;
+    if (bloqueado) {
+      pb.authStore.clear();
+      throw Exception('Tu cuenta esta bloqueada. Contacta a un administrador.');
+    }
   }
 
   Future<void> loginComoVisitante() async {

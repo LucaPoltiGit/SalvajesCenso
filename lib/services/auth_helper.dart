@@ -7,6 +7,8 @@ class AuthHelper {
     return model.data['rol'] ?? 'visita';
   }
 
+  static bool get esAdmin => rolActual == 'admin';
+
   static bool get puedeEditar => rolActual == 'admin' || rolActual == 'estandar';
   static bool get puedeBorrar => rolActual == 'admin';
 

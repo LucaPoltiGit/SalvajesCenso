@@ -8,6 +8,7 @@ import '../categorias/categorias_page.dart';
 import '../ajustes/ajustes_page.dart';
 import '../alta/alta_page.dart';
 import '../login/login_page.dart';
+import '../usuarios/usuarios_page.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 
@@ -112,6 +113,15 @@ class _AppShellState extends State<AppShell> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasPage()));
               },
             ),
+            if (AuthHelper.esAdmin)
+              ListTile(
+                leading: const Icon(Icons.people_outline),
+                title: const Text('Gestionar usuarios'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const UsuariosPage()));
+                },
+              ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Ajustes'),
