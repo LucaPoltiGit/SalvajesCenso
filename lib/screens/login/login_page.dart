@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/validadores.dart';
+import '../../widgets/campo_password.dart';
 import '../shell/app_shell.dart';
 
 class LoginPage extends StatefulWidget {
@@ -95,10 +96,9 @@ class _LoginPageState extends State<LoginPage> {
                     validator: validadorRequerido,
                   ),
                   const SizedBox(height: 14),
-                  TextFormField(
+                  CampoPassword(
                     controller: _passwordCtrl,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Contrasena', border: OutlineInputBorder()),
+                    label: 'Contrasena',
                     validator: validadorRequerido,
                   ),
                   const SizedBox(height: 24),

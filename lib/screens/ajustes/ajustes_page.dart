@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/campo_password.dart';
 
 class AjustesPage extends StatefulWidget {
   const AjustesPage({super.key});
@@ -136,22 +137,19 @@ class _AjustesPageState extends State<AjustesPage> {
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(_errorPassword!, style: const TextStyle(color: AppColors.rojo)),
             ),
-          TextFormField(
+          CampoPassword(
             controller: _passwordActualCtrl,
-            obscureText: true,
-            decoration: const InputDecoration(labelText: 'Contrasena actual', border: OutlineInputBorder()),
+            label: 'Contrasena actual',
           ),
           const SizedBox(height: 14),
-          TextFormField(
+          CampoPassword(
             controller: _passwordNuevaCtrl,
-            obscureText: true,
-            decoration: const InputDecoration(labelText: 'Nueva contrasena', border: OutlineInputBorder()),
+            label: 'Nueva contrasena',
           ),
           const SizedBox(height: 14),
-          TextFormField(
+          CampoPassword(
             controller: _passwordConfirmarCtrl,
-            obscureText: true,
-            decoration: const InputDecoration(labelText: 'Confirmar nueva contrasena', border: OutlineInputBorder()),
+            label: 'Confirmar nueva contrasena',
           ),
           const SizedBox(height: 14),
           ElevatedButton(

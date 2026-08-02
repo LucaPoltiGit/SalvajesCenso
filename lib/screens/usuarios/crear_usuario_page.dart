@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../repositories/user_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/validadores.dart';
+import '../../widgets/campo_password.dart';
 
 class CrearUsuarioPage extends StatefulWidget {
   const CrearUsuarioPage({super.key});
@@ -86,10 +87,9 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
               validator: validadorEmail,
             ),
             const SizedBox(height: 14),
-            TextFormField(
+            CampoPassword(
               controller: _passwordCtrl,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Contrasena temporal', border: OutlineInputBorder()),
+              label: 'Contrasena temporal',
               validator: _validadorPassword,
             ),
             const SizedBox(height: 14),
