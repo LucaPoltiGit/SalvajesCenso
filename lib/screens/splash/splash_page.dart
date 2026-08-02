@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../login/login_page.dart';
 import '../shell/app_shell.dart';
 
 class SplashPage extends StatefulWidget {
@@ -21,9 +22,13 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _iniciar() async {
     try {
-      await PocketbaseService.instance.ensureAuth();
-      if (mounted) {
+      await PocketbaseService.instance.init();
+      final sesionRestaurada = await PocketbaseService.instance.intentarRestaurarSesion();
+      if (!mounted) return;
+      if (sesionRestaurada) {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+      } else {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
       }
     } catch (e) {
       setState(() => _error = e.toString());

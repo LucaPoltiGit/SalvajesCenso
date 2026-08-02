@@ -7,6 +7,7 @@ import '../galeria/galeria_page.dart';
 import '../categorias/categorias_page.dart';
 import '../ajustes/ajustes_page.dart';
 import '../alta/alta_page.dart';
+import '../login/login_page.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 
@@ -124,8 +125,12 @@ class _AppShellState extends State<AppShell> {
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesion'),
               onTap: () {
-                PocketbaseService.instance.pb.authStore.clear();
                 Navigator.pop(context);
+                PocketbaseService.instance.logout();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
               },
             ),
           ],
