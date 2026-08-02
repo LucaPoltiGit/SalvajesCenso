@@ -6,6 +6,7 @@ class AccesoRapidoListTile extends StatelessWidget {
   final Animal animal;
   final bool esAutomatico;
   final bool esFavorito;
+  final bool visible;
   final VoidCallback onToggle;
 
   const AccesoRapidoListTile({
@@ -13,6 +14,7 @@ class AccesoRapidoListTile extends StatelessWidget {
     required this.animal,
     required this.esAutomatico,
     required this.esFavorito,
+    required this.visible,
     required this.onToggle,
   });
 
@@ -25,13 +27,11 @@ class AccesoRapidoListTile extends StatelessWidget {
             ? '${animal.sectorNombre} - aparece automatico (enfermo o cuidado especial)'
             : animal.sectorNombre,
       ),
-      trailing: esAutomatico
-          ? const Icon(Icons.check_circle, color: AppColors.verde)
-          : Switch(
-              value: esFavorito,
-              activeColor: AppColors.verde,
-              onChanged: (_) => onToggle(),
-            ),
+      trailing: Switch(
+        value: visible,
+        activeColor: AppColors.verde,
+        onChanged: (_) => onToggle(),
+      ),
     );
   }
 }

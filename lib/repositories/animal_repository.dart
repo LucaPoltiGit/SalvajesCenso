@@ -90,21 +90,32 @@ class AnimalRepository {
         );
 
     List<RecordModel> favoritos = [];
+    final idsOcultos = <String>{};
+
     if (userId != null) {
-      final favoritosRaw = await _pb.collection('accesos_rapidos').getFullList(
+      final registrosUsuario = await _pb.collection('accesos_rapidos').getFullList(
             filter: "users = '$userId'",
             expand: 'animales.sector,animales.especie,animales.estado',
           );
-      favoritos = favoritosRaw
-          .map((r) => r.expand['animales'])
-          .where((e) => e != null && e.isNotEmpty)
-          .map((e) => e!.first)
-          .toList();
+
+      for (final r in registrosUsuario) {
+        final oculto = r.data['oculto'] == true;
+        final animalId = r.data['animales'] as String?;
+        if (oculto && animalId != null) {
+          idsOcultos.add(animalId);
+          continue;
+        }
+        final animalExpand = r.expand['animales'];
+        if (!oculto && animalExpand != null && animalExpand.isNotEmpty) {
+          favoritos.add(animalExpand.first);
+        }
+      }
     }
 
     final vistos = <String>{};
     final resultado = <Animal>[];
     for (final r in [...automaticos, ...favoritos]) {
+      if (idsOcultos.contains(r.id)) continue;
       if (vistos.contains(r.id)) continue;
       vistos.add(r.id);
       resultado.add(Animal.fromRecord(r));

@@ -19,6 +19,7 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
 
   List<Animal> _animales = [];
   Map<String, String> _favoritosMap = {};
+  Map<String, String> _ocultosMap = {};
   Set<String> _idsAutomaticos = {};
   bool _cargando = true;
   String? _error;
@@ -42,18 +43,26 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
         nombre: _busqueda.isEmpty ? null : _busqueda,
         excluirEstado: 'fallecido',
       );
-      final favoritosRaw = await AccesoRapidoRepository.listarCrudo();
+      final registrosUsuario = await AccesoRapidoRepository.listarCrudo();
       final idsAutomaticos = await _animalRepo.listarIdsAutomaticosAccesoRapido();
 
-      final mapa = <String, String>{};
-      for (final r in favoritosRaw) {
+      final favoritosMapa = <String, String>{};
+      final ocultosMapa = <String, String>{};
+      for (final r in registrosUsuario) {
         final animalId = r.data['animales'] as String?;
-        if (animalId != null) mapa[animalId] = r.id;
+        if (animalId == null) continue;
+        final oculto = r.data['oculto'] == true;
+        if (oculto) {
+          ocultosMapa[animalId] = r.id;
+        } else {
+          favoritosMapa[animalId] = r.id;
+        }
       }
 
       setState(() {
         _animales = animales;
-        _favoritosMap = mapa;
+        _favoritosMap = favoritosMapa;
+        _ocultosMap = ocultosMapa;
         _idsAutomaticos = idsAutomaticos;
         _cargando = false;
       });
@@ -72,13 +81,31 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
 
   Future<void> _toggle(Animal animal) async {
     final esFavorito = _favoritosMap.containsKey(animal.id);
-    if (esFavorito) {
-      final accesoRapidoId = _favoritosMap[animal.id];
-      if (accesoRapidoId != null) await AccesoRapidoRepository.quitar(accesoRapidoId);
-    } else {
-      await AccesoRapidoRepository.agregar(animal.id);
+    try {
+      if (esFavorito) {
+        final accesoRapidoId = _favoritosMap[animal.id];
+        if (accesoRapidoId != null) await AccesoRapidoRepository.quitar(accesoRapidoId);
+      } else {
+        await AccesoRapidoRepository.agregar(animal.id);
+      }
+      await _cargar();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
-    _cargar();
+  }
+
+  Future<void> _toggleAutomatico(Animal animal) async {
+    final estaOculto = _ocultosMap.containsKey(animal.id);
+    try {
+      if (estaOculto) {
+        await AccesoRapidoRepository.mostrarAutomatico(_ocultosMap[animal.id]!);
+      } else {
+        await AccesoRapidoRepository.ocultarAutomatico(animal.id);
+      }
+      await _cargar();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 
   @override
@@ -105,11 +132,14 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
                             itemCount: _animales.length,
                             itemBuilder: (context, index) {
                               final a = _animales[index];
+                              final esAutomatico = _idsAutomaticos.contains(a.id);
+                              final estaOculto = _ocultosMap.containsKey(a.id);
                               return AccesoRapidoListTile(
                                 animal: a,
-                                esAutomatico: _idsAutomaticos.contains(a.id),
+                                esAutomatico: esAutomatico,
                                 esFavorito: _favoritosMap.containsKey(a.id),
-                                onToggle: () => _toggle(a),
+                                visible: esAutomatico ? !estaOculto : _favoritosMap.containsKey(a.id),
+                                onToggle: () => esAutomatico ? _toggleAutomatico(a) : _toggle(a),
                               );
                             },
                           ),
