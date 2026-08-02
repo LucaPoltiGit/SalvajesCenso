@@ -31,4 +31,36 @@ class CategoriaRepository {
   Future<void> borrar(String id) async {
     await _pb.collection(coleccion).delete(id);
   }
+
+  /// Cuenta cuantos registros de otra coleccion usan esta categoria, para
+  /// bloquear el borrado si esta en uso. especies/estados los usa
+  /// 'animales'; tipos_nota lo usa 'notas_historial'.
+  Future<int> contarUso(String categoriaId) async {
+    String coleccionQueUsa;
+    String campoQueUsa;
+
+    switch (coleccion) {
+      case 'especies':
+        coleccionQueUsa = 'animales';
+        campoQueUsa = 'especie';
+        break;
+      case 'estados':
+        coleccionQueUsa = 'animales';
+        campoQueUsa = 'estado';
+        break;
+      case 'tipos_nota':
+        coleccionQueUsa = 'notas_historial';
+        campoQueUsa = 'tipo';
+        break;
+      default:
+        return 0;
+    }
+
+    final resultado = await _pb.collection(coleccionQueUsa).getList(
+          page: 1,
+          perPage: 1,
+          filter: "$campoQueUsa = '$categoriaId'",
+        );
+    return resultado.totalItems;
+  }
 }

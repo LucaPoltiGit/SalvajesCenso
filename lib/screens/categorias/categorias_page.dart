@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
+import '../../widgets/aviso_dialog.dart';
 import '../../widgets/categoria_form_dialog.dart';
 import '../../widgets/categoria_list_tile.dart';
 import '../../widgets/confirmar_borrado_dialog.dart';
@@ -92,6 +93,23 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
   }
 
   Future<void> _borrar(String coleccion, ItemSimple item) async {
+    final usos = await _repos[coleccion]!.contarUso(item.id);
+    if (usos > 0) {
+      final esTipoNota = coleccion == 'tipos_nota';
+      final palabra = esTipoNota
+          ? (usos == 1 ? 'nota' : 'notas')
+          : (usos == 1 ? 'animal' : 'animales');
+      if (mounted) {
+        await mostrarAviso(
+          context,
+          titulo: 'Categoria en uso',
+          mensaje: 'No se puede borrar. Hay $usos $palabra usando esta categoria. '
+              'Cambia esos registros a otra categoria antes de borrarla.',
+        );
+      }
+      return;
+    }
+
     final confirmado = await confirmarBorrado(
       context,
       titulo: 'Borrar categoria',
