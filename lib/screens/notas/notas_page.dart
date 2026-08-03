@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../models/nota_historial.dart';
-import '../../repositories/animal_repository.dart';
 import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
 import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../widgets/buscador_debounced.dart';
+import '../../widgets/nota_detalle_dialog.dart';
 import '../../widgets/nota_historial_card.dart';
 import '../../widgets/notas_filtros_bar.dart';
-import '../ficha/ficha_page.dart';
 
 class NotasPage extends StatefulWidget {
   const NotasPage({super.key});
@@ -20,7 +19,6 @@ class NotasPage extends StatefulWidget {
 class _NotasPageState extends State<NotasPage> {
   final _pbService = PocketbaseService.instance;
   final _notaRepo = NotaRepository();
-  final _animalRepo = AnimalRepository();
   final _tipoRepo = CategoriaRepository('tipos_nota');
   int _busquedaResetKey = 0;
 
@@ -85,13 +83,19 @@ class _NotasPageState extends State<NotasPage> {
     }
   }
 
-  Future<void> _abrirFichaDesdeNota(NotaHistorial nota) async {
-    try {
-      final animal = await _animalRepo.obtenerPorId(nota.animalId);
-      if (mounted) {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: animal)));
-      }
-    } catch (_) {}
+  void _abrirDetalleNota(NotaHistorial nota) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: NotaDetalleDialog(
+          nota: nota,
+          animalNombre: _animalNombrePorNotaId[nota.id] ?? nota.animalNombre ?? 'Animal',
+          animalId: nota.animalId,
+          onCambio: _cargarNotas,
+        ),
+      ),
+    );
   }
 
   Future<void> _elegirFecha(bool esDesde) async {
@@ -164,7 +168,7 @@ class _NotasPageState extends State<NotasPage> {
                             itemBuilder: (context, index) {
                               final n = _notas[index];
                               return GestureDetector(
-                                onTap: () => _abrirFichaDesdeNota(n),
+                                onTap: () => _abrirDetalleNota(n),
                                 child: NotaHistorialCard(
                                   nota: n,
                                   animalNombre: _animalNombrePorNotaId[n.id],

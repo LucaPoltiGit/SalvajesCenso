@@ -24,6 +24,13 @@ class FotoRepository {
     return resultado.map(Foto.fromRecord).toList();
   }
 
+  Future<List<Foto>> listarPorNota(String notaId) async {
+    final resultado = await _pb.collection('fotos').getFullList(
+          filter: "nota = '$notaId'",
+        );
+    return resultado.map(Foto.fromRecord).toList();
+  }
+
   /// La foto de perfil de cada animal (si tiene una marcada), usada por
   /// el censo para armar la foto de portada de cada tarjeta.
   Future<List<Foto>> listarGeneralesGlobal() async {
