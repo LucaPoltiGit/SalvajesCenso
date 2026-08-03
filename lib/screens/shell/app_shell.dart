@@ -12,6 +12,8 @@ import '../usuarios/usuarios_page.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 
+final GlobalKey<_AppShellState> appShellKey = GlobalKey<_AppShellState>();
+
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -40,6 +42,16 @@ class _AppShellState extends State<AppShell> {
     if (AuthHelper.puedeVerNotas) base.add(const NotasPage());
     base.add(const SectoresPage());
     return base;
+  }
+
+  void irASectores() {
+    final indice = _paginas.indexWhere((p) => p is SectoresPage);
+    if (indice != -1) {
+      setState(() {
+        if (indice == 0 && _indiceActual != 0) _principalRefreshKey++;
+        _indiceActual = indice;
+      });
+    }
   }
 
   List<NavigationDestination> get _destinos {
