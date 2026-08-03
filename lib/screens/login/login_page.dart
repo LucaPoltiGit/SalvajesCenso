@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await PocketbaseService.instance.login(_emailCtrl.text.trim(), _passwordCtrl.text);
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)));
       }
     } catch (e) {
       setState(() {
@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await PocketbaseService.instance.loginComoVisitante();
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)));
       }
     } catch (e) {
       setState(() {

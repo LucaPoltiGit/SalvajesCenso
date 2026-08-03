@@ -26,7 +26,7 @@ class _SplashPageState extends State<SplashPage> {
       final sesionRestaurada = await PocketbaseService.instance.intentarRestaurarSesion();
       if (!mounted) return;
       if (sesionRestaurada) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)));
       } else {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
       }

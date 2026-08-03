@@ -12,7 +12,7 @@ import '../../widgets/quick_access_card.dart';
 import '../../widgets/seccion_header.dart';
 import '../acceso_rapido/acceso_rapido_manager_page.dart';
 import '../ficha/ficha_page.dart';
-import '../sectores/sectores_page.dart';
+import '../shell/app_shell.dart';
 import '../galeria/galeria_page.dart';
 import '../actividad/actividad_page.dart';
 
@@ -133,9 +133,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
               QuickAccessCard(
                 icono: Icons.map_outlined,
                 titulo: 'Ver sectores',
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SectoresPage()));
-                },
+                onTap: () => appShellKey.currentState?.irASectores(),
               ),
               const SizedBox(width: 12),
               QuickAccessCard(
