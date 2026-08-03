@@ -47,10 +47,13 @@ class FichaTabDatos extends StatelessWidget {
             children: [
               DatoItem(icono: Icons.pets, label: 'Especie', valor: animal.especieNombre),
               DatoItem(icono: Icons.cake_outlined, label: 'Edad', valor: animal.edad),
-              DatoItem(icono: Icons.favorite_outline, label: 'Estado', valor: formatearEtiqueta(animal.estadoNombre)),
+              if (!AuthHelper.esVisita)
+                DatoItem(icono: Icons.favorite_outline, label: 'Estado', valor: formatearEtiqueta(animal.estadoNombre)),
               DatoItem(icono: Icons.map_outlined, label: 'Sector', valor: animal.sectorNombre),
-              DatoItem(icono: Icons.calendar_today_outlined, label: 'Llegada', valor: animal.fechaLlegada),
-              DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: animal.dieta),
+              if (!AuthHelper.esVisita)
+                DatoItem(icono: Icons.calendar_today_outlined, label: 'Llegada', valor: animal.fechaLlegada),
+              if (!AuthHelper.esVisita)
+                DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: animal.dieta),
             ],
           ),
           const SizedBox(height: 20),

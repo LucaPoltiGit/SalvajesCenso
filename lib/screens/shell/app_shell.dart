@@ -3,6 +3,10 @@ import '../principal/principal_page.dart';
 import '../censo/censo_page.dart';
 import '../notas/notas_page.dart';
 import '../sectores/sectores_page.dart';
+import '../ayuda/ayuda_page.dart';
+import '../ayuda/ayuda_standalone_page.dart';
+import '../contacto/contacto_form_page.dart';
+import '../contacto/contactos_page.dart';
 import '../galeria/galeria_page.dart';
 import '../categorias/categorias_page.dart';
 import '../ajustes/ajustes_page.dart';
@@ -28,6 +32,9 @@ class _AppShellState extends State<AppShell> {
   int _principalRefreshKey = 0;
 
   List<String> get _titulos {
+    if (AuthHelper.esVisita) {
+      return ['Censo', 'Ayuda', 'Sectores'];
+    }
     final base = ['Principal', 'Censo'];
     if (AuthHelper.puedeVerNotas) base.add('Notas');
     base.add('Sectores');
@@ -35,6 +42,13 @@ class _AppShellState extends State<AppShell> {
   }
 
   List<Widget> get _paginas {
+    if (AuthHelper.esVisita) {
+      return [
+        CensoPage(key: ValueKey(_censoRefreshKey)),
+        const AyudaPage(),
+        const SectoresPage(),
+      ];
+    }
     final base = <Widget>[
       PrincipalPage(key: ValueKey(_principalRefreshKey)),
       CensoPage(key: ValueKey(_censoRefreshKey)),
@@ -55,6 +69,13 @@ class _AppShellState extends State<AppShell> {
   }
 
   List<NavigationDestination> get _destinos {
+    if (AuthHelper.esVisita) {
+      return const [
+        NavigationDestination(icon: Icon(Icons.pets_outlined), selectedIcon: Icon(Icons.pets), label: 'Censo'),
+        NavigationDestination(icon: Icon(Icons.favorite_outline), selectedIcon: Icon(Icons.favorite), label: 'Ayuda'),
+        NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Sectores'),
+      ];
+    }
     final base = <NavigationDestination>[
       const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Principal'),
       const NavigationDestination(icon: Icon(Icons.pets_outlined), selectedIcon: Icon(Icons.pets), label: 'Censo'),
@@ -77,18 +98,20 @@ class _AppShellState extends State<AppShell> {
         index: _indiceActual,
         children: _paginas,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final resultado = await Navigator.push<bool>(
-            context,
-            MaterialPageRoute(builder: (_) => const AltaPage()),
-          );
-          if (resultado == true) {
-            setState(() => _censoRefreshKey++);
-          }
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: AuthHelper.esVisita
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                final resultado = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AltaPage()),
+                );
+                if (resultado == true) {
+                  setState(() => _censoRefreshKey++);
+                }
+              },
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _indiceActual,
         onDestinationSelected: (i) {
@@ -117,6 +140,33 @@ class _AppShellState extends State<AppShell> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GaleriaPage()));
               },
             ),
+            if (!AuthHelper.esVisita)
+              ListTile(
+                leading: const Icon(Icons.favorite_outline),
+                title: const Text('Ayuda'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AyudaStandalonePage()));
+                },
+              ),
+            if (AuthHelper.esVisita)
+              ListTile(
+                leading: const Icon(Icons.volunteer_activism_outlined),
+                title: const Text('Quiero ayudar'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactoFormPage()));
+                },
+              ),
+            if (AuthHelper.puedeVerContactos)
+              ListTile(
+                leading: const Icon(Icons.contact_mail_outlined),
+                title: const Text('Contactos recibidos'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactosPage()));
+                },
+              ),
             if (AuthHelper.esAdmin)
               ListTile(
                 leading: const Icon(Icons.category_outlined),
