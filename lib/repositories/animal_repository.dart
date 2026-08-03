@@ -148,4 +148,18 @@ class AnimalRepository {
   Future<void> borrar(String id) async {
     await _pb.collection('animales').delete(id);
   }
+
+  Future<int> contarPorSector(String nombreSector) async {
+    final resultado = await _pb.collection('animales').getList(
+          page: 1,
+          perPage: 1,
+          filter: "sector.nombre = '$nombreSector' && estado.nombre != 'fallecido'",
+        );
+    return resultado.totalItems;
+  }
+
+  Future<Map<String, int>> contarPorSectores(List<String> nombres) async {
+    final resultados = await Future.wait(nombres.map(contarPorSector));
+    return Map.fromIterables(nombres, resultados);
+  }
 }
