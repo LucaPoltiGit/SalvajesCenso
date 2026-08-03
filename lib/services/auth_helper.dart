@@ -8,6 +8,10 @@ class AuthHelper {
   }
 
   static bool get esAdmin => rolActual == 'admin';
+  static bool get esVisita => rolActual == 'visita';
+
+  static bool get puedeGestionarAyuda => rolActual == 'admin';
+  static bool get puedeVerContactos => rolActual == 'admin';
 
   static bool get puedeEditar => rolActual == 'admin' || rolActual == 'estandar';
   static bool get puedeBorrar => rolActual == 'admin';
