@@ -3,6 +3,7 @@ import '../../models/animal.dart';
 import '../../repositories/animal_repository.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/animal_card.dart';
 import '../../widgets/animal_tile.dart';
 import '../../widgets/censo_barra_superior.dart';
@@ -25,7 +26,7 @@ class _CensoPageState extends State<CensoPage> {
   List<Animal> _animales = [];
   Map<String, String> _fotosPorAnimal = {};
   bool _cargando = true;
-  String? _error;
+  Object? _error;
   late FiltrosCenso _filtros;
   String _busqueda = '';
   bool _vistaGrid = true;
@@ -71,7 +72,7 @@ class _CensoPageState extends State<CensoPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -104,13 +105,13 @@ class _CensoPageState extends State<CensoPage> {
           child: _cargando
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? Center(child: Text('Error: $_error'))
-                  : _animales.isEmpty
-                      ? const Center(child: Text('No se encontraron animales'))
-                      : RefreshIndicator(
-                          onRefresh: _cargarAnimales,
-                          child: _vistaGrid ? _buildGrid() : _buildLista(),
-                        ),
+              ? Center(child: Text(mensajeErrorAmigable(_error!)))
+              : _animales.isEmpty
+              ? const Center(child: Text('No se encontraron animales'))
+              : RefreshIndicator(
+                  onRefresh: _cargarAnimales,
+                  child: _vistaGrid ? _buildGrid() : _buildLista(),
+                ),
         ),
       ],
     );
@@ -132,7 +133,10 @@ class _CensoPageState extends State<CensoPage> {
           animal: a,
           fotoUrl: _fotosPorAnimal[a.id],
           onTap: () async {
-            final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+            final resultado = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(builder: (_) => FichaPage(animal: a)),
+            );
             if (resultado == true) {
               _cargarAnimales();
             }
@@ -150,7 +154,10 @@ class _CensoPageState extends State<CensoPage> {
         final a = _animales[index];
         return GestureDetector(
           onTap: () async {
-            final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+            final resultado = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(builder: (_) => FichaPage(animal: a)),
+            );
             if (resultado == true) {
               _cargarAnimales();
             }

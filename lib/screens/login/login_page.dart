@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
+import '../../widgets/ancho_formulario.dart';
 import '../../widgets/campo_password.dart';
 import '../shell/app_shell.dart';
 
@@ -18,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordCtrl = TextEditingController();
 
   bool _cargando = false;
-  String? _error;
+  Object? _error;
 
   @override
   void dispose() {
@@ -34,13 +36,19 @@ class _LoginPageState extends State<LoginPage> {
       _error = null;
     });
     try {
-      await PocketbaseService.instance.login(_emailCtrl.text.trim(), _passwordCtrl.text);
+      await PocketbaseService.instance.login(
+        _emailCtrl.text.trim(),
+        _passwordCtrl.text,
+      );
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)),
+        );
       }
     } catch (e) {
       setState(() {
-        _error = 'No se pudo iniciar sesion: $e';
+        _error = e;
         _cargando = false;
       });
     }
@@ -54,11 +62,14 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await PocketbaseService.instance.loginComoVisitante();
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)),
+        );
       }
     } catch (e) {
       setState(() {
-        _error = 'No se pudo ingresar como visitante: $e';
+        _error = e;
         _cargando = false;
       });
     }
@@ -69,74 +80,113 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppColors.fondo,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Santuario App',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.verde),
-                  ),
-                  const SizedBox(height: 32),
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(_error!, style: const TextStyle(color: AppColors.rojo)),
-                    ),
-                  TextFormField(
-                    controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                    validator: validadorRequerido,
-                  ),
-                  const SizedBox(height: 14),
-                  CampoPassword(
-                    controller: _passwordCtrl,
-                    label: 'Contrasena',
-                    validator: validadorRequerido,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.verde,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onPressed: _cargando ? null : _ingresar,
-                    child: _cargando
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('Ingresar'),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: const [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: Text('o', style: TextStyle(color: AppColors.madera)),
+        child: AnchoFormulario(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text(
+                              'Santuario App',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.verde,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            if (_error != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Text(
+                                  mensajeErrorAmigable(_error!),
+                                  style: const TextStyle(color: AppColors.rojo),
+                                ),
+                              ),
+                            TextFormField(
+                              controller: _emailCtrl,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: const InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: validadorRequerido,
+                            ),
+                            const SizedBox(height: 14),
+                            CampoPassword(
+                              controller: _passwordCtrl,
+                              label: 'Contrasena',
+                              validator: validadorRequerido,
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.verde,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                              ),
+                              onPressed: _cargando ? null : _ingresar,
+                              child: _cargando
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Ingresar'),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: const [
+                                Expanded(child: Divider()),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text(
+                                    'o',
+                                    style: TextStyle(color: AppColors.madera),
+                                  ),
+                                ),
+                                Expanded(child: Divider()),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.madera,
+                                side: const BorderSide(color: AppColors.madera),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                              ),
+                              onPressed: _cargando
+                                  ? null
+                                  : _ingresarComoVisitante,
+                              child: const Text('Soy visitante'),
+                            ),
+                          ],
+                        ),
                       ),
-                      Expanded(child: Divider()),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.madera,
-                      side: const BorderSide(color: AppColors.madera),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onPressed: _cargando ? null : _ingresarComoVisitante,
-                    child: const Text('Soy visitante'),
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

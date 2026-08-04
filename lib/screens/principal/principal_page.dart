@@ -6,6 +6,7 @@ import '../../repositories/actividad_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_icons.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/principal_stats_row.dart';
 import '../../widgets/acceso_rapido_row.dart';
 import '../../widgets/actividad_tile.dart';
@@ -29,7 +30,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
   final _animalRepo = AnimalRepository();
 
   bool _cargando = true;
-  String? _error;
+  Object? _error;
 
   int _totalAnimales = 0;
   int _totalCuidadoEspecial = 0;
@@ -51,12 +52,19 @@ class _PrincipalPageState extends State<PrincipalPage> {
     try {
       await _pbService.ensureAuth();
 
-      final totalActivos = await _animalRepo.contar(estadoDistinto: 'fallecido');
-      final cuidadoEspecial = await _animalRepo.contar(estadoIgual: 'cuidado_especial');
+      final totalActivos = await _animalRepo.contar(
+        estadoDistinto: 'fallecido',
+      );
+      final cuidadoEspecial = await _animalRepo.contar(
+        estadoIgual: 'cuidado_especial',
+      );
       final enfermos = await _animalRepo.contar(estadoIgual: 'enfermo');
       final accesoRapido = await _animalRepo.listarAccesoRapido();
 
-      final actividad = await ActividadRepository.obtenerReciente(diasAtras: 7, maxPorTipo: 5);
+      final actividad = await ActividadRepository.obtenerReciente(
+        diasAtras: 7,
+        maxPorTipo: 5,
+      );
 
       setState(() {
         _totalAnimales = totalActivos;
@@ -68,7 +76,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -77,7 +85,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
   @override
   Widget build(BuildContext context) {
     if (_cargando) return const Center(child: CircularProgressIndicator());
-    if (_error != null) return Center(child: Text('Error: $_error'));
+    if (_error != null)
+      return Center(child: Text(mensajeErrorAmigable(_error!)));
 
     return RefreshIndicator(
       onRefresh: _cargarDatos,
@@ -97,7 +106,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
               iconSize: 18,
               icon: const Icon(Icons.tune, color: AppColors.madera),
               onPressed: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => const AccesoRapidoManagerPage()));
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AccesoRapidoManagerPage(),
+                  ),
+                );
                 _cargarDatos();
               },
             ),
@@ -106,7 +120,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
           AccesoRapidoRow(
             animales: _accesoRapido,
             onTap: (a) {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: a)));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => FichaPage(animal: a)),
+              );
             },
           ),
           const SizedBox(height: 24),
@@ -115,7 +132,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
             titulo: 'Actividad reciente',
             accion: TextButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ActividadPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ActividadPage()),
+                );
               },
               child: const Text('Ver todo'),
             ),
@@ -123,7 +143,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
           if (_actividad.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
-              child: Text('Sin actividad en la ultima semana', style: TextStyle(fontSize: 13)),
+              child: Text(
+                'Sin actividad en la ultima semana',
+                style: TextStyle(fontSize: 13),
+              ),
             )
           else
             ..._actividad.map((item) => ActividadTile(item: item)),
@@ -141,7 +164,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 icono: AppIcons.menuGaleria,
                 titulo: 'Galeria de fotos',
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const GaleriaPage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GaleriaPage()),
+                  );
                 },
               ),
             ],

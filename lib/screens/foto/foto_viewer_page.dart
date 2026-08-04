@@ -3,6 +3,7 @@ import '../../models/foto.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/mensajes_error.dart';
 
 class FotoViewerPage extends StatelessWidget {
   final Foto foto;
@@ -13,12 +14,20 @@ class FotoViewerPage extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Borrar foto'),
-        content: const Text('Segura que queres borrar esta foto? Esta accion no se puede deshacer.'),
+        content: const Text(
+          'Segura que queres borrar esta foto? Esta accion no se puede deshacer.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: AppColors.rojo),
+            ),
           ),
         ],
       ),
@@ -29,7 +38,9 @@ class FotoViewerPage extends StatelessWidget {
         if (context.mounted) Navigator.pop(context, true);
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al borrar: $e')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
         }
       }
     }
@@ -52,11 +63,16 @@ class FotoViewerPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Expanded(child: Center(child: Image.network(foto.url, fit: BoxFit.contain))),
+          Expanded(
+            child: Center(child: Image.network(foto.url, fit: BoxFit.contain)),
+          ),
           if (foto.descripcion.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(foto.descripcion, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                foto.descripcion,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
         ],
       ),

@@ -5,7 +5,11 @@ class BuscadorDebounced extends StatefulWidget {
   final String hint;
   final void Function(String texto) onCambio;
 
-  const BuscadorDebounced({super.key, required this.hint, required this.onCambio});
+  const BuscadorDebounced({
+    super.key,
+    required this.hint,
+    required this.onCambio,
+  });
 
   @override
   State<BuscadorDebounced> createState() => _BuscadorDebouncedState();
@@ -24,13 +28,22 @@ class _BuscadorDebouncedState extends State<BuscadorDebounced> {
 
   void _onChanged(String valor) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () => widget.onCambio(valor));
+    _debounce = Timer(
+      const Duration(milliseconds: 400),
+      () => widget.onCambio(valor),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
+      textInputAction: TextInputAction.search,
+      onSubmitted: (valor) {
+        _debounce?.cancel();
+        FocusManager.instance.primaryFocus?.unfocus();
+        widget.onCambio(valor);
+      },
       decoration: InputDecoration(
         hintText: widget.hint,
         prefixIcon: const Icon(Icons.search),

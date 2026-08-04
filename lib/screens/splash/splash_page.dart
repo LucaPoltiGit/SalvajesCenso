@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/mensajes_error.dart';
 import '../login/login_page.dart';
 import '../shell/app_shell.dart';
 
@@ -12,7 +13,7 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  String? _error;
+  Object? _error;
 
   @override
   void initState() {
@@ -23,15 +24,22 @@ class _SplashPageState extends State<SplashPage> {
   Future<void> _iniciar() async {
     try {
       await PocketbaseService.instance.init();
-      final sesionRestaurada = await PocketbaseService.instance.intentarRestaurarSesion();
+      final sesionRestaurada = await PocketbaseService.instance
+          .intentarRestaurarSesion();
       if (!mounted) return;
       if (sesionRestaurada) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => AppShell(key: appShellKey)),
+        );
       } else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+        );
       }
     } catch (e) {
-      setState(() => _error = e.toString());
+      setState(() => _error = e);
     }
   }
 
@@ -46,7 +54,10 @@ class _SplashPageState extends State<SplashPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Error de conexion: $_error', textAlign: TextAlign.center),
+                    Text(
+                      mensajeErrorAmigable(_error!),
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {

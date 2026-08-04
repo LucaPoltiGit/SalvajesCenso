@@ -9,6 +9,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
 import '../../utils/text_format.dart';
 import '../../utils/formatear_fecha.dart';
+import '../../utils/mensajes_error.dart';
+import '../../widgets/ancho_formulario.dart';
 import '../../widgets/seleccionar_foto_button.dart';
 
 class NotaFormPage extends StatefulWidget {
@@ -16,7 +18,12 @@ class NotaFormPage extends StatefulWidget {
   final String animalNombre;
   final NotaHistorial? notaExistente;
 
-  const NotaFormPage({super.key, required this.animalId, required this.animalNombre, this.notaExistente});
+  const NotaFormPage({
+    super.key,
+    required this.animalId,
+    required this.animalNombre,
+    this.notaExistente,
+  });
 
   @override
   State<NotaFormPage> createState() => _NotaFormPageState();
@@ -31,7 +38,7 @@ class _NotaFormPageState extends State<NotaFormPage> {
 
   bool _cargandoOpciones = true;
   bool _guardando = false;
-  String? _error;
+  Object? _error;
 
   List<ItemSimple> _tipos = [];
   String? _tipoId;
@@ -69,13 +76,14 @@ class _NotaFormPageState extends State<NotaFormPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargandoOpciones = false;
       });
     }
   }
 
-  void _onFotoSeleccionada(List<int> bytes) => setState(() => _fotoBytes = bytes);
+  void _onFotoSeleccionada(List<int> bytes) =>
+      setState(() => _fotoBytes = bytes);
 
   Future<void> _elegirFecha() async {
     final fecha = await showDatePicker(
@@ -122,13 +130,17 @@ class _NotaFormPageState extends State<NotaFormPage> {
       }
 
       if (_fotoBytes != null) {
-        await _fotoRepo.subir(animalId: widget.animalId, notaId: notaId, bytes: _fotoBytes!);
+        await _fotoRepo.subir(
+          animalId: widget.animalId,
+          notaId: notaId,
+          bytes: _fotoBytes!,
+        );
       }
 
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _guardando = false;
       });
     }
@@ -138,65 +150,100 @@ class _NotaFormPageState extends State<NotaFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_esEdicion ? AppStrings.editarNota(widget.animalNombre) : AppStrings.agregarNota(widget.animalNombre)),
+        title: Text(
+          _esEdicion
+              ? AppStrings.editarNota(widget.animalNombre)
+              : AppStrings.agregarNota(widget.animalNombre),
+        ),
       ),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(_error!, style: const TextStyle(color: AppColors.rojo)),
-                    ),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Tipo', border: OutlineInputBorder()),
-                    value: _tipoId,
-                    items: _tipos
-                        .map<DropdownMenuItem<String>>((t) => DropdownMenuItem(
+          : AnchoFormulario(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          _error is Exception
+                              ? mensajeErrorAmigable(_error!)
+                              : _error.toString(),
+                          style: const TextStyle(color: AppColors.rojo),
+                        ),
+                      ),
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Tipo',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _tipoId,
+                      items: _tipos
+                          .map<DropdownMenuItem<String>>(
+                            (t) => DropdownMenuItem(
                               value: t.id,
                               child: Text(formatearEtiqueta(t.nombre)),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _tipoId = v),
-                    validator: (v) => v == null ? 'Elegi un tipo' : null,
-                  ),
-                  const SizedBox(height: 14),
-                  InkWell(
-                    onTap: _elegirFecha,
-                    child: InputDecorator(
-                      decoration: const InputDecoration(labelText: 'Fecha', border: OutlineInputBorder()),
-                      child: Text(formatearFecha(_fecha)),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) => setState(() => _tipoId = v),
+                      validator: (v) => v == null ? 'Elegi un tipo' : null,
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _contenidoCtrl,
-                    decoration: const InputDecoration(labelText: 'Contenido', border: OutlineInputBorder()),
-                    maxLines: 5,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Este campo es obligatorio' : null,
-                  ),
-                  const SizedBox(height: 14),
-                  SeleccionarFotoButton(
-                    texto: _fotoBytes == null ? 'Adjuntar foto (opcional)' : 'Foto seleccionada, tocar para cambiar',
-                    onFotoSeleccionada: _onFotoSeleccionada,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.verde,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    const SizedBox(height: 14),
+                    InkWell(
+                      onTap: _elegirFecha,
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Fecha',
+                          border: OutlineInputBorder(),
+                        ),
+                        child: Text(formatearFecha(_fecha)),
+                      ),
                     ),
-                    onPressed: _guardando ? null : _guardar,
-                    child: _guardando
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(_esEdicion ? 'Guardar cambios' : 'Guardar nota'),
-                  ),
-                ],
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _contenidoCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Contenido',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 5,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Este campo es obligatorio'
+                          : null,
+                    ),
+                    const SizedBox(height: 14),
+                    SeleccionarFotoButton(
+                      texto: _fotoBytes == null
+                          ? 'Adjuntar foto (opcional)'
+                          : 'Foto seleccionada, tocar para cambiar',
+                      onFotoSeleccionada: _onFotoSeleccionada,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.verde,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: _guardando ? null : _guardar,
+                      child: _guardando
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              _esEdicion ? 'Guardar cambios' : 'Guardar nota',
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ),
     );

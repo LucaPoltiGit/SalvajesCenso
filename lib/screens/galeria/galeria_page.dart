@@ -3,6 +3,7 @@ import '../../models/foto.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/buscador_debounced.dart';
 import '../foto/foto_viewer_page.dart';
 
@@ -19,7 +20,7 @@ class _GaleriaPageState extends State<GaleriaPage> {
 
   List<Foto> _fotos = [];
   bool _cargando = true;
-  String? _error;
+  Object? _error;
   String _busqueda = '';
 
   @override
@@ -47,7 +48,7 @@ class _GaleriaPageState extends State<GaleriaPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -70,53 +71,63 @@ class _GaleriaPageState extends State<GaleriaPage> {
             child: _cargando
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(child: Text('Error: $_error'))
-                    : _fotos.isEmpty
-                        ? const Center(child: Text('No hay fotos cargadas'))
-                        : RefreshIndicator(
-                            onRefresh: _cargarFotos,
-                            child: GridView.builder(
-                              padding: const EdgeInsets.all(12),
-                              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 130,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                                childAspectRatio: 1,
-                              ),
-                              itemCount: _fotos.length,
-                              itemBuilder: (context, index) {
-                                final f = _fotos[index];
-                                return GestureDetector(
-                                  onTap: () async {
-                                    final resultado = await Navigator.push<bool>(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => FotoViewerPage(foto: f)),
-                                    );
-                                    if (resultado == true) _cargarFotos();
-                                  },
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.network(f.url, fit: BoxFit.cover),
-                                      ),
-                                      if (f.notaId != null)
-                                        Positioned(
-                                          top: 4,
-                                          right: 4,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(3),
-                                            decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                                            child: const Icon(Icons.edit_note, size: 12, color: Colors.white),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                ? Center(child: Text(mensajeErrorAmigable(_error!)))
+                : _fotos.isEmpty
+                ? const Center(child: Text('No hay fotos cargadas'))
+                : RefreshIndicator(
+                    onRefresh: _cargarFotos,
+                    child: GridView.builder(
+                      padding: const EdgeInsets.all(12),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 130,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: 1,
                           ),
+                      itemCount: _fotos.length,
+                      itemBuilder: (context, index) {
+                        final f = _fotos[index];
+                        return GestureDetector(
+                          onTap: () async {
+                            final resultado = await Navigator.push<bool>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FotoViewerPage(foto: f),
+                              ),
+                            );
+                            if (resultado == true) _cargarFotos();
+                          },
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(f.url, fit: BoxFit.cover),
+                              ),
+                              if (f.notaId != null)
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black54,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit_note,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

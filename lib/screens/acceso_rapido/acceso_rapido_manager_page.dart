@@ -4,6 +4,7 @@ import '../../repositories/acceso_rapido_repository.dart';
 import '../../repositories/animal_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/acceso_rapido_list_tile.dart';
 import '../../widgets/buscador_debounced.dart';
 
@@ -11,7 +12,8 @@ class AccesoRapidoManagerPage extends StatefulWidget {
   const AccesoRapidoManagerPage({super.key});
 
   @override
-  State<AccesoRapidoManagerPage> createState() => _AccesoRapidoManagerPageState();
+  State<AccesoRapidoManagerPage> createState() =>
+      _AccesoRapidoManagerPageState();
 }
 
 class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
@@ -23,7 +25,7 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
   Map<String, String> _ocultosMap = {};
   Set<String> _idsAutomaticos = {};
   bool _cargando = true;
-  String? _error;
+  Object? _error;
   String _busqueda = '';
 
   @override
@@ -45,7 +47,8 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
         excluirEstado: 'fallecido',
       );
       final registrosUsuario = await AccesoRapidoRepository.listarCrudo();
-      final idsAutomaticos = await _animalRepo.listarIdsAutomaticosAccesoRapido();
+      final idsAutomaticos = await _animalRepo
+          .listarIdsAutomaticosAccesoRapido();
 
       final favoritosMapa = <String, String>{};
       final ocultosMapa = <String, String>{};
@@ -69,7 +72,7 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -85,13 +88,17 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
     try {
       if (esFavorito) {
         final accesoRapidoId = _favoritosMap[animal.id];
-        if (accesoRapidoId != null) await AccesoRapidoRepository.quitar(accesoRapidoId);
+        if (accesoRapidoId != null)
+          await AccesoRapidoRepository.quitar(accesoRapidoId);
       } else {
         await AccesoRapidoRepository.agregar(animal.id);
       }
       await _cargar();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
@@ -105,7 +112,10 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
       }
       await _cargar();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
@@ -126,24 +136,27 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
             child: _cargando
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(child: Text('Error: $_error'))
-                    : _animales.isEmpty
-                        ? const Center(child: Text('No se encontraron animales'))
-                        : ListView.builder(
-                            itemCount: _animales.length,
-                            itemBuilder: (context, index) {
-                              final a = _animales[index];
-                              final esAutomatico = _idsAutomaticos.contains(a.id);
-                              final estaOculto = _ocultosMap.containsKey(a.id);
-                              return AccesoRapidoListTile(
-                                animal: a,
-                                esAutomatico: esAutomatico,
-                                esFavorito: _favoritosMap.containsKey(a.id),
-                                visible: esAutomatico ? !estaOculto : _favoritosMap.containsKey(a.id),
-                                onToggle: () => esAutomatico ? _toggleAutomatico(a) : _toggle(a),
-                              );
-                            },
-                          ),
+                ? Center(child: Text(mensajeErrorAmigable(_error!)))
+                : _animales.isEmpty
+                ? const Center(child: Text('No se encontraron animales'))
+                : ListView.builder(
+                    itemCount: _animales.length,
+                    itemBuilder: (context, index) {
+                      final a = _animales[index];
+                      final esAutomatico = _idsAutomaticos.contains(a.id);
+                      final estaOculto = _ocultosMap.containsKey(a.id);
+                      return AccesoRapidoListTile(
+                        animal: a,
+                        esAutomatico: esAutomatico,
+                        esFavorito: _favoritosMap.containsKey(a.id),
+                        visible: esAutomatico
+                            ? !estaOculto
+                            : _favoritosMap.containsKey(a.id),
+                        onToggle: () =>
+                            esAutomatico ? _toggleAutomatico(a) : _toggle(a),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

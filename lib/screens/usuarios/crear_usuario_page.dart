@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../repositories/user_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
+import '../../widgets/ancho_formulario.dart';
 import '../../widgets/campo_password.dart';
 
 class CrearUsuarioPage extends StatefulWidget {
@@ -20,7 +22,7 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
 
   String _rol = 'estandar';
   bool _guardando = false;
-  String? _error;
+  Object? _error;
 
   @override
   void dispose() {
@@ -55,7 +57,7 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
       }
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _guardando = false;
       });
     }
@@ -65,60 +67,84 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.crearUsuario)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(_error!, style: const TextStyle(color: AppColors.rojo)),
+      body: AnchoFormulario(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    mensajeErrorAmigable(_error!),
+                    style: const TextStyle(color: AppColors.rojo),
+                  ),
+                ),
+              TextFormField(
+                controller: _nombreCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
+                validator: validadorRequerido,
               ),
-            TextFormField(
-              controller: _nombreCtrl,
-              decoration: const InputDecoration(labelText: 'Nombre', border: OutlineInputBorder()),
-              validator: validadorRequerido,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-              validator: validadorEmail,
-            ),
-            const SizedBox(height: 14),
-            CampoPassword(
-              controller: _passwordCtrl,
-              label: 'Contrasena temporal',
-              validator: _validadorPassword,
-            ),
-            const SizedBox(height: 14),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: 'Rol', border: OutlineInputBorder()),
-              value: _rol,
-              items: const [
-                DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                DropdownMenuItem(value: 'estandar', child: Text('Voluntario')),
-                DropdownMenuItem(value: 'visita', child: Text('Visita')),
-              ],
-              onChanged: (v) {
-                if (v != null) setState(() => _rol = v);
-              },
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.verde,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                validator: validadorEmail,
               ),
-              onPressed: _guardando ? null : _crear,
-              child: _guardando
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Crear usuario'),
-            ),
-          ],
+              const SizedBox(height: 14),
+              CampoPassword(
+                controller: _passwordCtrl,
+                label: 'Contrasena temporal',
+                validator: _validadorPassword,
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Rol',
+                  border: OutlineInputBorder(),
+                ),
+                value: _rol,
+                items: const [
+                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                  DropdownMenuItem(
+                    value: 'estandar',
+                    child: Text('Voluntario'),
+                  ),
+                  DropdownMenuItem(value: 'visita', child: Text('Visita')),
+                ],
+                onChanged: (v) {
+                  if (v != null) setState(() => _rol = v);
+                },
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.verde,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: _guardando ? null : _crear,
+                child: _guardando
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Crear usuario'),
+              ),
+            ],
+          ),
         ),
       ),
     );
