@@ -16,7 +16,7 @@ class CategoriaListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(nombre),
+      title: Text(nombre, style: const TextStyle(color: Colors.black87)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
