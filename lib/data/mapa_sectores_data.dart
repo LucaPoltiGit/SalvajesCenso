@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/nombres_sectores.dart';
 
 enum TipoForma { rectangulo, poligono }
 
@@ -83,21 +84,21 @@ Path _pathChanchos() {
 
 final List<RegionMapa> regionesMapa = [
   RegionMapa(
-    nombre: 'Falu',
+    nombre: NombresSectores.falu,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(134.5, 459.5, 114, 85),
     colorFondo: const Color(0xFFF0997B),
     colorTexto: const Color(0xFF4A1B0C),
   ),
   RegionMapa(
-    nombre: 'Barry',
+    nombre: NombresSectores.barry,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(134.5, 292.5, 114, 166),
     colorFondo: const Color(0xFF97C459),
     colorTexto: const Color(0xFF173404),
   ),
   RegionMapa(
-    nombre: 'Cabras',
+    nombre: NombresSectores.cabras,
     tipo: TipoForma.poligono,
     construirPath: _pathCabras,
     colorFondo: const Color(0xFFB5D4F4),
@@ -105,14 +106,14 @@ final List<RegionMapa> regionesMapa = [
     posicionLabel: const Offset(102, 470),
   ),
   RegionMapa(
-    nombre: 'Ovejas',
+    nombre: NombresSectores.ovejas,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(35.5, 285.5, 98, 59),
     colorFondo: const Color(0xFFF4C0D1),
     colorTexto: const Color(0xFF4B1528),
   ),
   RegionMapa(
-    nombre: 'Cleo',
+    nombre: NombresSectores.cleo,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(116.5, 345.5, 17, 29),
     colorFondo: const Color(0xFFCECBF6),
@@ -120,14 +121,14 @@ final List<RegionMapa> regionesMapa = [
     mostrarLabel: false,
   ),
   RegionMapa(
-    nombre: 'Shane y Aldebaran',
+    nombre: NombresSectores.shaneYAldebaran,
     tipo: TipoForma.poligono,
     construirPath: _pathShaneYAldebaran,
     colorFondo: const Color(0xFFEF9F27),
     colorTexto: const Color(0xFF412402),
   ),
   RegionMapa(
-    nombre: 'Guardia',
+    nombre: NombresSectores.guardia,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(0.5, 285.5, 35, 138),
     colorFondo: const Color(0xFF5DCAA5),
@@ -135,35 +136,35 @@ final List<RegionMapa> regionesMapa = [
     textoVertical: true,
   ),
   RegionMapa(
-    nombre: 'Geriatrico',
+    nombre: NombresSectores.geriatrico,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(0.5, 424.5, 68, 44),
     colorFondo: const Color(0xFFFAC775),
     colorTexto: const Color(0xFF412402),
   ),
   RegionMapa(
-    nombre: 'Balrog',
+    nombre: NombresSectores.balrog,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(0.5, 469.5, 68, 91),
     colorFondo: const Color(0xFFF7C1C1),
     colorTexto: const Color(0xFF501313),
   ),
   RegionMapa(
-    nombre: 'Laguna',
+    nombre: NombresSectores.laguna,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(0.5, 74.5, 81.5, 137),
     colorFondo: const Color(0xFF85B7EB),
     colorTexto: const Color(0xFF042C53),
   ),
   RegionMapa(
-    nombre: 'Apolo y Florita',
+    nombre: NombresSectores.apoloYFlorita,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(0.5, 0.5, 81.5, 74),
     colorFondo: const Color(0xFFC0DD97),
     colorTexto: const Color(0xFF173404),
   ),
   RegionMapa(
-    nombre: 'Chanchos',
+    nombre: NombresSectores.chanchos,
     tipo: TipoForma.poligono,
     construirPath: _pathChanchos,
     colorFondo: const Color(0xFFAFA9EC),
@@ -172,7 +173,7 @@ final List<RegionMapa> regionesMapa = [
     posicionLabel: const Offset(224, 142.5),
   ),
   RegionMapa(
-    nombre: 'Galpon',
+    nombre: NombresSectores.galpon,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(105.5, 253.5, 35, 31),
     colorFondo: const Color(0xFFD3D1C7),
@@ -181,14 +182,14 @@ final List<RegionMapa> regionesMapa = [
     mostrarLabel: false,
   ),
   RegionMapa(
-    nombre: 'Casita',
+    nombre: NombresSectores.casita,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(0.5, 212.5, 74, 72),
     colorFondo: const Color(0xFF9FE1CB),
     colorTexto: const Color(0xFF04342C),
   ),
   RegionMapa(
-    nombre: 'Casa volun',
+    nombre: NombresSectores.casaVoluntario,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(76.5, 345.5, 39, 29),
     colorFondo: const Color(0xFFD3D1C7),
@@ -196,7 +197,7 @@ final List<RegionMapa> regionesMapa = [
     tappable: false,
   ),
   RegionMapa(
-    nombre: 'Pasillo Rollos',
+    nombre: NombresSectores.pasilloRollos,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(68.5, 545.5, 186, 15),
     colorFondo: const Color(0xFFD3D1C7),
@@ -205,7 +206,7 @@ final List<RegionMapa> regionesMapa = [
     mostrarLabel: false,
   ),
   RegionMapa(
-    nombre: 'pasillo barry/Chanchos',
+    nombre: NombresSectores.pasilloBarryChanchos,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(134.5, 285.5, 114, 6),
     colorFondo: const Color(0xFFD3D1C7),
@@ -214,7 +215,7 @@ final List<RegionMapa> regionesMapa = [
     mostrarLabel: false,
   ),
   RegionMapa(
-    nombre: 'Pasillo chanchis',
+    nombre: NombresSectores.pasilloChanchis,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(248.5, 0.5, 6, 284),
     colorFondo: const Color(0xFFD3D1C7),
@@ -223,7 +224,7 @@ final List<RegionMapa> regionesMapa = [
     mostrarLabel: false,
   ),
   RegionMapa(
-    nombre: 'Pasillo toros',
+    nombre: NombresSectores.pasilloToros,
     tipo: TipoForma.rectangulo,
     rect: const Rect.fromLTWH(248.5, 292.5, 6, 252),
     colorFondo: const Color(0xFFD3D1C7),
