@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/actividad_item.dart';
 import '../../repositories/actividad_repository.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/formatear_fecha.dart';
 import '../../widgets/actividad_filtros_bar.dart';
 import '../../widgets/actividad_tile.dart';
@@ -109,7 +110,7 @@ class _ActividadPageState extends State<ActividadPage> {
     final claves = agrupado.keys.toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Actividad')),
+      appBar: AppBar(title: const Text(AppStrings.actividad)),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null

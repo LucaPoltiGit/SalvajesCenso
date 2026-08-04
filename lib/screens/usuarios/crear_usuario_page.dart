@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../repositories/user_repository.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/campo_password.dart';
 
@@ -63,7 +64,7 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear usuario')),
+      appBar: AppBar(title: const Text(AppStrings.crearUsuario)),
       body: Form(
         key: _formKey,
         child: ListView(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../widgets/campo_password.dart';
 
 class AjustesPage extends StatefulWidget {
@@ -100,7 +101,7 @@ class _AjustesPageState extends State<AjustesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajustes')),
+      appBar: AppBar(title: const Text(AppStrings.ajustes)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

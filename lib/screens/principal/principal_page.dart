@@ -5,6 +5,7 @@ import '../../repositories/animal_repository.dart';
 import '../../repositories/actividad_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_icons.dart';
 import '../../widgets/principal_stats_row.dart';
 import '../../widgets/acceso_rapido_row.dart';
 import '../../widgets/actividad_tile.dart';
@@ -131,13 +132,13 @@ class _PrincipalPageState extends State<PrincipalPage> {
           Row(
             children: [
               QuickAccessCard(
-                icono: Icons.map_outlined,
+                icono: AppIcons.sectores,
                 titulo: 'Ver sectores',
                 onTap: () => appShellKey.currentState?.irASectores(),
               ),
               const SizedBox(width: 12),
               QuickAccessCard(
-                icono: Icons.photo_library_outlined,
+                icono: AppIcons.menuGaleria,
                 titulo: 'Galeria de fotos',
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const GaleriaPage()));

@@ -15,6 +15,8 @@ import '../login/login_page.dart';
 import '../usuarios/usuarios_page.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
+import '../../theme/app_icons.dart';
+import '../../theme/app_strings.dart';
 
 final GlobalKey<_AppShellState> appShellKey = GlobalKey<_AppShellState>();
 
@@ -33,11 +35,11 @@ class _AppShellState extends State<AppShell> {
 
   List<String> get _titulos {
     if (AuthHelper.esVisita) {
-      return ['Censo', 'Ayuda', 'Sectores'];
+      return [AppStrings.censo, AppStrings.ayuda, AppStrings.sectores];
     }
-    final base = ['Principal', 'Censo'];
-    if (AuthHelper.puedeVerNotas) base.add('Notas');
-    base.add('Sectores');
+    final base = [AppStrings.principal, AppStrings.censo];
+    if (AuthHelper.puedeVerNotas) base.add(AppStrings.notas);
+    base.add(AppStrings.sectores);
     return base;
   }
 
@@ -71,19 +73,19 @@ class _AppShellState extends State<AppShell> {
   List<NavigationDestination> get _destinos {
     if (AuthHelper.esVisita) {
       return const [
-        NavigationDestination(icon: Icon(Icons.pets_outlined), selectedIcon: Icon(Icons.pets), label: 'Censo'),
-        NavigationDestination(icon: Icon(Icons.favorite_outline), selectedIcon: Icon(Icons.favorite), label: 'Ayuda'),
-        NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Sectores'),
+        NavigationDestination(icon: Icon(AppIcons.censo), selectedIcon: Icon(AppIcons.censoActivo), label: AppStrings.censo),
+        NavigationDestination(icon: Icon(AppIcons.ayuda), selectedIcon: Icon(AppIcons.ayudaActivo), label: AppStrings.ayuda),
+        NavigationDestination(icon: Icon(AppIcons.sectores), selectedIcon: Icon(AppIcons.sectoresActivo), label: AppStrings.sectores),
       ];
     }
     final base = <NavigationDestination>[
-      const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Principal'),
-      const NavigationDestination(icon: Icon(Icons.pets_outlined), selectedIcon: Icon(Icons.pets), label: 'Censo'),
+      const NavigationDestination(icon: Icon(AppIcons.principal), selectedIcon: Icon(AppIcons.principalActivo), label: AppStrings.principal),
+      const NavigationDestination(icon: Icon(AppIcons.censo), selectedIcon: Icon(AppIcons.censoActivo), label: AppStrings.censo),
     ];
     if (AuthHelper.puedeVerNotas) {
-      base.add(const NavigationDestination(icon: Icon(Icons.edit_note_outlined), selectedIcon: Icon(Icons.edit_note), label: 'Notas'));
+      base.add(const NavigationDestination(icon: Icon(AppIcons.notas), selectedIcon: Icon(AppIcons.notasActivo), label: AppStrings.notas));
     }
-    base.add(const NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Sectores'));
+    base.add(const NavigationDestination(icon: Icon(AppIcons.sectores), selectedIcon: Icon(AppIcons.sectoresActivo), label: AppStrings.sectores));
     return base;
   }
 
@@ -133,8 +135,8 @@ class _AppShellState extends State<AppShell> {
           children: [
             const DrawerHeader(child: Text('Santuario App')),
             ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Galeria de fotos'),
+              leading: const Icon(AppIcons.menuGaleria),
+              title: const Text(AppStrings.menuGaleria),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GaleriaPage()));
@@ -142,8 +144,8 @@ class _AppShellState extends State<AppShell> {
             ),
             if (!AuthHelper.esVisita)
               ListTile(
-                leading: const Icon(Icons.favorite_outline),
-                title: const Text('Ayuda'),
+                leading: const Icon(AppIcons.menuAyuda),
+                title: const Text(AppStrings.menuAyuda),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const AyudaStandalonePage()));
@@ -151,8 +153,8 @@ class _AppShellState extends State<AppShell> {
               ),
             if (AuthHelper.esVisita)
               ListTile(
-                leading: const Icon(Icons.volunteer_activism_outlined),
-                title: const Text('Quiero ayudar'),
+                leading: const Icon(AppIcons.menuQuieroAyudar),
+                title: const Text(AppStrings.menuQuieroAyudar),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactoFormPage()));
@@ -160,8 +162,8 @@ class _AppShellState extends State<AppShell> {
               ),
             if (AuthHelper.puedeVerContactos)
               ListTile(
-                leading: const Icon(Icons.contact_mail_outlined),
-                title: const Text('Contactos recibidos'),
+                leading: const Icon(AppIcons.menuContactos),
+                title: const Text(AppStrings.menuContactosRecibidos),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactosPage()));
@@ -169,8 +171,8 @@ class _AppShellState extends State<AppShell> {
               ),
             if (AuthHelper.esAdmin)
               ListTile(
-                leading: const Icon(Icons.category_outlined),
-                title: const Text('Gestionar categorias'),
+                leading: const Icon(AppIcons.menuCategorias),
+                title: const Text(AppStrings.menuGestionarCategorias),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasPage()));
@@ -178,16 +180,16 @@ class _AppShellState extends State<AppShell> {
               ),
             if (AuthHelper.esAdmin)
               ListTile(
-                leading: const Icon(Icons.people_outline),
-                title: const Text('Gestionar usuarios'),
+                leading: const Icon(AppIcons.menuUsuarios),
+                title: const Text(AppStrings.menuGestionarUsuarios),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const UsuariosPage()));
                 },
               ),
             ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Ajustes'),
+              leading: const Icon(AppIcons.menuAjustes),
+              title: const Text(AppStrings.menuAjustes),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const AjustesPage()));
@@ -195,8 +197,8 @@ class _AppShellState extends State<AppShell> {
             ),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Cerrar sesion'),
+              leading: const Icon(AppIcons.menuCerrarSesion),
+              title: const Text(AppStrings.menuCerrarSesion),
               onTap: () {
                 Navigator.pop(context);
                 PocketbaseService.instance.logout();

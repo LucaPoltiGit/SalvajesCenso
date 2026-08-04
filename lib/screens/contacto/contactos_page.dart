@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../repositories/contacto_repository.dart';
+import '../../theme/app_strings.dart';
 
 class ContactosPage extends StatefulWidget {
   const ContactosPage({super.key});
@@ -42,7 +43,7 @@ class _ContactosPageState extends State<ContactosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Contactos recibidos')),
+      appBar: AppBar(title: const Text(AppStrings.contactosRecibidos)),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/foto.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../theme/app_strings.dart';
 import '../../widgets/buscador_debounced.dart';
 import '../foto/foto_viewer_page.dart';
 
@@ -55,7 +56,7 @@ class _GaleriaPageState extends State<GaleriaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Galeria de fotos')),
+      appBar: AppBar(title: const Text(AppStrings.galeriaDeFotos)),
       body: Column(
         children: [
           Padding(
