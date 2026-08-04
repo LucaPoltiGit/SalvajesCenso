@@ -18,6 +18,12 @@ class MapaSectoresPainter extends CustomPainter {
       final paint = Paint()..color = region.colorFondo;
       canvas.drawPath(path, paint);
 
+      final paintBorde = Paint()
+        ..color = Colors.black.withOpacity(0.25)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1;
+      canvas.drawPath(path, paintBorde);
+
       if (region.mostrarLabel) {
         final bounds = path.getBounds();
         final centro = region.posicionLabel ?? bounds.center;
