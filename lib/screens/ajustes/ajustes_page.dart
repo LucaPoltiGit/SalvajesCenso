@@ -3,6 +3,8 @@ import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
+import '../../widgets/ancho_formulario.dart';
 import '../../widgets/campo_password.dart';
 
 class AjustesPage extends StatefulWidget {
@@ -20,13 +22,14 @@ class _AjustesPageState extends State<AjustesPage> {
 
   bool _guardandoNombre = false;
   bool _cambiandoPassword = false;
-  String? _errorNombre;
-  String? _errorPassword;
+  Object? _errorNombre;
+  Object? _errorPassword;
 
   @override
   void initState() {
     super.initState();
-    _nombreCtrl.text = PocketbaseService.instance.pb.authStore.model?.data['name'] ?? '';
+    _nombreCtrl.text =
+        PocketbaseService.instance.pb.authStore.model?.data['name'] ?? '';
   }
 
   @override
@@ -52,10 +55,12 @@ class _AjustesPageState extends State<AjustesPage> {
     try {
       await UserRepository.actualizarNombre(nuevoNombre);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nombre actualizado')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Nombre actualizado')));
       }
     } catch (e) {
-      setState(() => _errorNombre = e.toString());
+      setState(() => _errorNombre = e);
     } finally {
       if (mounted) setState(() => _guardandoNombre = false);
     }
@@ -71,7 +76,10 @@ class _AjustesPageState extends State<AjustesPage> {
       return;
     }
     if (nueva.length < 8) {
-      setState(() => _errorPassword = 'La nueva contrasena debe tener al menos 8 caracteres');
+      setState(
+        () => _errorPassword =
+            'La nueva contrasena debe tener al menos 8 caracteres',
+      );
       return;
     }
     if (nueva != confirmar) {
@@ -84,15 +92,21 @@ class _AjustesPageState extends State<AjustesPage> {
       _errorPassword = null;
     });
     try {
-      await UserRepository.cambiarPassword(actual: actual, nueva: nueva, confirmar: confirmar);
+      await UserRepository.cambiarPassword(
+        actual: actual,
+        nueva: nueva,
+        confirmar: confirmar,
+      );
       _passwordActualCtrl.clear();
       _passwordNuevaCtrl.clear();
       _passwordConfirmarCtrl.clear();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contrasena actualizada')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Contrasena actualizada')));
       }
     } catch (e) {
-      setState(() => _errorPassword = e.toString());
+      setState(() => _errorPassword = e);
     } finally {
       if (mounted) setState(() => _cambiandoPassword = false);
     }
@@ -102,69 +116,104 @@ class _AjustesPageState extends State<AjustesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.ajustes)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text('Mi perfil', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 12),
-          if (_errorNombre != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(_errorNombre!, style: const TextStyle(color: AppColors.rojo)),
+      body: AnchoFormulario(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const Text(
+              'Mi perfil',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
-          TextFormField(
-            controller: _nombreCtrl,
-            decoration: const InputDecoration(labelText: 'Nombre', border: OutlineInputBorder()),
-          ),
-          const SizedBox(height: 14),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.verde,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+            const SizedBox(height: 12),
+            if (_errorNombre != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  _errorNombre is Exception
+                      ? mensajeErrorAmigable(_errorNombre!)
+                      : _errorNombre.toString(),
+                  style: const TextStyle(color: AppColors.rojo),
+                ),
+              ),
+            TextFormField(
+              controller: _nombreCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Nombre',
+                border: OutlineInputBorder(),
+              ),
             ),
-            onPressed: _guardandoNombre ? null : _guardarNombre,
-            child: _guardandoNombre
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Text('Guardar nombre'),
-          ),
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: 16),
-          const Text('Cambiar contrasena', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 12),
-          if (_errorPassword != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(_errorPassword!, style: const TextStyle(color: AppColors.rojo)),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.verde,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: _guardandoNombre ? null : _guardarNombre,
+              child: _guardandoNombre
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Guardar nombre'),
             ),
-          CampoPassword(
-            controller: _passwordActualCtrl,
-            label: 'Contrasena actual',
-          ),
-          const SizedBox(height: 14),
-          CampoPassword(
-            controller: _passwordNuevaCtrl,
-            label: 'Nueva contrasena',
-          ),
-          const SizedBox(height: 14),
-          CampoPassword(
-            controller: _passwordConfirmarCtrl,
-            label: 'Confirmar nueva contrasena',
-          ),
-          const SizedBox(height: 14),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.verde,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
+            const Text(
+              'Cambiar contrasena',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
-            onPressed: _cambiandoPassword ? null : _cambiarPassword,
-            child: _cambiandoPassword
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Text('Cambiar contrasena'),
-          ),
-        ],
+            const SizedBox(height: 12),
+            if (_errorPassword != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  _errorPassword is Exception
+                      ? mensajeErrorAmigable(_errorPassword!)
+                      : _errorPassword.toString(),
+                  style: const TextStyle(color: AppColors.rojo),
+                ),
+              ),
+            CampoPassword(
+              controller: _passwordActualCtrl,
+              label: 'Contrasena actual',
+            ),
+            const SizedBox(height: 14),
+            CampoPassword(
+              controller: _passwordNuevaCtrl,
+              label: 'Nueva contrasena',
+            ),
+            const SizedBox(height: 14),
+            CampoPassword(
+              controller: _passwordConfirmarCtrl,
+              label: 'Confirmar nueva contrasena',
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.verde,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: _cambiandoPassword ? null : _cambiarPassword,
+              child: _cambiandoPassword
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Cambiar contrasena'),
+            ),
+          ],
+        ),
       ),
     );
   }

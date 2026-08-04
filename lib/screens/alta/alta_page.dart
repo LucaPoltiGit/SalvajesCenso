@@ -7,9 +7,11 @@ import '../../repositories/sector_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/alta_datos_basicos_section.dart';
 import '../../widgets/alta_detalles_section.dart';
+import '../../widgets/ancho_formulario.dart';
 
 class AltaPage extends StatefulWidget {
   final RecordModel? animalExistente;
@@ -34,7 +36,7 @@ class _AltaPageState extends State<AltaPage> {
 
   bool _cargandoOpciones = true;
   bool _guardando = false;
-  String? _error;
+  Object? _error;
 
   List<ItemSimple> _especies = [];
   List<ItemSimple> _sectores = [];
@@ -94,7 +96,9 @@ class _AltaPageState extends State<AltaPage> {
           final alerta = animalExistente.data['alerta'] ?? '';
           _alerta = alerta.isEmpty ? null : alerta;
           final fechaLlegadaTexto = animalExistente.data['fecha_llegada'] ?? '';
-          _fechaLlegada = fechaLlegadaTexto.isEmpty ? null : DateTime.tryParse(fechaLlegadaTexto);
+          _fechaLlegada = fechaLlegadaTexto.isEmpty
+              ? null
+              : DateTime.tryParse(fechaLlegadaTexto);
         } else {
           _estadoId = estadoDefault;
         }
@@ -102,7 +106,7 @@ class _AltaPageState extends State<AltaPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargandoOpciones = false;
       });
     }
@@ -143,7 +147,8 @@ class _AltaPageState extends State<AltaPage> {
         'descripcion': _descripcionCtrl.text.trim(),
         'historia_llegada': _historiaCtrl.text.trim(),
         if (_alerta != null) 'alerta': _alerta,
-        if (_fechaLlegada != null) 'fecha_llegada': _fechaLlegada!.toIso8601String(),
+        if (_fechaLlegada != null)
+          'fecha_llegada': _fechaLlegada!.toIso8601String(),
       };
 
       final animalExistente = widget.animalExistente;
@@ -158,7 +163,7 @@ class _AltaPageState extends State<AltaPage> {
       }
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _guardando = false;
       });
     }
@@ -167,56 +172,80 @@ class _AltaPageState extends State<AltaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.animalExistente != null ? AppStrings.editarAnimal : AppStrings.agregarAnimal)),
+      appBar: AppBar(
+        title: Text(
+          widget.animalExistente != null
+              ? AppStrings.editarAnimal
+              : AppStrings.agregarAnimal,
+        ),
+      ),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(_error!, style: const TextStyle(color: AppColors.rojo)),
+          : AnchoFormulario(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          _error is Exception
+                              ? mensajeErrorAmigable(_error!)
+                              : _error.toString(),
+                          style: const TextStyle(color: AppColors.rojo),
+                        ),
+                      ),
+                    AltaDatosBasicosSection(
+                      nombreCtrl: _nombreCtrl,
+                      validadorNombre: validadorRequerido,
+                      especies: _especies,
+                      sectores: _sectores,
+                      estados: _estados,
+                      especieId: _especieId,
+                      sectorId: _sectorId,
+                      estadoId: _estadoId,
+                      onEspecieCambiada: (v) => setState(() => _especieId = v),
+                      onSectorCambiado: (v) => setState(() => _sectorId = v),
+                      onEstadoCambiado: (v) => setState(() => _estadoId = v),
                     ),
-                  AltaDatosBasicosSection(
-                    nombreCtrl: _nombreCtrl,
-                    validadorNombre: validadorRequerido,
-                    especies: _especies,
-                    sectores: _sectores,
-                    estados: _estados,
-                    especieId: _especieId,
-                    sectorId: _sectorId,
-                    estadoId: _estadoId,
-                    onEspecieCambiada: (v) => setState(() => _especieId = v),
-                    onSectorCambiado: (v) => setState(() => _sectorId = v),
-                    onEstadoCambiado: (v) => setState(() => _estadoId = v),
-                  ),
-                  const SizedBox(height: 14),
-                  AltaDetallesSection(
-                    edadCtrl: _edadCtrl,
-                    dietaCtrl: _dietaCtrl,
-                    descripcionCtrl: _descripcionCtrl,
-                    historiaCtrl: _historiaCtrl,
-                    fechaLlegada: _fechaLlegada,
-                    onElegirFecha: _elegirFecha,
-                    alerta: _alerta,
-                    onAlertaCambiada: (v) => setState(() => _alerta = v),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.verde,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    const SizedBox(height: 14),
+                    AltaDetallesSection(
+                      edadCtrl: _edadCtrl,
+                      dietaCtrl: _dietaCtrl,
+                      descripcionCtrl: _descripcionCtrl,
+                      historiaCtrl: _historiaCtrl,
+                      fechaLlegada: _fechaLlegada,
+                      onElegirFecha: _elegirFecha,
+                      alerta: _alerta,
+                      onAlertaCambiada: (v) => setState(() => _alerta = v),
                     ),
-                    onPressed: _guardando ? null : _guardar,
-                    child: _guardando
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(widget.animalExistente != null ? 'Guardar cambios' : 'Guardar residente'),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.verde,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: _guardando ? null : _guardar,
+                      child: _guardando
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              widget.animalExistente != null
+                                  ? 'Guardar cambios'
+                                  : 'Guardar residente',
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ),
     );

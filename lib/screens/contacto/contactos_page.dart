@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../repositories/contacto_repository.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 
 class ContactosPage extends StatefulWidget {
   const ContactosPage({super.key});
@@ -13,7 +14,7 @@ class ContactosPage extends StatefulWidget {
 class _ContactosPageState extends State<ContactosPage> {
   List<RecordModel> _contactos = [];
   bool _cargando = true;
-  String? _error;
+  Object? _error;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _ContactosPageState extends State<ContactosPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -47,31 +48,33 @@ class _ContactosPageState extends State<ContactosPage> {
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text('Error: $_error'))
-              : _contactos.isEmpty
-                  ? const Center(child: Text('No hay contactos recibidos'))
-                  : RefreshIndicator(
-                      onRefresh: _cargar,
-                      child: ListView.builder(
-                        itemCount: _contactos.length,
-                        itemBuilder: (context, index) {
-                          final c = _contactos[index];
-                          final nombre = (c.data['nombre'] as String?) ?? '';
-                          final telefono = (c.data['telefono'] as String?) ?? '';
-                          final email = (c.data['email'] as String?) ?? '';
-                          final mensaje = (c.data['mensaje'] as String?) ?? '';
-                          return ListTile(
-                            title: Text(nombre.isEmpty ? 'Sin nombre' : nombre),
-                            subtitle: Text([
-                              if (telefono.isNotEmpty) telefono,
-                              if (email.isNotEmpty) email,
-                              if (mensaje.isNotEmpty) mensaje,
-                            ].join('\n')),
-                            isThreeLine: mensaje.isNotEmpty,
-                          );
-                        },
-                      ),
+          ? Center(child: Text(mensajeErrorAmigable(_error!)))
+          : _contactos.isEmpty
+          ? const Center(child: Text('No hay contactos recibidos'))
+          : RefreshIndicator(
+              onRefresh: _cargar,
+              child: ListView.builder(
+                itemCount: _contactos.length,
+                itemBuilder: (context, index) {
+                  final c = _contactos[index];
+                  final nombre = (c.data['nombre'] as String?) ?? '';
+                  final telefono = (c.data['telefono'] as String?) ?? '';
+                  final email = (c.data['email'] as String?) ?? '';
+                  final mensaje = (c.data['mensaje'] as String?) ?? '';
+                  return ListTile(
+                    title: Text(nombre.isEmpty ? 'Sin nombre' : nombre),
+                    subtitle: Text(
+                      [
+                        if (telefono.isNotEmpty) telefono,
+                        if (email.isNotEmpty) email,
+                        if (mensaje.isNotEmpty) mensaje,
+                      ].join('\n'),
                     ),
+                    isThreeLine: mensaje.isNotEmpty,
+                  );
+                },
+              ),
+            ),
     );
   }
 }

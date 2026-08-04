@@ -4,6 +4,7 @@ import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/usuario_list_tile.dart';
 import 'crear_usuario_page.dart';
 
@@ -17,7 +18,7 @@ class UsuariosPage extends StatefulWidget {
 class _UsuariosPageState extends State<UsuariosPage> {
   List<Usuario> _usuarios = [];
   bool _cargando = true;
-  String? _error;
+  Object? _error;
 
   String? get _miId => PocketbaseService.instance.pb.authStore.model?.id;
 
@@ -40,7 +41,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -51,7 +52,10 @@ class _UsuariosPageState extends State<UsuariosPage> {
       await UserRepository.cambiarRol(id, nuevoRol);
       _cargar();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
@@ -60,7 +64,10 @@ class _UsuariosPageState extends State<UsuariosPage> {
       await UserRepository.cambiarBloqueo(id, !bloqueadoActual);
       _cargar();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
@@ -69,10 +76,21 @@ class _UsuariosPageState extends State<UsuariosPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Borrar usuario'),
-        content: Text('Seguro que queres borrar a $nombre? Esta accion no se puede deshacer.'),
+        content: Text(
+          'Seguro que queres borrar a $nombre? Esta accion no se puede deshacer.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Borrar', style: TextStyle(color: AppColors.rojo))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: AppColors.rojo),
+            ),
+          ),
         ],
       ),
     );
@@ -81,7 +99,10 @@ class _UsuariosPageState extends State<UsuariosPage> {
         await UserRepository.borrar(id);
         _cargar();
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -92,7 +113,10 @@ class _UsuariosPageState extends State<UsuariosPage> {
       appBar: AppBar(title: const Text(AppStrings.gestionarUsuarios)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const CrearUsuarioPage()));
+          final resultado = await Navigator.push<bool>(
+            context,
+            MaterialPageRoute(builder: (_) => const CrearUsuarioPage()),
+          );
           if (resultado == true) _cargar();
         },
         child: const Icon(Icons.person_add_outlined),
@@ -100,27 +124,30 @@ class _UsuariosPageState extends State<UsuariosPage> {
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text('Error: $_error'))
-              : RefreshIndicator(
-                  onRefresh: _cargar,
-                  child: ListView.builder(
-                    itemCount: _usuarios.length,
-                    itemBuilder: (context, index) {
-                      final u = _usuarios[index];
-                      return UsuarioListTile(
-                        id: u.id,
-                        nombre: u.nombre,
-                        email: u.email,
-                        rol: u.rol,
-                        bloqueado: u.bloqueado,
-                        esUsuarioActual: u.id == _miId,
-                        onCambiarRol: (nuevoRol) => _cambiarRol(u.id, nuevoRol),
-                        onToggleBloqueo: () => _toggleBloqueo(u.id, u.bloqueado),
-                        onBorrar: () => _confirmarBorrado(u.id, u.nombre.isNotEmpty ? u.nombre : u.email),
-                      );
-                    },
-                  ),
-                ),
+          ? Center(child: Text(mensajeErrorAmigable(_error!)))
+          : RefreshIndicator(
+              onRefresh: _cargar,
+              child: ListView.builder(
+                itemCount: _usuarios.length,
+                itemBuilder: (context, index) {
+                  final u = _usuarios[index];
+                  return UsuarioListTile(
+                    id: u.id,
+                    nombre: u.nombre,
+                    email: u.email,
+                    rol: u.rol,
+                    bloqueado: u.bloqueado,
+                    esUsuarioActual: u.id == _miId,
+                    onCambiarRol: (nuevoRol) => _cambiarRol(u.id, nuevoRol),
+                    onToggleBloqueo: () => _toggleBloqueo(u.id, u.bloqueado),
+                    onBorrar: () => _confirmarBorrado(
+                      u.id,
+                      u.nombre.isNotEmpty ? u.nombre : u.email,
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

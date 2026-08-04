@@ -3,6 +3,7 @@ import '../../models/campania_ayuda.dart';
 import '../../repositories/ayuda_repository.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/campania_ayuda_card.dart';
 import 'ayuda_form_page.dart';
 
@@ -16,7 +17,7 @@ class AyudaPage extends StatefulWidget {
 class _AyudaPageState extends State<AyudaPage> {
   List<CampaniaAyuda> _campanias = [];
   bool _cargando = true;
-  String? _error;
+  Object? _error;
 
   bool get _puedeGestionar => AuthHelper.puedeGestionarAyuda;
 
@@ -32,28 +33,35 @@ class _AyudaPageState extends State<AyudaPage> {
       _error = null;
     });
     try {
-      final campanias = _puedeGestionar ? await AyudaRepository.listarTodas() : await AyudaRepository.listarActivas();
+      final campanias = _puedeGestionar
+          ? await AyudaRepository.listarTodas()
+          : await AyudaRepository.listarActivas();
       setState(() {
         _campanias = campanias;
         _cargando = false;
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
   }
 
   Future<void> _crear() async {
-    final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const AyudaFormPage()));
+    final resultado = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const AyudaFormPage()),
+    );
     if (resultado == true) _cargar();
   }
 
   Future<void> _editar(CampaniaAyuda campania) async {
     final resultado = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (_) => AyudaFormPage(campaniaExistente: campania)),
+      MaterialPageRoute(
+        builder: (_) => AyudaFormPage(campaniaExistente: campania),
+      ),
     );
     if (resultado == true) _cargar();
   }
@@ -63,12 +71,20 @@ class _AyudaPageState extends State<AyudaPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Borrar campania'),
-        content: Text('Seguro que queres borrar "${campania.titulo}"? Esta accion no se puede deshacer.'),
+        content: Text(
+          'Seguro que queres borrar "${campania.titulo}"? Esta accion no se puede deshacer.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: AppColors.rojo),
+            ),
           ),
         ],
       ),
@@ -80,7 +96,9 @@ class _AyudaPageState extends State<AyudaPage> {
       _cargar();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al borrar: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -91,7 +109,7 @@ class _AyudaPageState extends State<AyudaPage> {
     if (_cargando) {
       contenido = const Center(child: CircularProgressIndicator());
     } else if (_error != null) {
-      contenido = Center(child: Text('Error: $_error'));
+      contenido = Center(child: Text(mensajeErrorAmigable(_error!)));
     } else if (_campanias.isEmpty) {
       contenido = const Center(child: Text('No hay campanias para mostrar'));
     } else {

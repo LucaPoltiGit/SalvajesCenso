@@ -4,28 +4,41 @@ import '../models/campania_ayuda.dart';
 import '../repositories/ayuda_repository.dart';
 import '../theme/app_colors.dart';
 import '../services/auth_helper.dart';
+import '../utils/mensajes_error.dart';
 
 class CampaniaAyudaCard extends StatelessWidget {
   final CampaniaAyuda campania;
   final VoidCallback? onEditar;
   final VoidCallback? onBorrar;
 
-  const CampaniaAyudaCard({super.key, required this.campania, this.onEditar, this.onBorrar});
+  const CampaniaAyudaCard({
+    super.key,
+    required this.campania,
+    this.onEditar,
+    this.onBorrar,
+  });
 
   Future<void> _copiarAlias(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: campania.aliasDonacion));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alias copiado')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Alias copiado')));
     }
   }
 
   Future<void> _descargarImagen(BuildContext context) async {
     if (campania.imagenUrl == null) return;
     try {
-      await AyudaRepository.descargarYCompartirImagen(campania.imagenUrl!, campania.titulo);
+      await AyudaRepository.descargarYCompartirImagen(
+        campania.imagenUrl!,
+        campania.titulo,
+      );
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al descargar: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -44,8 +57,15 @@ class CampaniaAyudaCard extends StatelessWidget {
         children: [
           if (campania.imagenUrl != null)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(campania.imagenUrl!, height: 160, width: double.infinity, fit: BoxFit.cover),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              child: Image.network(
+                campania.imagenUrl!,
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(14),
@@ -55,7 +75,15 @@ class CampaniaAyudaCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: Text(campania.titulo, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+                    Expanded(
+                      child: Text(
+                        campania.titulo,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                     if (AuthHelper.puedeGestionarAyuda)
                       PopupMenuButton<String>(
                         icon: const Icon(Icons.more_vert, size: 20),
@@ -86,7 +114,10 @@ class CampaniaAyudaCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '\$${campania.montoRecaudado.toStringAsFixed(0)} de \$${campania.montoNecesario!.toStringAsFixed(0)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.madera),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.madera,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 12),
@@ -96,7 +127,10 @@ class CampaniaAyudaCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: () => _copiarAlias(context),
                         icon: const Icon(Icons.copy, size: 16),
-                        label: Text(campania.aliasDonacion, overflow: TextOverflow.ellipsis),
+                        label: Text(
+                          campania.aliasDonacion,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                     if (campania.imagenUrl != null) ...[

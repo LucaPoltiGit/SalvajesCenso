@@ -10,6 +10,7 @@ import '../screens/nota/nota_form_page.dart';
 import '../services/auth_helper.dart';
 import '../theme/app_colors.dart';
 import '../utils/formatear_fecha.dart';
+import '../utils/mensajes_error.dart';
 import '../utils/text_format.dart';
 
 class NotaDetalleDialog extends StatefulWidget {
@@ -92,12 +93,20 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Borrar nota'),
-        content: const Text('Seguro que queres borrar esta nota? Esta accion no se puede deshacer.'),
+        content: const Text(
+          'Seguro que queres borrar esta nota? Esta accion no se puede deshacer.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: AppColors.rojo),
+            ),
           ),
         ],
       ),
@@ -110,7 +119,9 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
       widget.onCambio();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al borrar: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -120,11 +131,16 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
       final animal = await _animalRepo.obtenerPorId(widget.animalId);
       if (mounted) {
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => FichaPage(animal: animal)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => FichaPage(animal: animal)),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No se pudo abrir el perfil: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -145,7 +161,8 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final mostrarMenu = AuthHelper.puedeEditarNotas || AuthHelper.puedeBorrarNotas;
+    final mostrarMenu =
+        AuthHelper.puedeEditarNotas || AuthHelper.puedeBorrarNotas;
 
     return Stack(
       children: [
@@ -160,7 +177,10 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
                   Expanded(
                     child: Text(
                       widget.animalNombre,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   if (mostrarMenu)
@@ -171,8 +191,16 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
                         if (v == 'borrar') _borrar();
                       },
                       itemBuilder: (context) => [
-                        if (AuthHelper.puedeEditarNotas) const PopupMenuItem(value: 'editar', child: Text('Editar')),
-                        if (AuthHelper.puedeBorrarNotas) const PopupMenuItem(value: 'borrar', child: Text('Borrar')),
+                        if (AuthHelper.puedeEditarNotas)
+                          const PopupMenuItem(
+                            value: 'editar',
+                            child: Text('Editar'),
+                          ),
+                        if (AuthHelper.puedeBorrarNotas)
+                          const PopupMenuItem(
+                            value: 'borrar',
+                            child: Text('Borrar'),
+                          ),
                       ],
                     ),
                 ],
@@ -182,10 +210,20 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
                 children: [
                   Text(
                     formatearEtiqueta(widget.nota.tipoNombre),
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _colorTipo),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _colorTipo,
+                    ),
                   ),
                   const SizedBox(width: 10),
-                  Text(formatearFecha(widget.nota.fecha), style: const TextStyle(fontSize: 12, color: AppColors.madera)),
+                  Text(
+                    formatearFecha(widget.nota.fecha),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.madera,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -195,7 +233,9 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
                 const SizedBox(
                   height: 80,
                   width: 80,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 )
               else if (_fotos.isNotEmpty)
                 SizedBox(
@@ -208,10 +248,20 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: f))),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => FotoViewerPage(foto: f),
+                            ),
+                          ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(f.url, width: 80, height: 80, fit: BoxFit.cover),
+                            child: Image.network(
+                              f.url,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       );
@@ -222,7 +272,10 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.verde, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.verde,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: _irAlPerfil,
                   child: const Text('Ir al perfil'),
                 ),

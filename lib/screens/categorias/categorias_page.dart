@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
 import '../../theme/app_strings.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/aviso_dialog.dart';
 import '../../widgets/categoria_form_dialog.dart';
 import '../../widgets/categoria_list_tile.dart';
@@ -14,7 +15,8 @@ class CategoriasPage extends StatefulWidget {
   State<CategoriasPage> createState() => _CategoriasPageState();
 }
 
-class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProviderStateMixin {
+class _CategoriasPageState extends State<CategoriasPage>
+    with SingleTickerProviderStateMixin {
   static const _colecciones = ['especies', 'estados', 'tipos_nota'];
 
   late final TabController _tabController;
@@ -24,12 +26,8 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
   final Map<String, List<ItemSimple>> _items = {
     for (final c in _colecciones) c: [],
   };
-  final Map<String, bool> _cargando = {
-    for (final c in _colecciones) c: true,
-  };
-  final Map<String, String?> _errores = {
-    for (final c in _colecciones) c: null,
-  };
+  final Map<String, bool> _cargando = {for (final c in _colecciones) c: true};
+  final Map<String, Object?> _errores = {for (final c in _colecciones) c: null};
 
   @override
   void initState() {
@@ -59,7 +57,7 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
       });
     } catch (e) {
       setState(() {
-        _errores[coleccion] = e.toString();
+        _errores[coleccion] = e;
         _cargando[coleccion] = false;
       });
     }
@@ -75,21 +73,30 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
       await _repos[coleccion]!.crear(nombre);
       _cargar(coleccion);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
   Future<void> _editar(String coleccion, ItemSimple item) async {
     final nombre = await showDialog<String>(
       context: context,
-      builder: (_) => CategoriaFormDialog(titulo: 'Editar categoria', valorInicial: item.nombre),
+      builder: (_) => CategoriaFormDialog(
+        titulo: 'Editar categoria',
+        valorInicial: item.nombre,
+      ),
     );
     if (nombre == null) return;
     try {
       await _repos[coleccion]!.editar(item.id, nombre);
       _cargar(coleccion);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
@@ -104,7 +111,8 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
         await mostrarAviso(
           context,
           titulo: 'Categoria en uso',
-          mensaje: 'No se puede borrar. Hay $usos $palabra usando esta categoria. '
+          mensaje:
+              'No se puede borrar. Hay $usos $palabra usando esta categoria. '
               'Cambia esos registros a otra categoria antes de borrarla.',
         );
       }
@@ -114,14 +122,18 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
     final confirmado = await confirmarBorrado(
       context,
       titulo: 'Borrar categoria',
-      mensaje: 'Seguro que queres borrar "${item.nombre}"? Esta accion no se puede deshacer.',
+      mensaje:
+          'Seguro que queres borrar "${item.nombre}"? Esta accion no se puede deshacer.',
     );
     if (!confirmado) return;
     try {
       await _repos[coleccion]!.borrar(item.id);
       _cargar(coleccion);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     }
   }
 
@@ -131,7 +143,7 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
     }
     final error = _errores[coleccion];
     if (error != null) {
-      return Center(child: Text('Error: $error'));
+      return Center(child: Text(mensajeErrorAmigable(error)));
     }
     final items = _items[coleccion]!;
     if (items.isEmpty) {

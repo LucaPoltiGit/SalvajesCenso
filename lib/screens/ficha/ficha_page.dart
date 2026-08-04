@@ -12,6 +12,7 @@ import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/ficha_header.dart';
 import '../../widgets/ficha_tab_datos.dart';
 import '../../widgets/ficha_tab_sobre.dart';
@@ -39,7 +40,7 @@ class _FichaPageState extends State<FichaPage> {
   List<Foto> _fotos = [];
   Map<String, List<Foto>> _fotosPorNota = {};
   bool _cargando = true;
-  String? _error;
+  Object? _error;
   bool _seModifico = false;
   bool _subiendoFoto = false;
 
@@ -65,8 +66,12 @@ class _FichaPageState extends State<FichaPage> {
         notas = await _notaRepo.listarPorAnimal(widget.animal.id);
       }
 
-      final fotosGenerales = await _fotoRepo.listarGeneralesDeAnimal(widget.animal.id);
-      final fotosDeNotas = await _fotoRepo.listarDeNotasDeAnimal(widget.animal.id);
+      final fotosGenerales = await _fotoRepo.listarGeneralesDeAnimal(
+        widget.animal.id,
+      );
+      final fotosDeNotas = await _fotoRepo.listarDeNotasDeAnimal(
+        widget.animal.id,
+      );
       final fotosPorNota = <String, List<Foto>>{};
       for (final f in fotosDeNotas) {
         if (f.notaId == null) continue;
@@ -83,7 +88,7 @@ class _FichaPageState extends State<FichaPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -95,7 +100,9 @@ class _FichaPageState extends State<FichaPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmar borrado'),
-        content: Text('Seguro que queres borrar a ${a.nombre}? Esta accion no se puede deshacer.'),
+        content: Text(
+          'Seguro que queres borrar a ${a.nombre}? Esta accion no se puede deshacer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -103,7 +110,10 @@ class _FichaPageState extends State<FichaPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: AppColors.rojo),
+            ),
           ),
         ],
       ),
@@ -118,9 +128,9 @@ class _FichaPageState extends State<FichaPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al borrar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -144,18 +154,28 @@ class _FichaPageState extends State<FichaPage> {
   Future<void> _subirFoto(List<int> bytes, {required bool esPerfil}) async {
     setState(() => _subiendoFoto = true);
     try {
-      await _fotoRepo.subir(animalId: widget.animal.id, bytes: bytes, esPerfil: esPerfil);
+      await _fotoRepo.subir(
+        animalId: widget.animal.id,
+        bytes: bytes,
+        esPerfil: esPerfil,
+      );
       _seModifico = true;
       await _cargarDatos();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir foto: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
     } finally {
       if (mounted) setState(() => _subiendoFoto = false);
     }
   }
 
   Future<void> _verFoto(Foto foto) async {
-    final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => FotoViewerPage(foto: foto)));
+    final resultado = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => FotoViewerPage(foto: foto)),
+    );
     if (resultado == true) {
       _seModifico = true;
       _cargarDatos();
@@ -167,7 +187,11 @@ class _FichaPageState extends State<FichaPage> {
     final resultado = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => NotaFormPage(animalId: a.id, animalNombre: a.nombre, notaExistente: notaExistente),
+        builder: (_) => NotaFormPage(
+          animalId: a.id,
+          animalNombre: a.nombre,
+          notaExistente: notaExistente,
+        ),
       ),
     );
     if (resultado == true) {
@@ -180,7 +204,9 @@ class _FichaPageState extends State<FichaPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmar borrado'),
-        content: const Text('Seguro que queres borrar esta nota? Esta accion no se puede deshacer.'),
+        content: const Text(
+          'Seguro que queres borrar esta nota? Esta accion no se puede deshacer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -188,7 +214,10 @@ class _FichaPageState extends State<FichaPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Borrar', style: TextStyle(color: AppColors.rojo)),
+            child: const Text(
+              'Borrar',
+              style: TextStyle(color: AppColors.rojo),
+            ),
           ),
         ],
       ),
@@ -201,9 +230,9 @@ class _FichaPageState extends State<FichaPage> {
       _cargarDatos();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al borrar la nota: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensajeErrorAmigable(e))));
       }
     }
   }
@@ -237,7 +266,10 @@ class _FichaPageState extends State<FichaPage> {
                   onPressed: () async {
                     final resultado = await Navigator.push<bool>(
                       context,
-                      MaterialPageRoute(builder: (_) => AltaPage(animalExistente: _registroCrudo)),
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            AltaPage(animalExistente: _registroCrudo),
+                      ),
                     );
                     if (resultado == true) {
                       _seModifico = true;
@@ -255,45 +287,46 @@ class _FichaPageState extends State<FichaPage> {
           body: _cargando
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? Center(child: Text('Error: $_error'))
-                  : Column(
-                      children: [
-                        FichaHeader(
-                          animal: a,
-                          fotoUrl: fotoPerfil?.url,
-                          onEditarFoto: _elegirFotoPerfil,
-                        ),
-                        const TabBar(
-                          labelColor: AppColors.verde,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorColor: AppColors.verde,
-                          tabs: [
-                            Tab(text: 'Datos'),
-                            Tab(text: 'Sobre el animal'),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            children: [
-                              FichaTabDatos(
-                                animal: a,
-                                fotos: _fotos,
-                                notas: _notas,
-                                fotosPorNota: _fotosPorNota,
-                                subiendoFoto: _subiendoFoto,
-                                onRefresh: _cargarDatos,
-                                onSubirFoto: _subirFotoGeneral,
-                                onTapFoto: _verFoto,
-                                onAgregarNota: () => _abrirFormularioNota(),
-                                onEditarNota: (n) => _abrirFormularioNota(notaExistente: n),
-                                onBorrarNota: _confirmarBorradoNota,
-                              ),
-                              FichaTabSobre(animal: a),
-                            ],
-                          ),
-                        ),
+              ? Center(child: Text(mensajeErrorAmigable(_error!)))
+              : Column(
+                  children: [
+                    FichaHeader(
+                      animal: a,
+                      fotoUrl: fotoPerfil?.url,
+                      onEditarFoto: _elegirFotoPerfil,
+                    ),
+                    const TabBar(
+                      labelColor: AppColors.verde,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: AppColors.verde,
+                      tabs: [
+                        Tab(text: 'Datos'),
+                        Tab(text: 'Sobre el animal'),
                       ],
                     ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          FichaTabDatos(
+                            animal: a,
+                            fotos: _fotos,
+                            notas: _notas,
+                            fotosPorNota: _fotosPorNota,
+                            subiendoFoto: _subiendoFoto,
+                            onRefresh: _cargarDatos,
+                            onSubirFoto: _subirFotoGeneral,
+                            onTapFoto: _verFoto,
+                            onAgregarNota: () => _abrirFormularioNota(),
+                            onEditarNota: (n) =>
+                                _abrirFormularioNota(notaExistente: n),
+                            onBorrarNota: _confirmarBorradoNota,
+                          ),
+                          FichaTabSobre(animal: a),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

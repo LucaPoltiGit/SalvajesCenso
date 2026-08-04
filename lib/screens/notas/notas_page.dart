@@ -4,6 +4,7 @@ import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
 import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../utils/mensajes_error.dart';
 import '../../widgets/buscador_debounced.dart';
 import '../../widgets/nota_detalle_dialog.dart';
 import '../../widgets/nota_historial_card.dart';
@@ -25,7 +26,7 @@ class _NotasPageState extends State<NotasPage> {
   List<NotaHistorial> _notas = [];
   Map<String, String> _animalNombrePorNotaId = {};
   bool _cargando = true;
-  String? _error;
+  Object? _error;
 
   String _busquedaAnimal = '';
   String? _tipoFiltro;
@@ -77,7 +78,7 @@ class _NotasPageState extends State<NotasPage> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = e;
         _cargando = false;
       });
     }
@@ -90,7 +91,8 @@ class _NotasPageState extends State<NotasPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: NotaDetalleDialog(
           nota: nota,
-          animalNombre: _animalNombrePorNotaId[nota.id] ?? nota.animalNombre ?? 'Animal',
+          animalNombre:
+              _animalNombrePorNotaId[nota.id] ?? nota.animalNombre ?? 'Animal',
           animalId: nota.animalId,
           onCambio: _cargarNotas,
         ),
@@ -157,26 +159,26 @@ class _NotasPageState extends State<NotasPage> {
           child: _cargando
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? Center(child: Text('Error: $_error'))
-                  : _notas.isEmpty
-                      ? const Center(child: Text('No se encontraron notas'))
-                      : RefreshIndicator(
-                          onRefresh: _cargarNotas,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: _notas.length,
-                            itemBuilder: (context, index) {
-                              final n = _notas[index];
-                              return GestureDetector(
-                                onTap: () => _abrirDetalleNota(n),
-                                child: NotaHistorialCard(
-                                  nota: n,
-                                  animalNombre: _animalNombrePorNotaId[n.id],
-                                ),
-                              );
-                            },
-                          ),
+              ? Center(child: Text(mensajeErrorAmigable(_error!)))
+              : _notas.isEmpty
+              ? const Center(child: Text('No se encontraron notas'))
+              : RefreshIndicator(
+                  onRefresh: _cargarNotas,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: _notas.length,
+                    itemBuilder: (context, index) {
+                      final n = _notas[index];
+                      return GestureDetector(
+                        onTap: () => _abrirDetalleNota(n),
+                        child: NotaHistorialCard(
+                          nota: n,
+                          animalNombre: _animalNombrePorNotaId[n.id],
                         ),
+                      );
+                    },
+                  ),
+                ),
         ),
       ],
     );
