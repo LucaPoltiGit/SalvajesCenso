@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../repositories/contacto_repository.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 
 class ContactoFormPage extends StatefulWidget {
   const ContactoFormPage({super.key});
@@ -68,7 +69,7 @@ class _ContactoFormPageState extends State<ContactoFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quiero ayudar')),
+      appBar: AppBar(title: const Text(AppStrings.quieroAyudar)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

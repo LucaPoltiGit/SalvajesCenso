@@ -3,6 +3,7 @@ import '../../models/usuario.dart';
 import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../widgets/usuario_list_tile.dart';
 import 'crear_usuario_page.dart';
 
@@ -88,7 +89,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gestionar usuarios')),
+      appBar: AppBar(title: const Text(AppStrings.gestionarUsuarios)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final resultado = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const CrearUsuarioPage()));

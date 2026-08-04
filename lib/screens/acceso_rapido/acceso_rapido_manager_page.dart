@@ -3,6 +3,7 @@ import '../../models/animal.dart';
 import '../../repositories/acceso_rapido_repository.dart';
 import '../../repositories/animal_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../theme/app_strings.dart';
 import '../../widgets/acceso_rapido_list_tile.dart';
 import '../../widgets/buscador_debounced.dart';
 
@@ -111,7 +112,7 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Editar accesos rapidos')),
+      appBar: AppBar(title: const Text(AppStrings.editarAccesosRapidos)),
       body: Column(
         children: [
           Padding(

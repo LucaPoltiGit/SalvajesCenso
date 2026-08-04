@@ -6,6 +6,7 @@ import '../../repositories/item_simple.dart';
 import '../../repositories/sector_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/alta_datos_basicos_section.dart';
 import '../../widgets/alta_detalles_section.dart';
@@ -166,7 +167,7 @@ class _AltaPageState extends State<AltaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.animalExistente != null ? 'Editar animal' : 'Agregar animal')),
+      appBar: AppBar(title: Text(widget.animalExistente != null ? AppStrings.editarAnimal : AppStrings.agregarAnimal)),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
           : Form(

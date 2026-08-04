@@ -6,6 +6,7 @@ import '../../repositories/item_simple.dart';
 import '../../repositories/nota_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/text_format.dart';
 import '../../utils/formatear_fecha.dart';
 import '../../widgets/seleccionar_foto_button.dart';
@@ -136,7 +137,9 @@ class _NotaFormPageState extends State<NotaFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_esEdicion ? 'Editar nota de ${widget.animalNombre}' : 'Nota para ${widget.animalNombre}')),
+      appBar: AppBar(
+        title: Text(_esEdicion ? AppStrings.editarNota(widget.animalNombre) : AppStrings.agregarNota(widget.animalNombre)),
+      ),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
           : Form(

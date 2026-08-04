@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/campania_ayuda.dart';
 import '../../repositories/ayuda_repository.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../widgets/seleccionar_foto_button.dart';
 
 class AyudaFormPage extends StatefulWidget {
@@ -100,7 +101,7 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_esEdicion ? 'Editar campania' : 'Nueva campania')),
+      appBar: AppBar(title: Text(_esEdicion ? AppStrings.editarCampania : AppStrings.nuevaCampania)),
       body: Form(
         key: _formKey,
         child: ListView(

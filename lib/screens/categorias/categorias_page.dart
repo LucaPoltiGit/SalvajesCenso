@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
+import '../../theme/app_strings.dart';
 import '../../widgets/aviso_dialog.dart';
 import '../../widgets/categoria_form_dialog.dart';
 import '../../widgets/categoria_list_tile.dart';
@@ -156,7 +157,7 @@ class _CategoriasPageState extends State<CategoriasPage> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar categorias'),
+        title: const Text(AppStrings.gestionarCategorias),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
