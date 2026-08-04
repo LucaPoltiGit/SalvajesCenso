@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/aviso_dialog.dart';
@@ -172,6 +173,8 @@ class _CategoriasPageState extends State<CategoriasPage>
         title: const Text(AppStrings.gestionarCategorias),
         bottom: TabBar(
           controller: _tabController,
+          labelColor: AppColors.fondo,
+          unselectedLabelColor: AppColors.fondo,
           tabs: const [
             Tab(text: 'Especies'),
             Tab(text: 'Estados'),
