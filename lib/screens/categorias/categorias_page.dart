@@ -111,10 +111,8 @@ class _CategoriasPageState extends State<CategoriasPage>
       if (mounted) {
         await mostrarAviso(
           context,
-          titulo: 'Categoria en uso',
-          mensaje:
-              'No se puede borrar. Hay $usos $palabra usando esta categoria. '
-              'Cambia esos registros a otra categoria antes de borrarla.',
+          titulo: AppStrings.categoriaEnUso,
+          mensaje: AppStrings.categoriaEnUsoMensaje(usos, palabra),
         );
       }
       return;
@@ -122,9 +120,8 @@ class _CategoriasPageState extends State<CategoriasPage>
 
     final confirmado = await confirmarBorrado(
       context,
-      titulo: 'Borrar categoria',
-      mensaje:
-          'Seguro que queres borrar "${item.nombre}"? Esta accion no se puede deshacer.',
+      titulo: AppStrings.borrarCategoria,
+      mensaje: AppStrings.confirmarBorrarCategoria(item.nombre),
     );
     if (!confirmado) return;
     try {
@@ -148,7 +145,7 @@ class _CategoriasPageState extends State<CategoriasPage>
     }
     final items = _items[coleccion]!;
     if (items.isEmpty) {
-      return const Center(child: Text('Sin categorias cargadas todavia'));
+      return const Center(child: Text(AppStrings.sinCategoriasCargadas));
     }
     return RefreshIndicator(
       onRefresh: () => _cargar(coleccion),
