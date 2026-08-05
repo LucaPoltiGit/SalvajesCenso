@@ -28,6 +28,16 @@ class AppStrings {
   static String agregarNota(String animalNombre) => 'Nota para $animalNombre';
   static String editarNota(String animalNombre) => 'Editar nota de $animalNombre';
 
+  // Pantalla de gestion de categorias
+  static const categoriaEnUso = 'Categoria en uso';
+  static String categoriaEnUsoMensaje(int usos, String palabra) =>
+      'No se puede borrar. Hay $usos $palabra usando esta categoria. '
+      'Cambia esos registros a otra categoria antes de borrarla.';
+  static const borrarCategoria = 'Borrar categoria';
+  static String confirmarBorrarCategoria(String nombre) =>
+      'Seguro que queres borrar "$nombre"? Esta accion no se puede deshacer.';
+  static const sinCategoriasCargadas = 'Sin categorias cargadas todavia';
+
   // Labels de menu hamburguesa (si difieren del titulo de la pantalla)
   static const menuGaleria = 'Galeria de fotos';
   static const menuAyuda = 'Ayuda';
