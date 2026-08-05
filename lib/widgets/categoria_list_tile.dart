@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_icons.dart';
 
 class CategoriaListTile extends StatelessWidget {
   final String nombre;
@@ -25,7 +26,7 @@ class CategoriaListTile extends StatelessWidget {
             onPressed: onEditar,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: AppColors.rojo, size: 20),
+            icon: const Icon(AppIcons.eliminar, color: AppColors.rojo, size: 20),
             onPressed: onBorrar,
           ),
         ],

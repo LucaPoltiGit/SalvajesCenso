@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../models/campania_ayuda.dart';
 import '../repositories/ayuda_repository.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_icons.dart';
 import '../services/auth_helper.dart';
 import '../utils/mensajes_error.dart';
 
@@ -137,7 +138,7 @@ class CampaniaAyudaCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       IconButton(
                         onPressed: () => _descargarImagen(context),
-                        icon: const Icon(Icons.download_outlined),
+                        icon: const Icon(AppIcons.descargar),
                         color: AppColors.madera,
                       ),
                     ],

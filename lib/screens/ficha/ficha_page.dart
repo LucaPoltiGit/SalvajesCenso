@@ -12,6 +12,7 @@ import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_icons.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ficha_header.dart';
 import '../../widgets/ficha_tab_datos.dart';
@@ -279,7 +280,7 @@ class _FichaPageState extends State<FichaPage> {
                 ),
               if (AuthHelper.puedeBorrar)
                 IconButton(
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(AppIcons.eliminar),
                   onPressed: _confirmarBorrado,
                 ),
             ],

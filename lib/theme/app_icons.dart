@@ -27,4 +27,9 @@ class AppIcons {
 
   // Navegacion general
   static const IconData backArrow = Icons.arrow_back;
+
+  // Acciones (eliminar/descargar/compartir)
+  static const IconData eliminar = Icons.delete_outline;
+  static const IconData descargar = Icons.download_outlined;
+  static const IconData compartir = Icons.share_outlined;
 }

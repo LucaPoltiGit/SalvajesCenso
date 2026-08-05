@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_icons.dart';
 
 class UsuarioListTile extends StatelessWidget {
   final String id;
@@ -57,7 +58,7 @@ class UsuarioListTile extends StatelessWidget {
           Opacity(
             opacity: esUsuarioActual ? 0.3 : 1,
             child: IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.rojo, size: 20),
+              icon: const Icon(AppIcons.eliminar, color: AppColors.rojo, size: 20),
               onPressed: esUsuarioActual ? null : onBorrar,
             ),
           ),
