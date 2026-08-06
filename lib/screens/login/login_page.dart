@@ -100,6 +100,20 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            SizedBox(
+                              height: 120,
+                              child: Image.asset(
+                                'assets/images/logo 2.png',
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                      Icons.pets,
+                                      size: 72,
+                                      color: AppColors.madera,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
                             const Text(
                               'Santuario App',
                               textAlign: TextAlign.center,

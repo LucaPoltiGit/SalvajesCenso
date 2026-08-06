@@ -15,6 +15,7 @@ import '../login/login_page.dart';
 import '../usuarios/usuarios_page.dart';
 import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_icons.dart';
 import '../../theme/app_strings.dart';
 
@@ -133,7 +134,22 @@ class _AppShellState extends State<AppShell> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(child: Text('Santuario App')),
+            DrawerHeader(
+              child: Center(
+                child: SizedBox(
+                  height: 100,
+                  child: Image.asset(
+                    'assets/images/logo 2.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.pets,
+                      size: 64,
+                      color: AppColors.madera,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             ListTile(
               leading: const Icon(AppIcons.menuGaleria),
               title: const Text(AppStrings.menuGaleria),
