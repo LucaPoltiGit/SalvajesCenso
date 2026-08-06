@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/animal.dart';
 import '../theme/app_colors.dart';
+import '../utils/imagen_por_especie.dart';
 
 class AnimalTile extends StatelessWidget {
   final Animal animal;
@@ -37,11 +38,18 @@ class AnimalTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagenEspecie = fotoUrl == null
+        ? imagenPorEspecie(animal.especieNombre)
+        : null;
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: AppColors.madera.withOpacity(0.15),
-        backgroundImage: fotoUrl != null ? NetworkImage(fotoUrl!) : null,
-        child: fotoUrl == null
+        backgroundImage: fotoUrl != null
+            ? NetworkImage(fotoUrl!)
+            : imagenEspecie != null
+            ? AssetImage(imagenEspecie)
+            : null,
+        child: fotoUrl == null && imagenEspecie == null
             ? Text(
                 animal.nombre.isNotEmpty ? animal.nombre[0].toUpperCase() : '?',
                 style: const TextStyle(color: AppColors.madera, fontWeight: FontWeight.bold),

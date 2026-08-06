@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/animal.dart';
 import '../services/auth_helper.dart';
 import '../theme/app_colors.dart';
+import '../utils/imagen_por_especie.dart';
 
 class FichaHeader extends StatelessWidget {
   final Animal animal;
@@ -36,6 +37,9 @@ class FichaHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagenEspecie = fotoUrl == null
+        ? imagenPorEspecie(animal.especieNombre)
+        : null;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -45,8 +49,12 @@ class FichaHeader extends StatelessWidget {
               CircleAvatar(
                 radius: 48,
                 backgroundColor: AppColors.madera.withOpacity(0.15),
-                backgroundImage: fotoUrl != null ? NetworkImage(fotoUrl!) : null,
-                child: fotoUrl == null
+                backgroundImage: fotoUrl != null
+                    ? NetworkImage(fotoUrl!)
+                    : imagenEspecie != null
+                    ? AssetImage(imagenEspecie)
+                    : null,
+                child: fotoUrl == null && imagenEspecie == null
                     ? Text(
                         animal.nombre.isNotEmpty ? animal.nombre[0].toUpperCase() : '?',
                         style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
