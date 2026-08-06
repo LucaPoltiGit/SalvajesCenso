@@ -4,7 +4,9 @@ import '../../theme/app_colors.dart';
 import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
 import '../../widgets/campo_password.dart';
+import '../../widgets/campo_texto.dart';
 import '../shell/app_shell.dart';
 
 class LoginPage extends StatefulWidget {
@@ -115,13 +117,10 @@ class _LoginPageState extends State<LoginPage> {
                                   style: const TextStyle(color: AppColors.rojo),
                                 ),
                               ),
-                            TextFormField(
+                            CampoTexto(
                               controller: _emailCtrl,
+                              label: 'Email',
                               keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder(),
-                              ),
                               validator: validadorRequerido,
                             ),
                             const SizedBox(height: 14),
@@ -131,25 +130,10 @@ class _LoginPageState extends State<LoginPage> {
                               validator: validadorRequerido,
                             ),
                             const SizedBox(height: 24),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.verde,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                              ),
-                              onPressed: _cargando ? null : _ingresar,
-                              child: _cargando
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text('Ingresar'),
+                            BotonGuardar(
+                              cargando: _cargando,
+                              texto: 'Ingresar',
+                              onPressed: _ingresar,
                             ),
                             const SizedBox(height: 20),
                             Row(

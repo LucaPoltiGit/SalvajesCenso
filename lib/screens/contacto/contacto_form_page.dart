@@ -4,6 +4,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
+import '../../widgets/campo_texto.dart';
 
 class ContactoFormPage extends StatefulWidget {
   const ContactoFormPage({super.key});
@@ -84,58 +86,33 @@ class _ContactoFormPageState extends State<ContactoFormPage> {
                   style: const TextStyle(color: AppColors.rojo),
                 ),
               ),
-            TextFormField(
+            CampoTexto(
               controller: _nombreCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Nombre (opcional)',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Nombre (opcional)',
             ),
             const SizedBox(height: 14),
-            TextFormField(
+            CampoTexto(
               controller: _telefonoCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Telefono (opcional)',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Telefono (opcional)',
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 14),
-            TextFormField(
+            CampoTexto(
               controller: _emailCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Email (opcional)',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Email (opcional)',
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 14),
-            TextFormField(
+            CampoTexto(
               controller: _mensajeCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Mensaje (opcional)',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Mensaje (opcional)',
               maxLines: 4,
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.verde,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: _enviando ? null : _enviar,
-              child: _enviando
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text('Enviar'),
+            BotonGuardar(
+              cargando: _enviando,
+              texto: 'Enviar',
+              onPressed: _enviar,
             ),
           ],
         ),

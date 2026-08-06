@@ -5,7 +5,9 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
 import '../../widgets/campo_password.dart';
+import '../../widgets/campo_texto.dart';
 
 class AjustesPage extends StatefulWidget {
   const AjustesPage({super.key});
@@ -135,31 +137,15 @@ class _AjustesPageState extends State<AjustesPage> {
                   style: const TextStyle(color: AppColors.rojo),
                 ),
               ),
-            TextFormField(
+            CampoTexto(
               controller: _nombreCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Nombre',
-                border: OutlineInputBorder(),
-              ),
+              label: 'Nombre',
             ),
             const SizedBox(height: 14),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.verde,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: _guardandoNombre ? null : _guardarNombre,
-              child: _guardandoNombre
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text('Guardar nombre'),
+            BotonGuardar(
+              cargando: _guardandoNombre,
+              texto: 'Guardar nombre',
+              onPressed: _guardarNombre,
             ),
             const SizedBox(height: 32),
             const Divider(),
@@ -194,23 +180,10 @@ class _AjustesPageState extends State<AjustesPage> {
               label: 'Confirmar nueva contrasena',
             ),
             const SizedBox(height: 14),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.verde,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: _cambiandoPassword ? null : _cambiarPassword,
-              child: _cambiandoPassword
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text('Cambiar contrasena'),
+            BotonGuardar(
+              cargando: _cambiandoPassword,
+              texto: 'Cambiar contrasena',
+              onPressed: _cambiarPassword,
             ),
           ],
         ),

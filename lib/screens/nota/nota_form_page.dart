@@ -11,6 +11,8 @@ import '../../utils/text_format.dart';
 import '../../utils/formatear_fecha.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
+import '../../widgets/campo_texto.dart';
 import '../../widgets/seleccionar_foto_button.dart';
 
 class NotaFormPage extends StatefulWidget {
@@ -203,12 +205,9 @@ class _NotaFormPageState extends State<NotaFormPage> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    TextFormField(
+                    CampoTexto(
                       controller: _contenidoCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Contenido',
-                        border: OutlineInputBorder(),
-                      ),
+                      label: 'Contenido',
                       maxLines: 5,
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'Este campo es obligatorio'
@@ -222,25 +221,10 @@ class _NotaFormPageState extends State<NotaFormPage> {
                       onFotoSeleccionada: _onFotoSeleccionada,
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.verde,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onPressed: _guardando ? null : _guardar,
-                      child: _guardando
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              _esEdicion ? 'Guardar cambios' : 'Guardar nota',
-                            ),
+                    BotonGuardar(
+                      cargando: _guardando,
+                      texto: _esEdicion ? 'Guardar cambios' : 'Guardar nota',
+                      onPressed: _guardar,
                     ),
                   ],
                 ),

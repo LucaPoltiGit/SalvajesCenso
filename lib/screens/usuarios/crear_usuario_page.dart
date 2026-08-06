@@ -5,7 +5,9 @@ import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
 import '../../widgets/campo_password.dart';
+import '../../widgets/campo_texto.dart';
 
 class CrearUsuarioPage extends StatefulWidget {
   const CrearUsuarioPage({super.key});
@@ -81,22 +83,16 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
                     style: const TextStyle(color: AppColors.rojo),
                   ),
                 ),
-              TextFormField(
+              CampoTexto(
                 controller: _nombreCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Nombre',
                 validator: validadorRequerido,
               ),
               const SizedBox(height: 14),
-              TextFormField(
+              CampoTexto(
                 controller: _emailCtrl,
+                label: 'Email',
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
                 validator: validadorEmail,
               ),
               const SizedBox(height: 14),
@@ -125,23 +121,10 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
                 },
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.verde,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: _guardando ? null : _crear,
-                child: _guardando
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Crear usuario'),
+              BotonGuardar(
+                cargando: _guardando,
+                texto: 'Crear usuario',
+                onPressed: _crear,
               ),
             ],
           ),

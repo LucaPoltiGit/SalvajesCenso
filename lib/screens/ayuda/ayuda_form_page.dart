@@ -6,6 +6,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
+import '../../widgets/campo_texto.dart';
 import '../../widgets/seleccionar_foto_button.dart';
 
 class AyudaFormPage extends StatefulWidget {
@@ -127,59 +129,44 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
                     style: const TextStyle(color: AppColors.rojo),
                   ),
                 ),
-              TextFormField(
+              CampoTexto(
                 controller: _tituloCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Titulo',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Titulo',
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Este campo es obligatorio'
                     : null,
               ),
               const SizedBox(height: 14),
-              TextFormField(
+              CampoTexto(
                 controller: _problemaCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Problema',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Problema',
                 maxLines: 4,
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Este campo es obligatorio'
                     : null,
               ),
               const SizedBox(height: 14),
-              TextFormField(
+              CampoTexto(
                 controller: _montoNecesarioCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Monto necesario (opcional)',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Monto necesario (opcional)',
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
               ),
               if (_esEdicion) ...[
                 const SizedBox(height: 14),
-                TextFormField(
+                CampoTexto(
                   controller: _montoRecaudadoCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Monto recaudado',
-                    border: OutlineInputBorder(),
-                  ),
+                  label: 'Monto recaudado',
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
                 ),
               ],
               const SizedBox(height: 14),
-              TextFormField(
+              CampoTexto(
                 controller: _aliasCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Alias de donacion',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Alias de donacion',
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Este campo es obligatorio'
                     : null,
@@ -201,23 +188,10 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
                 ),
               ],
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.verde,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: _guardando ? null : _guardar,
-                child: _guardando
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(_esEdicion ? 'Guardar cambios' : 'Crear campania'),
+              BotonGuardar(
+                cargando: _guardando,
+                texto: _esEdicion ? 'Guardar cambios' : 'Crear campania',
+                onPressed: _guardar,
               ),
             ],
           ),

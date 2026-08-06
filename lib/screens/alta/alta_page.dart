@@ -12,6 +12,7 @@ import '../../utils/validadores.dart';
 import '../../widgets/alta_datos_basicos_section.dart';
 import '../../widgets/alta_detalles_section.dart';
 import '../../widgets/ancho_formulario.dart';
+import '../../widgets/boton_guardar.dart';
 
 class AltaPage extends StatefulWidget {
   final RecordModel? animalExistente;
@@ -222,27 +223,12 @@ class _AltaPageState extends State<AltaPage> {
                       onAlertaCambiada: (v) => setState(() => _alerta = v),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.verde,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onPressed: _guardando ? null : _guardar,
-                      child: _guardando
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              widget.animalExistente != null
-                                  ? 'Guardar cambios'
-                                  : 'Guardar residente',
-                            ),
+                    BotonGuardar(
+                      cargando: _guardando,
+                      texto: widget.animalExistente != null
+                          ? 'Guardar cambios'
+                          : 'Guardar residente',
+                      onPressed: _guardar,
                     ),
                   ],
                 ),
