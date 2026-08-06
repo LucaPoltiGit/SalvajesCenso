@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/animal.dart';
 import '../theme/app_colors.dart';
+import '../utils/imagen_por_especie.dart';
 
 class AnimalCard extends StatelessWidget {
   final Animal animal;
@@ -9,14 +10,9 @@ class AnimalCard extends StatelessWidget {
 
   const AnimalCard({super.key, required this.animal, required this.onTap, this.fotoUrl});
 
-  Color get _colorFondo {
-    final colores = [AppColors.madera, AppColors.verde];
-    final index = animal.nombre.codeUnitAt(0) % colores.length;
-    return colores[index];
-  }
-
   @override
   Widget build(BuildContext context) {
+    final imagenEspecie = fotoUrl == null ? imagenPorEspecie(animal.especieNombre) : null;
     return GestureDetector(
       onTap: onTap,
       child: AspectRatio(
@@ -24,13 +20,28 @@ class AnimalCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            color: fotoUrl == null ? _colorFondo.withOpacity(0.85) : null,
+            color: fotoUrl == null ? AppColors.madera.withOpacity(0.15) : null,
             image: fotoUrl != null
                 ? DecorationImage(image: NetworkImage(fotoUrl!), fit: BoxFit.cover)
                 : null,
           ),
           child: Stack(
             children: [
+              if (fotoUrl == null)
+                Positioned(
+                  top: 12,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: imagenEspecie != null
+                          ? Image.asset(imagenEspecie, fit: BoxFit.contain)
+                          : const Icon(Icons.pets, color: AppColors.madera, size: 32),
+                    ),
+                  ),
+                ),
               Positioned(
                 left: 0,
                 right: 0,
