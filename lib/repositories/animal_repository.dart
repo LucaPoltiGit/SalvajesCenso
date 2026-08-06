@@ -35,6 +35,12 @@ class AnimalRepository {
     String? excluirEstado,
     String sort = 'nombre',
   }) async {
+    // Si no se eligio un estado especifico, excluimos fallecidos por
+    // defecto (el usuario los ve a proposito via el filtro "Los que ya
+    // no estan", que si pasa estado: 'fallecido').
+    final excluirEstadoEfectivo = estado == null
+        ? (excluirEstado ?? 'fallecido')
+        : excluirEstado;
     final resultado = await _pb.collection('animales').getFullList(
           expand: 'sector,especie,estado',
           sort: sort,
@@ -44,7 +50,7 @@ class AnimalRepository {
             estado: estado,
             sector: sector,
             alerta: alerta,
-            excluirEstado: excluirEstado,
+            excluirEstado: excluirEstadoEfectivo,
           ),
         );
     return resultado.map(Animal.fromRecord).toList();

@@ -23,6 +23,9 @@ class FiltroCensoSheet extends StatefulWidget {
 }
 
 class _FiltroCensoSheetState extends State<FiltroCensoSheet> {
+  static const _valorFallecidos = 'fallecido';
+  static const _valorDivisorEstado = '__divisor_estado__';
+
   final _especieRepo = CategoriaRepository('especies');
   final _estadoRepo = CategoriaRepository('estados');
   final _sectorRepo = SectorRepository();
@@ -75,6 +78,34 @@ class _FiltroCensoSheetState extends State<FiltroCensoSheet> {
     );
   }
 
+  Widget _dropdownEstado() {
+    final estadosVisibles = _estados.where((e) => e != _valorFallecidos).toList();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: DropdownButtonFormField<String>(
+        decoration: const InputDecoration(labelText: 'Estado', border: OutlineInputBorder()),
+        value: _estadoSel,
+        isExpanded: true,
+        items: [
+          const DropdownMenuItem(value: null, child: Text('Todos')),
+          ...estadosVisibles.map((o) => DropdownMenuItem(value: o, child: Text(o))),
+          if (_estados.contains(_valorFallecidos)) ...[
+            const DropdownMenuItem(
+              value: _valorDivisorEstado,
+              enabled: false,
+              child: Divider(height: 1),
+            ),
+            const DropdownMenuItem(
+              value: _valorFallecidos,
+              child: Text('Los que ya no estan'),
+            ),
+          ],
+        ],
+        onChanged: (v) => setState(() => _estadoSel = v),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -91,7 +122,7 @@ class _FiltroCensoSheetState extends State<FiltroCensoSheet> {
                 const Text('Filtros', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _dropdown('Especie', _especies, _especieSel, (v) => setState(() => _especieSel = v)),
-                _dropdown('Estado', _estados, _estadoSel, (v) => setState(() => _estadoSel = v)),
+                _dropdownEstado(),
                 _dropdown('Sector', _sectores, _sectorSel, (v) => setState(() => _sectorSel = v)),
                 _dropdown('Alerta', const ['rojo', 'amarillo'], _alertaSel, (v) => setState(() => _alertaSel = v)),
                 const SizedBox(height: 8),

@@ -108,7 +108,13 @@ class _CensoPageState extends State<CensoPage> {
               : _error != null
               ? Center(child: Text(mensajeErrorAmigable(_error!)))
               : _animales.isEmpty
-              ? const Center(child: Text(AppStrings.sinAnimalesEncontrados))
+              ? Center(
+                  child: Text(
+                    _filtros.estado == 'fallecido'
+                        ? 'No hay animales fallecidos registrados'
+                        : AppStrings.sinAnimalesEncontrados,
+                  ),
+                )
               : RefreshIndicator(
                   onRefresh: _cargarAnimales,
                   child: _vistaGrid ? _buildGrid() : _buildLista(),
