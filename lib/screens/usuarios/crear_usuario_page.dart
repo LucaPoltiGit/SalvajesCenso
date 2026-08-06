@@ -35,8 +35,8 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
   }
 
   String? _validadorPassword(String? valor) {
-    if (valor == null || valor.isEmpty) return 'Este campo es obligatorio';
-    if (valor.length < 8) return 'Debe tener al menos 8 caracteres';
+    if (valor == null || valor.isEmpty) return AppStrings.campoObligatorio;
+    if (valor.length < 8) return AppStrings.debeTenerAlMenosOchoCaracteres;
     return null;
   }
 
@@ -85,13 +85,13 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
                 ),
               CampoTexto(
                 controller: _nombreCtrl,
-                label: 'Nombre',
+                label: AppStrings.labelNombre,
                 validator: validadorRequerido,
               ),
               const SizedBox(height: 14),
               CampoTexto(
                 controller: _emailCtrl,
-                label: 'Email',
+                label: AppStrings.labelEmail,
                 keyboardType: TextInputType.emailAddress,
                 validator: validadorEmail,
               ),
@@ -123,7 +123,7 @@ class _CrearUsuarioPageState extends State<CrearUsuarioPage> {
               const SizedBox(height: 24),
               BotonGuardar(
                 cargando: _guardando,
-                texto: 'Crear usuario',
+                texto: AppStrings.crearUsuario,
                 onPressed: _crear,
               ),
             ],

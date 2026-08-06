@@ -131,24 +131,24 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
                 ),
               CampoTexto(
                 controller: _tituloCtrl,
-                label: 'Titulo',
+                label: AppStrings.labelTitulo,
                 validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Este campo es obligatorio'
+                    ? AppStrings.campoObligatorio
                     : null,
               ),
               const SizedBox(height: 14),
               CampoTexto(
                 controller: _problemaCtrl,
-                label: 'Problema',
+                label: AppStrings.labelProblema,
                 maxLines: 4,
                 validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Este campo es obligatorio'
+                    ? AppStrings.campoObligatorio
                     : null,
               ),
               const SizedBox(height: 14),
               CampoTexto(
                 controller: _montoNecesarioCtrl,
-                label: 'Monto necesario (opcional)',
+                label: AppStrings.labelMontoNecesario,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -157,7 +157,7 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
                 const SizedBox(height: 14),
                 CampoTexto(
                   controller: _montoRecaudadoCtrl,
-                  label: 'Monto recaudado',
+                  label: AppStrings.labelMontoRecaudado,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -166,9 +166,9 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
               const SizedBox(height: 14),
               CampoTexto(
                 controller: _aliasCtrl,
-                label: 'Alias de donacion',
+                label: AppStrings.labelAliasDonacion,
                 validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Este campo es obligatorio'
+                    ? AppStrings.campoObligatorio
                     : null,
               ),
               const SizedBox(height: 14),
@@ -190,7 +190,9 @@ class _AyudaFormPageState extends State<AyudaFormPage> {
               const SizedBox(height: 24),
               BotonGuardar(
                 cargando: _guardando,
-                texto: _esEdicion ? 'Guardar cambios' : 'Crear campania',
+                texto: _esEdicion
+                    ? AppStrings.guardarCambios
+                    : AppStrings.crearCampania,
                 onPressed: _guardar,
               ),
             ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/ancho_formulario.dart';
@@ -119,20 +120,20 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             CampoTexto(
                               controller: _emailCtrl,
-                              label: 'Email',
+                              label: AppStrings.labelEmail,
                               keyboardType: TextInputType.emailAddress,
                               validator: validadorRequerido,
                             ),
                             const SizedBox(height: 14),
                             CampoPassword(
                               controller: _passwordCtrl,
-                              label: 'Contrasena',
+                              label: AppStrings.labelContrasena,
                               validator: validadorRequerido,
                             ),
                             const SizedBox(height: 24),
                             BotonGuardar(
                               cargando: _cargando,
-                              texto: 'Ingresar',
+                              texto: AppStrings.ingresar,
                               onPressed: _ingresar,
                             ),
                             const SizedBox(height: 20),
@@ -142,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
-                                    'o',
+                                    AppStrings.separadorO,
                                     style: TextStyle(color: AppColors.madera),
                                   ),
                                 ),
@@ -161,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: _cargando
                                   ? null
                                   : _ingresarComoVisitante,
-                              child: const Text('Soy visitante'),
+                              child: const Text(AppStrings.soyVisitante),
                             ),
                           ],
                         ),

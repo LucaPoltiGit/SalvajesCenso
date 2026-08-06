@@ -50,8 +50,8 @@ class _ContactoFormPageState extends State<ContactoFormPage> {
         await showDialog<void>(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('Gracias!'),
-            content: const Text('Te vamos a contactar pronto.'),
+            title: const Text(AppStrings.graciasTitulo),
+            content: const Text(AppStrings.teVamosAContactar),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -88,24 +88,24 @@ class _ContactoFormPageState extends State<ContactoFormPage> {
               ),
             CampoTexto(
               controller: _nombreCtrl,
-              label: 'Nombre (opcional)',
+              label: AppStrings.labelNombreOpcional,
             ),
             const SizedBox(height: 14),
             CampoTexto(
               controller: _telefonoCtrl,
-              label: 'Telefono (opcional)',
+              label: AppStrings.labelTelefonoOpcional,
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 14),
             CampoTexto(
               controller: _emailCtrl,
-              label: 'Email (opcional)',
+              label: AppStrings.labelEmailOpcional,
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 14),
             CampoTexto(
               controller: _mensajeCtrl,
-              label: 'Mensaje (opcional)',
+              label: AppStrings.labelMensajeOpcional,
               maxLines: 4,
             ),
             const SizedBox(height: 24),

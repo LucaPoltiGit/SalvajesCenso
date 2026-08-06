@@ -46,7 +46,7 @@ class _AjustesPageState extends State<AjustesPage> {
   Future<void> _guardarNombre() async {
     final nuevoNombre = _nombreCtrl.text.trim();
     if (nuevoNombre.isEmpty) {
-      setState(() => _errorNombre = 'El nombre no puede estar vacio');
+      setState(() => _errorNombre = AppStrings.nombreVacio);
       return;
     }
 
@@ -57,9 +57,9 @@ class _AjustesPageState extends State<AjustesPage> {
     try {
       await UserRepository.actualizarNombre(nuevoNombre);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Nombre actualizado')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(AppStrings.nombreActualizado)),
+        );
       }
     } catch (e) {
       setState(() => _errorNombre = e);
@@ -74,18 +74,15 @@ class _AjustesPageState extends State<AjustesPage> {
     final confirmar = _passwordConfirmarCtrl.text;
 
     if (actual.isEmpty || nueva.isEmpty || confirmar.isEmpty) {
-      setState(() => _errorPassword = 'Completa los 3 campos');
+      setState(() => _errorPassword = AppStrings.completaLosTresCampos);
       return;
     }
     if (nueva.length < 8) {
-      setState(
-        () => _errorPassword =
-            'La nueva contrasena debe tener al menos 8 caracteres',
-      );
+      setState(() => _errorPassword = AppStrings.nuevaContrasenaCorta);
       return;
     }
     if (nueva != confirmar) {
-      setState(() => _errorPassword = 'Las contrasenas nuevas no coinciden');
+      setState(() => _errorPassword = AppStrings.contrasenasNoCoinciden);
       return;
     }
 
@@ -103,9 +100,9 @@ class _AjustesPageState extends State<AjustesPage> {
       _passwordNuevaCtrl.clear();
       _passwordConfirmarCtrl.clear();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Contrasena actualizada')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(AppStrings.contrasenaActualizada)),
+        );
       }
     } catch (e) {
       setState(() => _errorPassword = e);
@@ -139,12 +136,12 @@ class _AjustesPageState extends State<AjustesPage> {
               ),
             CampoTexto(
               controller: _nombreCtrl,
-              label: 'Nombre',
+              label: AppStrings.labelNombre,
             ),
             const SizedBox(height: 14),
             BotonGuardar(
               cargando: _guardandoNombre,
-              texto: 'Guardar nombre',
+              texto: AppStrings.guardarNombre,
               onPressed: _guardarNombre,
             ),
             const SizedBox(height: 32),
@@ -182,7 +179,7 @@ class _AjustesPageState extends State<AjustesPage> {
             const SizedBox(height: 14),
             BotonGuardar(
               cargando: _cambiandoPassword,
-              texto: 'Cambiar contrasena',
+              texto: AppStrings.cambiarContrasena,
               onPressed: _cambiarPassword,
             ),
           ],

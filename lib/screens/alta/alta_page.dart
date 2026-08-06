@@ -128,7 +128,7 @@ class _AltaPageState extends State<AltaPage> {
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     if (_especieId == null || _sectorId == null || _estadoId == null) {
-      setState(() => _error = 'Completa especie, sector y estado');
+      setState(() => _error = AppStrings.completaEspecieSectorEstado);
       return;
     }
 
@@ -226,8 +226,8 @@ class _AltaPageState extends State<AltaPage> {
                     BotonGuardar(
                       cargando: _guardando,
                       texto: widget.animalExistente != null
-                          ? 'Guardar cambios'
-                          : 'Guardar residente',
+                          ? AppStrings.guardarCambios
+                          : AppStrings.guardarResidente,
                       onPressed: _guardar,
                     ),
                   ],

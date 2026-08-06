@@ -138,7 +138,7 @@ class _AccesoRapidoManagerPageState extends State<AccesoRapidoManagerPage> {
                 : _error != null
                 ? Center(child: Text(mensajeErrorAmigable(_error!)))
                 : _animales.isEmpty
-                ? const Center(child: Text('No se encontraron animales'))
+                ? const Center(child: Text(AppStrings.sinAnimalesEncontrados))
                 : ListView.builder(
                     itemCount: _animales.length,
                     itemBuilder: (context, index) {

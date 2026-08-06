@@ -3,6 +3,7 @@ import '../../models/animal.dart';
 import '../../repositories/animal_repository.dart';
 import '../../repositories/foto_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/animal_card.dart';
 import '../../widgets/animal_tile.dart';
@@ -107,7 +108,7 @@ class _CensoPageState extends State<CensoPage> {
               : _error != null
               ? Center(child: Text(mensajeErrorAmigable(_error!)))
               : _animales.isEmpty
-              ? const Center(child: Text('No se encontraron animales'))
+              ? const Center(child: Text(AppStrings.sinAnimalesEncontrados))
               : RefreshIndicator(
                   onRefresh: _cargarAnimales,
                   child: _vistaGrid ? _buildGrid() : _buildLista(),

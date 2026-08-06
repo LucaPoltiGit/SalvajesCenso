@@ -207,10 +207,10 @@ class _NotaFormPageState extends State<NotaFormPage> {
                     const SizedBox(height: 14),
                     CampoTexto(
                       controller: _contenidoCtrl,
-                      label: 'Contenido',
+                      label: AppStrings.labelContenido,
                       maxLines: 5,
                       validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Este campo es obligatorio'
+                          ? AppStrings.campoObligatorio
                           : null,
                     ),
                     const SizedBox(height: 14),
@@ -223,7 +223,9 @@ class _NotaFormPageState extends State<NotaFormPage> {
                     const SizedBox(height: 24),
                     BotonGuardar(
                       cargando: _guardando,
-                      texto: _esEdicion ? 'Guardar cambios' : 'Guardar nota',
+                      texto: _esEdicion
+                          ? AppStrings.guardarCambios
+                          : AppStrings.guardarNota,
                       onPressed: _guardar,
                     ),
                   ],

@@ -9,6 +9,7 @@ import '../../repositories/foto_repository.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_icons.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 
 class FotoViewerPage extends StatelessWidget {
@@ -59,10 +60,8 @@ class FotoViewerPage extends StatelessWidget {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Borrar foto'),
-        content: const Text(
-          'Segura que queres borrar esta foto? Esta accion no se puede deshacer.',
-        ),
+        title: const Text(AppStrings.borrarFoto),
+        content: const Text(AppStrings.confirmarBorrarFoto),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

@@ -173,9 +173,9 @@ class _CategoriasPageState extends State<CategoriasPage>
           labelColor: AppColors.fondo,
           unselectedLabelColor: AppColors.fondo,
           tabs: const [
-            Tab(text: 'Especies'),
-            Tab(text: 'Estados'),
-            Tab(text: 'Tipos de nota'),
+            Tab(text: AppStrings.tabEspecies),
+            Tab(text: AppStrings.tabEstados),
+            Tab(text: AppStrings.tabTiposNota),
           ],
         ),
       ),

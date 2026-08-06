@@ -47,4 +47,76 @@ class AppStrings {
   static const menuGestionarUsuarios = 'Gestionar usuarios';
   static const menuAjustes = 'Ajustes';
   static const menuCerrarSesion = 'Cerrar sesion';
+
+  // Mensajes de "sin resultados"
+  static const sinAnimalesEncontrados = 'No se encontraron animales';
+
+  // Validaciones y labels compartidos entre varias pantallas
+  static const campoObligatorio = 'Este campo es obligatorio';
+  static const labelNombre = 'Nombre';
+  static const labelEmail = 'Email';
+  static const guardarCambios = 'Guardar cambios';
+
+  // Ajustes
+  static const nombreVacio = 'El nombre no puede estar vacio';
+  static const nombreActualizado = 'Nombre actualizado';
+  static const contrasenaActualizada = 'Contrasena actualizada';
+  static const completaLosTresCampos = 'Completa los 3 campos';
+  static const nuevaContrasenaCorta =
+      'La nueva contrasena debe tener al menos 8 caracteres';
+  static const contrasenasNoCoinciden = 'Las contrasenas nuevas no coinciden';
+  static const guardarNombre = 'Guardar nombre';
+  static const cambiarContrasena = 'Cambiar contrasena';
+
+  // Alta de animal
+  static const completaEspecieSectorEstado =
+      'Completa especie, sector y estado';
+  static const guardarResidente = 'Guardar residente';
+
+  // Formulario de ayuda
+  static const labelTitulo = 'Titulo';
+  static const labelProblema = 'Problema';
+  static const labelMontoNecesario = 'Monto necesario (opcional)';
+  static const labelMontoRecaudado = 'Monto recaudado';
+  static const labelAliasDonacion = 'Alias de donacion';
+  static const crearCampania = 'Crear campania';
+
+  // Categorias (tabs)
+  static const tabEspecies = 'Especies';
+  static const tabEstados = 'Estados';
+  static const tabTiposNota = 'Tipos de nota';
+
+  // Contacto
+  static const labelNombreOpcional = 'Nombre (opcional)';
+  static const labelTelefonoOpcional = 'Telefono (opcional)';
+  static const labelEmailOpcional = 'Email (opcional)';
+  static const labelMensajeOpcional = 'Mensaje (opcional)';
+  static const graciasTitulo = 'Gracias!';
+  static const teVamosAContactar = 'Te vamos a contactar pronto.';
+
+  // Foto
+  static const borrarFoto = 'Borrar foto';
+  static const confirmarBorrarFoto =
+      'Segura que queres borrar esta foto? Esta accion no se puede deshacer.';
+
+  // Login
+  static const labelContrasena = 'Contrasena';
+  static const ingresar = 'Ingresar';
+  static const soyVisitante = 'Soy visitante';
+  static const separadorO = 'o';
+
+  // Nota
+  static const labelContenido = 'Contenido';
+  static const guardarNota = 'Guardar nota';
+
+  // Crear usuario
+  static const debeTenerAlMenosOchoCaracteres =
+      'Debe tener al menos 8 caracteres';
+
+  // Principal
+  static const accesoRapidoTitulo = 'Acceso rapido';
+  static const actividadReciente = 'Actividad reciente';
+  static const verTodo = 'Ver todo';
+  static const sinActividadUltimaSemana = 'Sin actividad en la ultima semana';
+  static const verSectores = 'Ver sectores';
 }

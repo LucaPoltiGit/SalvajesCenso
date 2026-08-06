@@ -6,6 +6,7 @@ import '../../repositories/actividad_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_icons.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/principal_stats_row.dart';
 import '../../widgets/acceso_rapido_row.dart';
@@ -101,7 +102,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
           const SizedBox(height: 24),
 
           SeccionHeader(
-            titulo: 'Acceso rapido',
+            titulo: AppStrings.accesoRapidoTitulo,
             accion: IconButton(
               iconSize: 18,
               icon: const Icon(Icons.tune, color: AppColors.madera),
@@ -129,7 +130,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
           const SizedBox(height: 24),
 
           SeccionHeader(
-            titulo: 'Actividad reciente',
+            titulo: AppStrings.actividadReciente,
             accion: TextButton(
               onPressed: () {
                 Navigator.push(
@@ -137,14 +138,14 @@ class _PrincipalPageState extends State<PrincipalPage> {
                   MaterialPageRoute(builder: (_) => const ActividadPage()),
                 );
               },
-              child: const Text('Ver todo'),
+              child: const Text(AppStrings.verTodo),
             ),
           ),
           if (_actividad.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                'Sin actividad en la ultima semana',
+                AppStrings.sinActividadUltimaSemana,
                 style: TextStyle(fontSize: 13),
               ),
             )
@@ -156,13 +157,13 @@ class _PrincipalPageState extends State<PrincipalPage> {
             children: [
               QuickAccessCard(
                 icono: AppIcons.sectores,
-                titulo: 'Ver sectores',
+                titulo: AppStrings.verSectores,
                 onTap: () => appShellKey.currentState?.irASectores(),
               ),
               const SizedBox(width: 12),
               QuickAccessCard(
                 icono: AppIcons.menuGaleria,
-                titulo: 'Galeria de fotos',
+                titulo: AppStrings.galeriaDeFotos,
                 onTap: () {
                   Navigator.push(
                     context,
