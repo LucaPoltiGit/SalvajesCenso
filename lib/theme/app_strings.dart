@@ -56,6 +56,7 @@ class AppStrings {
   static const labelNombre = 'Nombre';
   static const labelEmail = 'Email';
   static const guardarCambios = 'Guardar cambios';
+  static const guardar = 'Guardar';
 
   // Ajustes
   static const nombreVacio = 'El nombre no puede estar vacio';
