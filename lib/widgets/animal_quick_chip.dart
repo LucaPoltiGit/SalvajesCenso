@@ -20,7 +20,7 @@ class AnimalQuickChip extends StatelessWidget {
         ),
         child: Text(
           nombre,
-          style: const TextStyle(color: AppColors.madera, fontWeight: FontWeight.w600, fontSize: 13),
+          style: TextStyle(color: AppColors.madera, fontWeight: FontWeight.w600, fontSize: 13),
         ),
       ),
     );

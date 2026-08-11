@@ -22,13 +22,13 @@ class StatCard extends StatelessWidget {
           children: [
             Text(
               numero,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.verde),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.verde),
             ),
             const SizedBox(height: 4),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: AppColors.verde),
+              style: TextStyle(fontSize: 12, color: AppColors.verde),
             ),
           ],
         ),

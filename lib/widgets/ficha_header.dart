@@ -57,7 +57,7 @@ class FichaHeader extends StatelessWidget {
                 child: fotoUrl == null && imagenEspecie == null
                     ? Text(
                         animal.nombre.isNotEmpty ? animal.nombre[0].toUpperCase() : '?',
-                        style: const TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 36, color: AppColors.madera, fontWeight: FontWeight.bold),
                       )
                     : null,
               ),
@@ -69,7 +69,7 @@ class FichaHeader extends StatelessWidget {
                     onTap: onEditarFoto,
                     child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(color: AppColors.verde, shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: AppColors.verde, shape: BoxShape.circle),
                       child: const Icon(Icons.edit, size: 16, color: Colors.white),
                     ),
                   ),

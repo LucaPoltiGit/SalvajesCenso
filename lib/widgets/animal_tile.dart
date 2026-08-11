@@ -52,7 +52,7 @@ class AnimalTile extends StatelessWidget {
         child: fotoUrl == null && imagenEspecie == null
             ? Text(
                 animal.nombre.isNotEmpty ? animal.nombre[0].toUpperCase() : '?',
-                style: const TextStyle(color: AppColors.madera, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.madera, fontWeight: FontWeight.bold),
               )
             : null,
       ),

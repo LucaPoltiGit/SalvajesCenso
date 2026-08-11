@@ -66,7 +66,7 @@ class ActividadDetalleSheet extends StatelessWidget {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_today_outlined,
                     size: 14,
                     color: AppColors.madera,
@@ -74,7 +74,7 @@ class ActividadDetalleSheet extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     formatearFecha(item.fecha),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.madera,
                     ),
@@ -84,7 +84,7 @@ class ActividadDetalleSheet extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.person_outline,
                     size: 14,
                     color: AppColors.madera,
@@ -92,7 +92,7 @@ class ActividadDetalleSheet extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     item.quien ?? 'Sin identificar',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.madera,
                     ),

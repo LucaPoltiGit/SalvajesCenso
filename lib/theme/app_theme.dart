@@ -10,11 +10,11 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.fondo,
       colorSchemeSeed: AppColors.verde,
       useMaterial3: true,
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.verde,
         foregroundColor: AppColors.fondo,
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.verde,
         foregroundColor: AppColors.fondo,
       ),

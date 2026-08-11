@@ -219,7 +219,7 @@ class _NotaDetalleDialogState extends State<NotaDetalleDialog> {
                   const SizedBox(width: 10),
                   Text(
                     formatearFecha(widget.nota.fecha),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.madera,
                     ),

@@ -36,9 +36,9 @@ class SeleccionarFotoButton extends StatelessWidget {
       onPressed: cargando ? null : _seleccionar,
       icon: cargando
           ? const SizedBox(height: 14, width: 14, child: CircularProgressIndicator(strokeWidth: 2))
-          : const Icon(Icons.add_a_photo_outlined, size: 18, color: AppColors.madera),
-      label: Text(texto, style: const TextStyle(color: AppColors.madera)),
-      style: OutlinedButton.styleFrom(side: const BorderSide(color: AppColors.madera)),
+          : Icon(Icons.add_a_photo_outlined, size: 18, color: AppColors.madera),
+      label: Text(texto, style: TextStyle(color: AppColors.madera)),
+      style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.madera)),
     );
   }
 }

@@ -68,6 +68,7 @@ class AppStrings {
   static const contrasenasNoCoinciden = 'Las contrasenas nuevas no coinciden';
   static const guardarNombre = 'Guardar nombre';
   static const cambiarContrasena = 'Cambiar contrasena';
+  static const tema = 'Tema';
 
   // Alta de animal
   static const completaEspecieSectorEstado =

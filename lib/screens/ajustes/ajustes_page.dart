@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../repositories/user_repository.dart';
 import '../../services/pocketbase_service.dart';
+import '../../services/theme_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
+import '../../theme/temas_disponibles.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ancho_formulario.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/campo_password.dart';
 import '../../widgets/campo_texto.dart';
+import '../../widgets/tema_swatch.dart';
 
 class AjustesPage extends StatefulWidget {
   const AjustesPage({super.key});
@@ -181,6 +184,31 @@ class _AjustesPageState extends State<AjustesPage> {
               cargando: _cambiandoPassword,
               texto: AppStrings.cambiarContrasena,
               onPressed: _cambiarPassword,
+            ),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
+            const Text(
+              AppStrings.tema,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: temasDisponibles
+                  .map(
+                    (t) => Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: TemaSwatch(
+                        colorSuperior: t.swatchSuperior,
+                        colorInferior: t.swatchInferior,
+                        nombre: t.nombre,
+                        seleccionado: ThemeService.instance.temaActualId == t.id,
+                        onTap: () =>
+                            setState(() => ThemeService.instance.cambiarTema(t.id)),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),

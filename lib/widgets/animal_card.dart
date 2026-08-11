@@ -38,7 +38,7 @@ class AnimalCard extends StatelessWidget {
                       height: 48,
                       child: imagenEspecie != null
                           ? Image.asset(imagenEspecie, fit: BoxFit.contain)
-                          : const Icon(Icons.pets, color: AppColors.madera, size: 32),
+                          : Icon(Icons.pets, color: AppColors.madera, size: 32),
                     ),
                   ),
                 ),

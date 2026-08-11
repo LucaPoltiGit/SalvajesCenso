@@ -176,7 +176,7 @@ class _ActividadPageState extends State<ActividadPage> {
                                     ),
                                     child: Text(
                                       clave,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
                                         color: AppColors.verde,

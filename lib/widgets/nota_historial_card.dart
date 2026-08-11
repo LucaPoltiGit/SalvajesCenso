@@ -56,7 +56,7 @@ class NotaHistorialCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (animalNombre != null) ...[
-            Text(animalNombre!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.verde)),
+            Text(animalNombre!, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.verde)),
             const SizedBox(height: 4),
           ],
           Row(

@@ -72,7 +72,7 @@ class _SectoresPageState extends State<SectoresPage> {
                   title: Text(nombre),
                   trailing: Text(
                     '${_conteos[nombre] ?? 0} animales',
-                    style: const TextStyle(color: AppColors.madera, fontSize: 12),
+                    style: TextStyle(color: AppColors.madera, fontSize: 12),
                   ),
                   onTap: () => _irAlCenso(nombre),
                 )),

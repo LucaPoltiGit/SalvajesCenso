@@ -296,11 +296,11 @@ class _FichaPageState extends State<FichaPage> {
                       fotoUrl: fotoPerfil?.url,
                       onEditarFoto: _elegirFotoPerfil,
                     ),
-                    const TabBar(
+                    TabBar(
                       labelColor: AppColors.verde,
                       unselectedLabelColor: Colors.grey,
                       indicatorColor: AppColors.verde,
-                      tabs: [
+                      tabs: const [
                         Tab(text: 'Datos'),
                         Tab(text: 'Sobre el animal'),
                       ],

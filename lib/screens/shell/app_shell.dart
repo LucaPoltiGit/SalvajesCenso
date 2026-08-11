@@ -141,7 +141,7 @@ class _AppShellState extends State<AppShell> {
                   child: Image.asset(
                     'assets/images/logo 2.png',
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
+                    errorBuilder: (context, error, stackTrace) => Icon(
                       Icons.pets,
                       size: 64,
                       color: AppColors.madera,

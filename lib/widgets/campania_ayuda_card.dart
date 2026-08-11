@@ -109,13 +109,13 @@ class CampaniaAyudaCard extends StatelessWidget {
                       value: campania.progreso,
                       minHeight: 8,
                       backgroundColor: AppColors.madera.withOpacity(0.15),
-                      valueColor: const AlwaysStoppedAnimation(AppColors.verde),
+                      valueColor: AlwaysStoppedAnimation(AppColors.verde),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '\$${campania.montoRecaudado.toStringAsFixed(0)} de \$${campania.montoNecesario!.toStringAsFixed(0)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.madera,
                     ),

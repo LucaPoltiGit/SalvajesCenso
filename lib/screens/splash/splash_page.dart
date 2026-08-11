@@ -69,7 +69,7 @@ class _SplashPageState extends State<SplashPage> {
                   ],
                 ),
               )
-            : const CircularProgressIndicator(color: AppColors.verde),
+            : CircularProgressIndicator(color: AppColors.verde),
       ),
     );
   }

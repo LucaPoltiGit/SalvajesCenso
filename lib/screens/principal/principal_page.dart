@@ -105,7 +105,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
             titulo: AppStrings.accesoRapidoTitulo,
             accion: IconButton(
               iconSize: 18,
-              icon: const Icon(Icons.tune, color: AppColors.madera),
+              icon: Icon(Icons.tune, color: AppColors.madera),
               onPressed: () async {
                 await Navigator.push(
                   context,

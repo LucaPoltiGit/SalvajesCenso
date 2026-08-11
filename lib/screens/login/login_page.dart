@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                                 'assets/images/logo 2.png',
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(
+                                    Icon(
                                       Icons.pets,
                                       size: 72,
                                       color: AppColors.madera,
@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            Text(
                               'Santuario App',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -152,23 +152,23 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 20),
                             Row(
-                              children: const [
-                                Expanded(child: Divider()),
+                              children: [
+                                const Expanded(child: Divider()),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
                                     AppStrings.separadorO,
                                     style: TextStyle(color: AppColors.madera),
                                   ),
                                 ),
-                                Expanded(child: Divider()),
+                                const Expanded(child: Divider()),
                               ],
                             ),
                             const SizedBox(height: 20),
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.madera,
-                                side: const BorderSide(color: AppColors.madera),
+                                side: BorderSide(color: AppColors.madera),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 14,
                                 ),

@@ -26,7 +26,7 @@ class DatoItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 10, color: AppColors.madera)),
+                Text(label, style: TextStyle(fontSize: 10, color: AppColors.madera)),
                 Text(
                   valor.isEmpty ? '-' : valor,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
