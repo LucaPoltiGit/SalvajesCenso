@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../repositories/item_simple.dart';
 import '../utils/formatear_fecha.dart';
 
 class AltaDetallesSection extends StatelessWidget {
@@ -10,6 +11,9 @@ class AltaDetallesSection extends StatelessWidget {
   final VoidCallback onElegirFecha;
   final String? alerta;
   final void Function(String?) onAlertaCambiada;
+  final List<ItemSimple> estados;
+  final String? estadoId;
+  final void Function(String?) onEstadoCambiado;
 
   const AltaDetallesSection({
     super.key,
@@ -21,6 +25,9 @@ class AltaDetallesSection extends StatelessWidget {
     required this.onElegirFecha,
     required this.alerta,
     required this.onAlertaCambiada,
+    required this.estados,
+    required this.estadoId,
+    required this.onEstadoCambiado,
   });
 
   @override
@@ -57,6 +64,13 @@ class AltaDetallesSection extends StatelessWidget {
           controller: historiaCtrl,
           decoration: const InputDecoration(labelText: 'Historia de llegada', border: OutlineInputBorder()),
           maxLines: 3,
+        ),
+        const SizedBox(height: 14),
+        DropdownButtonFormField<String>(
+          decoration: const InputDecoration(labelText: 'Estado', border: OutlineInputBorder()),
+          value: estadoId,
+          items: estados.map((e) => DropdownMenuItem(value: e.id, child: Text(e.nombre))).toList(),
+          onChanged: onEstadoCambiado,
         ),
         const SizedBox(height: 14),
         DropdownButtonFormField<String>(

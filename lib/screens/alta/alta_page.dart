@@ -1,9 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../repositories/animal_repository.dart';
 import '../../repositories/categoria_repository.dart';
 import '../../repositories/item_simple.dart';
 import '../../repositories/sector_repository.dart';
+import '../../services/foto_service.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
@@ -12,6 +14,7 @@ import '../../utils/validadores.dart';
 import '../../widgets/alta_datos_basicos_section.dart';
 import '../../widgets/alta_detalles_section.dart';
 import '../../widgets/boton_guardar.dart';
+import '../../widgets/seleccionar_foto_button.dart';
 
 class AltaPage extends StatefulWidget {
   final RecordModel? animalExistente;
@@ -47,6 +50,7 @@ class _AltaPageState extends State<AltaPage> {
   String? _estadoId;
   String? _alerta;
   DateTime? _fechaLlegada;
+  Uint8List? _fotoBytes;
 
   @override
   void initState() {
@@ -126,10 +130,6 @@ class _AltaPageState extends State<AltaPage> {
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_especieId == null || _sectorId == null || _estadoId == null) {
-      setState(() => _error = AppStrings.completaEspecieSectorEstado);
-      return;
-    }
 
     setState(() {
       _guardando = true;
@@ -152,13 +152,30 @@ class _AltaPageState extends State<AltaPage> {
       };
 
       final animalExistente = widget.animalExistente;
+      String? errorFoto;
       if (animalExistente != null) {
         await _animalRepo.editar(animalExistente.id, body);
       } else {
-        await _animalRepo.crear(body);
+        final nuevoId = await _animalRepo.crear(body);
+        if (_fotoBytes != null) {
+          try {
+            await FotoService.subirFoto(
+              animalId: nuevoId,
+              bytes: _fotoBytes!,
+              esPerfil: true,
+            );
+          } catch (e) {
+            errorFoto = mensajeErrorAmigable(e);
+          }
+        }
       }
 
       if (mounted) {
+        if (errorFoto != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppStrings.animalGuardadoFotoFallo(errorFoto))),
+          );
+        }
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -181,61 +198,117 @@ class _AltaPageState extends State<AltaPage> {
       ),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (_error != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Text(
-                              _error is Exception
-                                  ? mensajeErrorAmigable(_error!)
-                                  : _error.toString(),
-                              style: const TextStyle(color: AppColors.rojo),
-                            ),
-                          ),
-                        AltaDatosBasicosSection(
-                          nombreCtrl: _nombreCtrl,
-                          validadorNombre: validadorRequerido,
-                          especies: _especies,
-                          sectores: _sectores,
-                          estados: _estados,
-                          especieId: _especieId,
-                          sectorId: _sectorId,
-                          estadoId: _estadoId,
-                          onEspecieCambiada: (v) => setState(() => _especieId = v),
-                          onSectorCambiado: (v) => setState(() => _sectorId = v),
-                          onEstadoCambiado: (v) => setState(() => _estadoId = v),
+          : DefaultTabController(
+              length: 2,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: Text(
+                          _error is Exception
+                              ? mensajeErrorAmigable(_error!)
+                              : _error.toString(),
+                          style: const TextStyle(color: AppColors.rojo),
                         ),
-                        const SizedBox(height: 14),
-                        AltaDetallesSection(
-                          edadCtrl: _edadCtrl,
-                          dietaCtrl: _dietaCtrl,
-                          descripcionCtrl: _descripcionCtrl,
-                          historiaCtrl: _historiaCtrl,
-                          fechaLlegada: _fechaLlegada,
-                          onElegirFecha: _elegirFecha,
-                          alerta: _alerta,
-                          onAlertaCambiada: (v) => setState(() => _alerta = v),
-                        ),
-                        const SizedBox(height: 24),
-                        BotonGuardar(
-                          cargando: _guardando,
-                          texto: widget.animalExistente != null
-                              ? AppStrings.guardarCambios
-                              : AppStrings.guardarResidente,
-                          onPressed: _guardar,
-                        ),
+                      ),
+                    TabBar(
+                      labelColor: AppColors.verde,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: AppColors.verde,
+                      tabs: const [
+                        Tab(text: AppStrings.basico),
+                        Tab(text: AppStrings.detalle),
                       ],
                     ),
-                  ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 480),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    if (widget.animalExistente == null) ...[
+                                      Center(
+                                        child: Column(
+                                          children: [
+                                            if (_fotoBytes != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(bottom: 8),
+                                                child: CircleAvatar(
+                                                  radius: 40,
+                                                  backgroundImage: MemoryImage(_fotoBytes!),
+                                                ),
+                                              ),
+                                            SeleccionarFotoButton(
+                                              texto: _fotoBytes == null
+                                                  ? AppStrings.agregarFotoPerfilOpcional
+                                                  : AppStrings.cambiarFoto,
+                                              onFotoSeleccionada: (bytes) => setState(
+                                                () => _fotoBytes = Uint8List.fromList(bytes),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 14),
+                                    ],
+                                    AltaDatosBasicosSection(
+                                      nombreCtrl: _nombreCtrl,
+                                      validadorNombre: validadorRequerido,
+                                      especies: _especies,
+                                      sectores: _sectores,
+                                      especieId: _especieId,
+                                      sectorId: _sectorId,
+                                      onEspecieCambiada: (v) => setState(() => _especieId = v),
+                                      onSectorCambiado: (v) => setState(() => _sectorId = v),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 480),
+                                child: AltaDetallesSection(
+                                  edadCtrl: _edadCtrl,
+                                  dietaCtrl: _dietaCtrl,
+                                  descripcionCtrl: _descripcionCtrl,
+                                  historiaCtrl: _historiaCtrl,
+                                  fechaLlegada: _fechaLlegada,
+                                  onElegirFecha: _elegirFecha,
+                                  alerta: _alerta,
+                                  onAlertaCambiada: (v) => setState(() => _alerta = v),
+                                  estados: _estados,
+                                  estadoId: _estadoId,
+                                  onEstadoCambiado: (v) => setState(() => _estadoId = v),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: BotonGuardar(
+                        cargando: _guardando,
+                        texto: widget.animalExistente != null
+                            ? AppStrings.guardarCambios
+                            : AppStrings.guardarResidente,
+                        onPressed: _guardar,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

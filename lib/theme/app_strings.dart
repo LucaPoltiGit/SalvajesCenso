@@ -71,9 +71,13 @@ class AppStrings {
   static const tema = 'Tema';
 
   // Alta de animal
-  static const completaEspecieSectorEstado =
-      'Completa especie, sector y estado';
   static const guardarResidente = 'Guardar residente';
+  static const basico = 'Basico';
+  static const detalle = 'Detalle';
+  static const agregarFotoPerfilOpcional = 'Agregar foto de perfil (opcional)';
+  static const cambiarFoto = 'Cambiar foto';
+  static String animalGuardadoFotoFallo(String error) =>
+      'El animal se guardo, pero la foto no se pudo subir: $error';
 
   // Formulario de ayuda
   static const labelTitulo = 'Titulo';
