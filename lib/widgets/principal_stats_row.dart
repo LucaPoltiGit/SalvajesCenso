@@ -17,53 +17,56 @@ class PrincipalStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: StatCard(
-            numero: '$totalAnimales',
-            label: 'Total de animales',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CensoFiltradoPage(titulo: 'Todos los animales', filtro: FiltrosCenso()),
-                ),
-              );
-            },
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: StatCard(
+              numero: '$totalAnimales',
+              label: 'Total de animales',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CensoFiltradoPage(titulo: 'Todos los animales', filtro: FiltrosCenso()),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: StatCard(
-            numero: '$totalEnfermos',
-            label: 'Enfermo',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CensoFiltradoPage(titulo: 'Enfermos', filtro: FiltrosCenso(estado: 'enfermo')),
-                ),
-              );
-            },
+          const SizedBox(width: 8),
+          Expanded(
+            child: StatCard(
+              numero: '$totalEnfermos',
+              label: 'Enfermo',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CensoFiltradoPage(titulo: 'Enfermos', filtro: FiltrosCenso(estado: 'enfermo')),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: StatCard(
-            numero: '$totalCuidadoEspecial',
-            label: 'Cuidado especial',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CensoFiltradoPage(titulo: 'Cuidado especial', filtro: FiltrosCenso(estado: 'cuidado_especial')),
-                ),
-              );
-            },
+          const SizedBox(width: 8),
+          Expanded(
+            child: StatCard(
+              numero: '$totalCuidadoEspecial',
+              label: 'Cuidado especial',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CensoFiltradoPage(titulo: 'Cuidado especial', filtro: FiltrosCenso(estado: 'cuidado_especial')),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

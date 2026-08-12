@@ -5,12 +5,19 @@ class DatoItem extends StatelessWidget {
   final IconData icono;
   final String label;
   final String valor;
+  final VoidCallback? onTap;
 
-  const DatoItem({super.key, required this.icono, required this.label, required this.valor});
+  const DatoItem({
+    super.key,
+    required this.icono,
+    required this.label,
+    required this.valor,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final contenido = Container(
       width: 150,
       margin: const EdgeInsets.only(right: 10, bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -37,6 +44,13 @@ class DatoItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    if (onTap == null) return contenido;
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: contenido,
     );
   }
 }

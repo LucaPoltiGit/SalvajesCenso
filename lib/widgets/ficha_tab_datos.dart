@@ -3,7 +3,9 @@ import '../models/animal.dart';
 import '../models/foto.dart';
 import '../models/nota_historial.dart';
 import '../services/auth_helper.dart';
+import '../utils/formatear_fecha.dart';
 import '../utils/text_format.dart';
+import 'aviso_dialog.dart';
 import 'dato_item.dart';
 import 'nota_historial_card.dart';
 import 'seleccionar_foto_button.dart';
@@ -36,8 +38,21 @@ class FichaTabDatos extends StatelessWidget {
     required this.onBorrarNota,
   });
 
+  /// animal.fechaLlegada ya viene limpio (yyyy-MM-dd) desde el modelo;
+  /// aca solo la reformateamos a dd/mm/aaaa para mostrarla.
+  String _formatearLlegada(String fechaLlegada) {
+    if (fechaLlegada.isEmpty) return '';
+    final parseada = DateTime.tryParse(fechaLlegada);
+    return parseada != null ? formatearFecha(parseada) : fechaLlegada;
+  }
+
+  void _mostrarDetalle(BuildContext context, String label, String valor) {
+    mostrarAviso(context, titulo: label, mensaje: valor.isEmpty ? '-' : valor);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final llegada = _formatearLlegada(animal.fechaLlegada);
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
@@ -45,15 +60,45 @@ class FichaTabDatos extends StatelessWidget {
         children: [
           Wrap(
             children: [
-              DatoItem(icono: Icons.pets, label: 'Especie', valor: animal.especieNombre),
-              DatoItem(icono: Icons.cake_outlined, label: 'Edad', valor: animal.edad),
+              DatoItem(
+                icono: Icons.pets,
+                label: 'Especie',
+                valor: animal.especieNombre,
+                onTap: () => _mostrarDetalle(context, 'Especie', animal.especieNombre),
+              ),
+              DatoItem(
+                icono: Icons.cake_outlined,
+                label: 'Edad',
+                valor: animal.edad,
+                onTap: () => _mostrarDetalle(context, 'Edad', animal.edad),
+              ),
               if (!AuthHelper.esVisita)
-                DatoItem(icono: Icons.favorite_outline, label: 'Estado', valor: formatearEtiqueta(animal.estadoNombre)),
-              DatoItem(icono: Icons.map_outlined, label: 'Sector', valor: animal.sectorNombre),
+                DatoItem(
+                  icono: Icons.favorite_outline,
+                  label: 'Estado',
+                  valor: formatearEtiqueta(animal.estadoNombre),
+                  onTap: () => _mostrarDetalle(context, 'Estado', formatearEtiqueta(animal.estadoNombre)),
+                ),
+              DatoItem(
+                icono: Icons.map_outlined,
+                label: 'Sector',
+                valor: animal.sectorNombre,
+                onTap: () => _mostrarDetalle(context, 'Sector', animal.sectorNombre),
+              ),
               if (!AuthHelper.esVisita)
-                DatoItem(icono: Icons.calendar_today_outlined, label: 'Llegada', valor: animal.fechaLlegada),
+                DatoItem(
+                  icono: Icons.calendar_today_outlined,
+                  label: 'Llegada',
+                  valor: llegada,
+                  onTap: () => _mostrarDetalle(context, 'Llegada', llegada),
+                ),
               if (!AuthHelper.esVisita)
-                DatoItem(icono: Icons.restaurant_outlined, label: 'Dieta', valor: animal.dieta),
+                DatoItem(
+                  icono: Icons.restaurant_outlined,
+                  label: 'Dieta',
+                  valor: animal.dieta,
+                  onTap: () => _mostrarDetalle(context, 'Dieta', animal.dieta),
+                ),
             ],
           ),
           const SizedBox(height: 20),

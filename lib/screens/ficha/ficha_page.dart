@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pocketbase/pocketbase.dart';
 import '../../models/animal.dart';
@@ -13,6 +13,7 @@ import '../../services/pocketbase_service.dart';
 import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_icons.dart';
+import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/ficha_header.dart';
 import '../../widgets/ficha_tab_datos.dart';
@@ -261,6 +262,21 @@ class _FichaPageState extends State<FichaPage> {
           appBar: AppBar(
             title: Text(a.nombre),
             actions: [
+              if (AuthHelper.puedeEditar)
+                IconButton(
+                  icon: const Icon(AppIcons.copiar),
+                  tooltip: 'Copiar info',
+                  onPressed: () async {
+                    await Clipboard.setData(
+                      ClipboardData(text: AppStrings.infoAnimalParaCopiar(a)),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text(AppStrings.infoCopiada)),
+                      );
+                    }
+                  },
+                ),
               if (AuthHelper.puedeEditar)
                 IconButton(
                   icon: const Icon(Icons.edit),

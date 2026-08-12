@@ -1,3 +1,5 @@
+import '../models/animal.dart';
+
 class AppStrings {
   AppStrings._();
 
@@ -125,4 +127,22 @@ class AppStrings {
   static const verTodo = 'Ver todo';
   static const sinActividadUltimaSemana = 'Sin actividad en la ultima semana';
   static const verSectores = 'Ver sectores';
+
+  // Ficha (copiar info del animal)
+  static const infoCopiada = 'Informacion copiada al portapapeles';
+  static String infoAnimalParaCopiar(Animal a) {
+    final buffer = StringBuffer();
+    buffer.writeln('Nombre: ${a.nombre}');
+    buffer.writeln('Especie: ${a.especieNombre}');
+    buffer.writeln('Sector: ${a.sectorNombre}');
+    if (a.edad.isNotEmpty) buffer.writeln('Edad: ${a.edad}');
+    buffer.writeln('Estado: ${a.estadoNombre}');
+    if (a.fechaLlegada.isNotEmpty) buffer.writeln('Llegada: ${a.fechaLlegada}');
+    if (a.dieta.isNotEmpty) buffer.writeln('Dieta: ${a.dieta}');
+    if (a.descripcion.isNotEmpty) buffer.writeln('Descripcion: ${a.descripcion}');
+    if (a.historiaLlegada.isNotEmpty) {
+      buffer.writeln('Historia de llegada: ${a.historiaLlegada}');
+    }
+    return buffer.toString().trim();
+  }
 }

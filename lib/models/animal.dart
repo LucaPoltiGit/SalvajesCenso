@@ -37,7 +37,10 @@ class Animal {
     }
 
     String fecha = record.data['fecha_llegada'] ?? '';
-    if (fecha.contains('T')) fecha = fecha.split('T')[0];
+    // PocketBase devuelve la fecha con hora, separada por 'T' al escribirla
+    // pero por un espacio al leerla de vuelta - nos quedamos con los
+    // primeros 10 caracteres (yyyy-MM-dd) sin importar el separador.
+    if (fecha.length >= 10) fecha = fecha.substring(0, 10);
 
     return Animal(
       id: record.id,
