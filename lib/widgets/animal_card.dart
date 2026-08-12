@@ -29,16 +29,16 @@ class AnimalCard extends StatelessWidget {
             children: [
               if (fotoUrl == null)
                 Positioned(
-                  top: 12,
+                  top: 14,
                   left: 0,
                   right: 0,
                   child: Center(
                     child: SizedBox(
-                      width: 48,
-                      height: 48,
+                      width: 56,
+                      height: 56,
                       child: imagenEspecie != null
                           ? Image.asset(imagenEspecie, fit: BoxFit.contain)
-                          : Icon(Icons.pets, color: AppColors.madera, size: 32),
+                          : Icon(Icons.pets, color: AppColors.madera, size: 40),
                     ),
                   ),
                 ),

@@ -4,7 +4,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
-import '../../widgets/ancho_formulario.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/campo_password.dart';
 import '../../widgets/campo_texto.dart';
@@ -83,23 +82,21 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppColors.fondo,
       body: SafeArea(
-        child: AnchoFormulario(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                             SizedBox(
                               height: 120,
                               child: Image.asset(
@@ -181,14 +178,14 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               );
             },
           ),
         ),
-      ),
-    );
+      );
   }
 }
+

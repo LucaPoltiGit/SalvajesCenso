@@ -11,7 +11,6 @@ import '../../utils/mensajes_error.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/alta_datos_basicos_section.dart';
 import '../../widgets/alta_detalles_section.dart';
-import '../../widgets/ancho_formulario.dart';
 import '../../widgets/boton_guardar.dart';
 
 class AltaPage extends StatefulWidget {
@@ -182,55 +181,61 @@ class _AltaPageState extends State<AltaPage> {
       ),
       body: _cargandoOpciones
           ? const Center(child: CircularProgressIndicator())
-          : AnchoFormulario(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    if (_error != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          _error is Exception
-                              ? mensajeErrorAmigable(_error!)
-                              : _error.toString(),
-                          style: const TextStyle(color: AppColors.rojo),
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              _error is Exception
+                                  ? mensajeErrorAmigable(_error!)
+                                  : _error.toString(),
+                              style: const TextStyle(color: AppColors.rojo),
+                            ),
+                          ),
+                        AltaDatosBasicosSection(
+                          nombreCtrl: _nombreCtrl,
+                          validadorNombre: validadorRequerido,
+                          especies: _especies,
+                          sectores: _sectores,
+                          estados: _estados,
+                          especieId: _especieId,
+                          sectorId: _sectorId,
+                          estadoId: _estadoId,
+                          onEspecieCambiada: (v) => setState(() => _especieId = v),
+                          onSectorCambiado: (v) => setState(() => _sectorId = v),
+                          onEstadoCambiado: (v) => setState(() => _estadoId = v),
                         ),
-                      ),
-                    AltaDatosBasicosSection(
-                      nombreCtrl: _nombreCtrl,
-                      validadorNombre: validadorRequerido,
-                      especies: _especies,
-                      sectores: _sectores,
-                      estados: _estados,
-                      especieId: _especieId,
-                      sectorId: _sectorId,
-                      estadoId: _estadoId,
-                      onEspecieCambiada: (v) => setState(() => _especieId = v),
-                      onSectorCambiado: (v) => setState(() => _sectorId = v),
-                      onEstadoCambiado: (v) => setState(() => _estadoId = v),
+                        const SizedBox(height: 14),
+                        AltaDetallesSection(
+                          edadCtrl: _edadCtrl,
+                          dietaCtrl: _dietaCtrl,
+                          descripcionCtrl: _descripcionCtrl,
+                          historiaCtrl: _historiaCtrl,
+                          fechaLlegada: _fechaLlegada,
+                          onElegirFecha: _elegirFecha,
+                          alerta: _alerta,
+                          onAlertaCambiada: (v) => setState(() => _alerta = v),
+                        ),
+                        const SizedBox(height: 24),
+                        BotonGuardar(
+                          cargando: _guardando,
+                          texto: widget.animalExistente != null
+                              ? AppStrings.guardarCambios
+                              : AppStrings.guardarResidente,
+                          onPressed: _guardar,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                    AltaDetallesSection(
-                      edadCtrl: _edadCtrl,
-                      dietaCtrl: _dietaCtrl,
-                      descripcionCtrl: _descripcionCtrl,
-                      historiaCtrl: _historiaCtrl,
-                      fechaLlegada: _fechaLlegada,
-                      onElegirFecha: _elegirFecha,
-                      alerta: _alerta,
-                      onAlertaCambiada: (v) => setState(() => _alerta = v),
-                    ),
-                    const SizedBox(height: 24),
-                    BotonGuardar(
-                      cargando: _guardando,
-                      texto: widget.animalExistente != null
-                          ? AppStrings.guardarCambios
-                          : AppStrings.guardarResidente,
-                      onPressed: _guardar,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
