@@ -36,5 +36,7 @@ class ThemeService extends ChangeNotifier {
     AppColors.verde = t.verde;
     AppColors.madera = t.madera;
     AppColors.fondo = t.fondo;
+    AppColors.textoPrincipal = t.textoPrincipal;
+    AppColors.brillo = t.brillo;
   }
 }

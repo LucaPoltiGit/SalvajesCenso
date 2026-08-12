@@ -8,4 +8,6 @@ class AppColors {
   static const rojo = Color(0xFFB23A2E);
   static const amarillo = Color(0xFFD9A441);
   static Color fondo = const Color(0xFFFBF9F4);
+  static Color textoPrincipal = const Color(0xFF212121);
+  static Brightness brillo = Brightness.light;
 }
