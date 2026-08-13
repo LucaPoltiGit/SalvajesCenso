@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/mapa_sectores_data.dart';
 import '../../repositories/animal_repository.dart';
+import '../../services/auth_helper.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/filtro_censo_sheet.dart';
 import '../../widgets/mapa_sectores.dart';
@@ -58,24 +59,26 @@ class _SectoresPageState extends State<SectoresPage> {
         padding: const EdgeInsets.all(16),
         children: [
           MapaSectores(onSectorTocado: _irAlCenso),
-          const SizedBox(height: 20),
-          const Text('Todos los sectores', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 8),
-          if (_cargando)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else
-            ..._nombresTappables.map((nombre) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(nombre),
-                  trailing: Text(
-                    '${_conteos[nombre] ?? 0} animales',
-                    style: TextStyle(color: AppColors.madera, fontSize: 12),
-                  ),
-                  onTap: () => _irAlCenso(nombre),
-                )),
+          if (!AuthHelper.esVisita) ...[
+            const SizedBox(height: 20),
+            const Text('Todos los sectores', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            const SizedBox(height: 8),
+            if (_cargando)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else
+              ..._nombresTappables.map((nombre) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(nombre),
+                    trailing: Text(
+                      '${_conteos[nombre] ?? 0} animales',
+                      style: TextStyle(color: AppColors.madera, fontSize: 12),
+                    ),
+                    onTap: () => _irAlCenso(nombre),
+                  )),
+          ],
         ],
       ),
     );
