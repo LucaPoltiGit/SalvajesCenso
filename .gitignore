@@ -47,6 +47,7 @@ android/build/
 
 # Variables de entorno
 .env
+.env.produccion
 
 # Visual Studio
 .vs/
