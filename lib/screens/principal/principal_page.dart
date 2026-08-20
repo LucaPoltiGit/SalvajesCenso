@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/animal.dart';
-import '../../models/actividad_item.dart';
 import '../../repositories/animal_repository.dart';
-import '../../repositories/actividad_repository.dart';
 import '../../services/pocketbase_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_icons.dart';
@@ -10,14 +8,12 @@ import '../../theme/app_strings.dart';
 import '../../utils/mensajes_error.dart';
 import '../../widgets/principal_stats_row.dart';
 import '../../widgets/acceso_rapido_row.dart';
-import '../../widgets/actividad_tile.dart';
 import '../../widgets/quick_access_card.dart';
 import '../../widgets/seccion_header.dart';
 import '../acceso_rapido/acceso_rapido_manager_page.dart';
 import '../ficha/ficha_page.dart';
 import '../shell/app_shell.dart';
 import '../galeria/galeria_page.dart';
-import '../actividad/actividad_page.dart';
 
 class PrincipalPage extends StatefulWidget {
   const PrincipalPage({super.key});
@@ -37,7 +33,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
   int _totalCuidadoEspecial = 0;
   int _totalEnfermos = 0;
   List<Animal> _accesoRapido = [];
-  List<ActividadItem> _actividad = [];
 
   @override
   void initState() {
@@ -62,17 +57,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
       final enfermos = await _animalRepo.contar(estadoIgual: 'enfermo');
       final accesoRapido = await _animalRepo.listarAccesoRapido();
 
-      final actividad = await ActividadRepository.obtenerReciente(
-        diasAtras: 7,
-        maxPorTipo: 5,
-      );
-
       setState(() {
         _totalAnimales = totalActivos;
         _totalCuidadoEspecial = cuidadoEspecial;
         _totalEnfermos = enfermos;
         _accesoRapido = accesoRapido;
-        _actividad = actividad;
         _cargando = false;
       });
     } catch (e) {
@@ -127,30 +116,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
               );
             },
           ),
-          const SizedBox(height: 24),
-
-          SeccionHeader(
-            titulo: AppStrings.actividadReciente,
-            accion: TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ActividadPage()),
-                );
-              },
-              child: const Text(AppStrings.verTodo),
-            ),
-          ),
-          if (_actividad.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Text(
-                AppStrings.sinActividadUltimaSemana,
-                style: TextStyle(fontSize: 13),
-              ),
-            )
-          else
-            ..._actividad.map((item) => ActividadTile(item: item)),
           const SizedBox(height: 24),
 
           Row(

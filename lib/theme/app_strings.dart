@@ -42,6 +42,7 @@ class AppStrings {
 
   // Labels de menu hamburguesa (si difieren del titulo de la pantalla)
   static const menuGaleria = 'Galeria de fotos';
+  static const menuActividad = 'Actividad reciente';
   static const menuAyuda = 'Ayuda';
   static const menuQuieroAyudar = 'Quiero ayudar';
   static const menuContactosRecibidos = 'Contactos recibidos';

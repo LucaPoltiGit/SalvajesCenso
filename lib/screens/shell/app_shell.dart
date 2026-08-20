@@ -3,6 +3,7 @@ import '../principal/principal_page.dart';
 import '../censo/censo_page.dart';
 import '../notas/notas_page.dart';
 import '../sectores/sectores_page.dart';
+import '../actividad/actividad_page.dart';
 import '../ayuda/ayuda_page.dart';
 import '../ayuda/ayuda_standalone_page.dart';
 import '../contacto/contacto_form_page.dart';
@@ -158,6 +159,15 @@ class _AppShellState extends State<AppShell> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GaleriaPage()));
               },
             ),
+            if (!AuthHelper.esVisita)
+              ListTile(
+                leading: const Icon(AppIcons.menuActividad),
+                title: const Text(AppStrings.menuActividad),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ActividadPage()));
+                },
+              ),
             if (!AuthHelper.esVisita)
               ListTile(
                 leading: const Icon(AppIcons.menuAyuda),

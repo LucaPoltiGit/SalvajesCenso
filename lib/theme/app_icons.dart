@@ -17,6 +17,7 @@ class AppIcons {
 
   // Menu hamburguesa
   static const IconData menuGaleria = Icons.photo_library_outlined;
+  static const IconData menuActividad = Icons.update;
   static const IconData menuAyuda = Icons.favorite_outline;
   static const IconData menuQuieroAyudar = Icons.volunteer_activism_outlined;
   static const IconData menuContactos = Icons.contact_mail_outlined;
